@@ -1707,7 +1707,40 @@
         </fields>
     </structure>
     
+    <structure name="REF_" >
+        <description>Reflection material</description>
+        <versions>
+            <version number="1" size="96" />
+            <version number="2" size="160" />
+        </versions>
+        <fields>
+            <field name="name" type="Reference" refTo="CHAR" />
+            <field name="unknown8f5ea924" size="4" default-value="0x00000000" />
+
+            <field name="reflectionStrength" type="FloatAnimationReference" /> <!-- default-value="1.0" -->
+            <field name="displacementStrength" type="FloatAnimationReference" /> <!-- default-value="1.0" -->
+            <field name="reflectionOffset" type="FloatAnimationReference" since-version="2" /> <!-- default-value="0.0" -->
+            <field name="blurAngle" type="FloatAnimationReference" since-version="2" /> <!-- default-value="0.0" -->
+            <field name="blurDistance" type="FloatAnimationReference" since-version="2" /> <!-- default-value="2.0" -->
+
+            <field name="normalLayer" type="Reference" refTo="LAYR" />
+            <field name="strengthLayer" type="Reference" refTo="LAYR" />
+            <field name="blurLayer" type="Reference" refTo="LAYR" since-version="2" />
+            <field name="flags" type="uint32">
+                <bits>
+                    <bit mask="0x1" name="enableNormalLayer" />
+                    <bit mask="0x2" name="enableStrengthLayer" />
+                    <bit mask="0x4" name="renderInTransparentPass" />
+                    <bit mask="0x8" name="enableBlur" />
+                    <bit mask="0x16" name="enableBlurMask" />
+                </bits>
+            </field>
     
+            <field name="unknownb4d25be3" size="12" till-version="1" expected-value="0xaaaaaaaaaaaaaaaaaaaaaaaa" />
+            <field name="unknownd5dda19" size="4" since-version="2" expected-value="0xaaaaaaaa" />
+        </fields>
+    </structure>
+
     <structure name="PAR_">
         <description>Particle System</description>
         <versions>
@@ -2658,7 +2691,7 @@
             <field name="creepMaterials" type="Reference" refTo="CREP" />
             <field name="volumeNoiseMaterials" type="Reference" refTo="VON_" since-version="25" />
             <field name="splatTerrainBakeMaterials" type="Reference" refTo="STBM" since-version="26" />
-            <field name="unknownMaybeRef1" type="Reference" since-version="28" />
+            <field name="reflectionMaterial" type="Reference" refTo="REF_" since-version="28" />
             <field name="lensFlareMaterial" type="Reference" refTo="LFLR" since-version="29" />
             <field name="particles" type="Reference" refTo="PAR_" />
             <field name="particleCopies" type="Reference" refTo="PARC" />
