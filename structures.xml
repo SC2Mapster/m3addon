@@ -1322,6 +1322,33 @@
         </fields>
     </structure>
     
+    <structure name="MT32">
+        <description>MT32</description>
+        <versions>
+            <version number="0" size="28" />
+        </versions>
+        <fields>
+            <field name="unknown4c11db70" size="4"/>
+            <field name="unknown2e003dc5" size="4"/>
+            <field name="unknownfa325055" size="4"/>
+            <field name="unknown902b669d" size="4"/>
+            <field name="unknownb6238b25" size="4"/>
+            <field name="unknown44190b0d" size="4"/>
+            <field name="unknownfbb8bb46" size="4"/>
+        </fields>
+    </structure>
+
+    <structure name="DMMN">
+        <description>DMMN</description>
+        <versions>
+            <version number="1" size="8" />
+        </versions>
+        <fields>
+            <field name="unknown31cd86d3" size="4"/>
+            <field name="unknownff79a6f1" size="4"/>
+        </fields>
+    </structure>
+    
     <structure name="LAYR" version="22" size="356" >
         <description>Describes a layer of a material</description>
         <versions>
@@ -2190,13 +2217,19 @@
             <field name="unknown8d41b3f8" size="4" since-version="3" />
             <!-- unknown56fece2 is not a float and has strange content -->
             <field name="unknown56fece2" size="4" since-version="3" />
-            <field name="unknown6a9914ac" size="84" expected-value="0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" since-version="3" />
+            <field name="unknown6f23bce8" type="Reference" refTo="DMMN" since-version="3" />
+            <field name="unknown9836ec85" type="Reference" refTo="VEC4" since-version="3" />
+            <field name="unknownac0ac492" size="12" default-value="0x000000000000000000000000" since-version="3" />
+            <field name="unknown90e72e22" type="Reference" refTo="MT32" since-version="3" />
+            <field name="unknownd93ef965" size="12" default-value="0x000000000000000000000000" since-version="3" />
+            <field name="unknown09823b6e" size="12" default-value="0x000000000000000000000000" since-version="3" />
+            <field name="unknown2f8ad6d6" size="12" default-value="0x000000000000000000000000" since-version="3" />
             <field name="unknown9d115fa7" size="4" since-version="3" />
             <!-- unknown9aea956e is not a float and has strange content -->
             <field name="unknown9aea956e" size="4" since-version="3" />
             <field name="unknown17c6f44e" size="4" expected-value="0x00000000" since-version="3" />
             <field name="unknowne444b392" size="4" since-version="3" />
-            <field name="unknown32885641" size="4" expected-value="0x00000000" since-version="3" />
+            <field name="unknown32885641" size="4" default-value="0x00000000" since-version="3" />
             <!-- unknown721b9a99 is not a float and has strange content-->
             <field name="unknown721b9a99" size="4" since-version="3" />
             <!-- unknowna495c84b is not a float and has strange content-->
