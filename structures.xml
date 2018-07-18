@@ -1707,7 +1707,7 @@
             <field name="unknownLayer1" type="Reference" refTo="LAYR" />
             <field name="unknownLayer2" type="Reference" refTo="LAYR" />
             <field name="unknown335fd923" type="Reference" refTo="LFSB" />
-            <field name="sourceFilePath" type="Reference" refTo="CHAR" since-version="3" />
+            <field name="unknown42724139" size="12" expacted-value="0x000000000000000000000000" since-version="3" />
             <field name="unknown191c7146" type="Reference" refTo="CHAR" since-version="3" />
             <field name="unknowne5cb3d48" type="uint32" default-value="1" since-version="3" />
             <field name="unknown62cd83e0" size="4" since-version="3" />
