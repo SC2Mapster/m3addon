@@ -2106,6 +2106,7 @@
         <description>Cloth Behavior</description>
         <versions>
             <version number="2" size="128" />
+            <version number="4" size="192" />
         </versions>
         <fields>
             <field name="unknown1" type="uint32" />
@@ -2120,6 +2121,11 @@
             <field name="unknown10"  type="VEC3V0" />
             <field name="unknown11"  type="VEC3V0" />
             <field name="unknown12"  type="VEC3V0" />
+            
+            <field name="unknown71538f14" size="16" default-value="0x00000000000000000000000000000000" since-version="4" />
+            <field name="unknown71538f24" size="16" default-value="0x00000000000000000000000000000000" since-version="4" />
+            <field name="unknown71538f34" size="16" default-value="0x00000000000000000000000000000000" since-version="4" />
+            <field name="unknown71538f44" size="16" default-value="0x00000000000000000000000000000000" since-version="4" />
         </fields>
     </structure>
     
