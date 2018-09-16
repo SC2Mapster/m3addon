@@ -1,8 +1,15 @@
-# Readme
+# m3addon - Blender Import-Export for `.m3` file format.
 
-## Notice
+Project is still being maintained and bug reports will be taken care of. At least to the extent of my knowledge on the subject. Aswell as amount of freetime available.
 
-This addon no longer gets activitly developed. At least not in the original repository https://github.com/flo/m3addon/
+Bug tracker: https://github.com/Talv/m3addon/issues
+
+Support can be provided also through SC2Mapster Discord Server: https://discord.gg/fpY4exB
+
+---
+
+> Original author: Florian Köberle \
+> https://github.com/flo/m3addon
 
 ## Features
 
