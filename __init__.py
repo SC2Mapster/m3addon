@@ -21,12 +21,14 @@
 
 bl_info = {
     "name": "Importer and exporter for Blizzard's Starcraft 2 model files (*.m3)",
-    'author': 'Florian Köberle, netherh, chaos2night',
+    'author': 'Florian Köberle, netherh, chaos2night, Talv',
+    "version": (0, 2, 0),
+    "blender": (2, 70, 0),
     "location": "Properties Editor -> Scene -> M3 Panels",
     "description": "Allows to export (and import) simple Starcraft 2 models (.m3) with particle systems. Use on own risk!",
     "category": "Import-Export",
-    "wiki_url": "http://wiki.blender.org/index.php/Dev:2.5/Py/Scripts/Import-Export/m3addon",
-    "tracker_url": "https://github.com/flo/m3addon/issues?state=open"
+    "wiki_url": "https://github.com/Talv/m3addon/blob/master/README.md",
+    "tracker_url": "https://github.com/Talv/m3addon/issues"
 }
 
 if "bpy" in locals():
