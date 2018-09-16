@@ -2018,7 +2018,7 @@
         <description>Projections</description>
         <versions>
             <version number="4" size="388" />
-            <version number="5" size="382" />
+            <version number="5" size="388" />
         </versions>
         <fields>
             <field name="projectionType" type="uint32" />
@@ -2056,7 +2056,7 @@
             <field name="lodReduce" type="uint16" since-version="5" />
             <field name="unknownf0dfd391" type="uint16" default-value="0" since-version="5" />
             <field name="lodCut" type="uint16" since-version="5" />
-            <field name="unknowndf285471" type="uint16" default-value="0" since-version="5" />
+            <field name="unknowndf285472" size="8" default-value="0x00000000" since-version="5" />
             <field name="unknowna0283820" size="18" till-version="4" />
         </fields>
     </structure>
