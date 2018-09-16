@@ -49,8 +49,8 @@ Modifying this XML file will have impact of the above scripts and the blender ad
 
 ## Installation
 
-1. Clone the git repository of this addon
-2. Move the created directory into addons folder of your blender settings:
+1. Download most recent version: https://github.com/Talv/m3addon/archive/master.zip and extract the archive to directory named `m3addon`.
+2. Move the directory into addons folder of your blender settings:
    * Example for Linux and Blender 2.69:
      * /home/$user/.blender/2.69/scripts/addons/m3addon
    * Example for Windows XP and Blender 2.69:
@@ -58,8 +58,6 @@ Modifying this XML file will have impact of the above scripts and the blender ad
    * Example for Windows 7 and Blender 2.69:
      * C:\Users\%username%\AppData\Roaming\Blender Foundation\Blender\2.69\scripts\addons
 3. Activate the addon in blender (There is another M3 addon, so watch out!)
-
-See also: http://wiki.blender.org/index.php/Doc:2.6/Manual/Extensions/Python/Add-Ons
 
 ## Usage
 
