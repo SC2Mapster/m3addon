@@ -1418,7 +1418,7 @@
             <field name="fresnelMin" type="float" default-value="0.0" />
             <field name="fresnelMaxOffset" type="float" default-value="1.0" /><!-- fresnelMin + fresnelMaxOffset = fresnelMax-->
             <field name="unknown15" type="float" default-value="1.0" />
-            <field name="unknown763da0ad" size="8" expected-value="0x0000000000000000" since-version="25" />
+            <field name="unknown763da0ad" size="8" default-value="0x0000000000000000" since-version="25" />
             <field name="fresnelInvertedMaskX" type="float" default-value="1.0" since-version="25" /> <!-- default=(1.0, 1.0, 1.0)-->
             <field name="fresnelInvertedMaskY" type="float" default-value="1.0" since-version="25" />
             <field name="fresnelInvertedMaskZ" type="float" default-value="1.0" since-version="25" />
