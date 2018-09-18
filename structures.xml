@@ -834,6 +834,57 @@
             <field name="unused" type="fixed8" default-value="1.0" />
         </fields>
     </structure>
+
+    <structure name="VertexFormat0x41820261">
+        <description></description>
+        <versions>
+            <version number="0" size="40" />
+        </versions>
+        <fields>
+            <field name="position" type="VEC3V0" />
+            <field name="boneWeight0" type="uint8" default-value="0" />
+            <field name="boneWeight1" type="uint8" default-value="0" />
+            <field name="boneWeight2" type="uint8" default-value="0" />
+            <field name="boneWeight3" type="uint8" default-value="0" />
+            <field name="boneLookupIndex0" type="uint8" default-value="0" />
+            <field name="boneLookupIndex1" type="uint8" default-value="0" />
+            <field name="boneLookupIndex2" type="uint8" default-value="0" />
+            <field name="boneLookupIndex3" type="uint8" default-value="0" />
+            <field name="normal" type="Vector3As3Fixed8V0" />
+            <field name="sign" type="fixed8" />
+            <field name="color" type="COLV0" />
+            <field name="uv0" type="Vector2As2int16V0" />
+            <field name="uv1" type="Vector2As2int16V0" />
+            <field name="tangent" type="Vector3As3Fixed8V0" />
+            <field name="unused" type="fixed8" default-value="1.0" />
+        </fields>
+    </structure>
+
+    <structure name="VertexFormat0x41860261" >
+        <description></description>
+        <versions>
+            <version number="0" size="44" />
+        </versions>
+        <fields>
+            <field name="position" type="VEC3V0" />
+            <field name="boneWeight0" type="uint8" default-value="0" />
+            <field name="boneWeight1" type="uint8" default-value="0" />
+            <field name="boneWeight2" type="uint8" default-value="0" />
+            <field name="boneWeight3" type="uint8" default-value="0" />
+            <field name="boneLookupIndex0" type="uint8" default-value="0" />
+            <field name="boneLookupIndex1" type="uint8" default-value="0" />
+            <field name="boneLookupIndex2" type="uint8" default-value="0" />
+            <field name="boneLookupIndex3" type="uint8" default-value="0" />
+            <field name="normal" type="Vector3As3Fixed8V0" />
+            <field name="sign" type="fixed8" />
+            <field name="color" type="COLV0" />
+            <field name="uv0" type="Vector2As2int16V0" />
+            <field name="uv1" type="Vector2As2int16V0" />
+            <field name="uv2" type="Vector2As2int16V0" />
+            <field name="tangent" type="Vector3As3Fixed8V0" />
+            <field name="unused" type="fixed8" default-value="1.0" />
+        </fields>
+    </structure>
     
     <structure name="EVNT">
         <description>An animation sequence event</description>

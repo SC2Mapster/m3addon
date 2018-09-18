@@ -1061,7 +1061,8 @@ particleTypeList = [("0", "Square Billbords", "Quads always rotated towards came
                     ("6", "Rectangular Billbords", "Rectangles which can have a length != witdh which are rotated towards the camera"),
                     ("7", "Quads with speed as normal", "Particles are quads which have their normals aligned to the speed vector of the particle"),
                     ("8", "Unknown (Id 8)", "Code 8 with unknown meaning"),
-                    ("9", "Ray from Spawn Location", "A billboard that reaches from the spawn location to the current position")
+                    ("9", "Ray from Spawn Location", "A billboard that reaches from the spawn location to the current position"),
+                    ("10", "Unknown (Id 10)", "Code 10 with unknown meaning")
                     ]
 
 ribbonTypeList = [("0", "Planar Billboarded", "Planar Billboarded"), 

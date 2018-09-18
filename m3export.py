@@ -2046,7 +2046,7 @@ class Exporter:
         return m3Material
 
     def createLensFlareMaterial(self, materialIndex, material):
-        raise Exception("Export of lens flare materials has not been implemented yet")
+        raise Exception("Export of lens flare materials has not been implemented yet. Material '%s' cannot be exported." % material.name)
     
     def createNullVector2AnimationReference(self, x, y, interpolationType=1):
         animRef = self.createInstanceOf("Vector2AnimationReference")
