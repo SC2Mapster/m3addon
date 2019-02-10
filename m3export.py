@@ -299,7 +299,7 @@ class Exporter:
                 bone.scale.header = self.createNullAnimHeader(animId=scaleAnimId, interpolationType=1)
                 bone.ar1 = self.createNullUInt32AnimationReference(1)
                 model.bones.append(bone)
-                absRestPosMatrix = objectToWorldMatrix * blenderBone.matrix_local  
+                absRestPosMatrix = objectToWorldMatrix @ blenderBone.matrix_local  
                 self.restPositionsOfExportedBones.append(absRestPosMatrix.translation.copy())
                 if not blenderBone.use_inherit_rotation:
                     raise Exception("The setting inhertRotation=false of bone %s is not exportable!" % boneName)
@@ -310,7 +310,7 @@ class Exporter:
                 if blenderBone.parent != None:
                     bone.parent = self.boneNameToBoneIndexMap[blenderBone.parent.name]
                     absInvRestPoseMatrixParent = boneNameToAbsInvRestPoseMatrix[blenderBone.parent.name]
-                    relRestPosMatrix = absInvRestPoseMatrixParent * absRestPosMatrix
+                    relRestPosMatrix = absInvRestPoseMatrixParent @ absRestPosMatrix
                 else:
                     bone.parent = -1
                     relRestPosMatrix = absRestPosMatrix
@@ -324,12 +324,12 @@ class Exporter:
 
                 if blenderBone.parent != None:
                     parentBindMatrix = shared.scaleVectorToMatrix(blenderBone.parent.m3_bind_scale)
-                    leftCorrectionMatrix = parentBindMatrix * shared.rotFixMatrix * relRestPosMatrix
+                    leftCorrectionMatrix = parentBindMatrix @ shared.rotFixMatrix @ relRestPosMatrix
                 else:
                     leftCorrectionMatrix = relRestPosMatrix
                     
-                rightCorrectionMatrix = shared.rotFixMatrixInverted * bindScaleMatrixInverted
-                m3PoseMatrix = leftCorrectionMatrix * poseMatrix * rightCorrectionMatrix
+                rightCorrectionMatrix = shared.rotFixMatrixInverted @ bindScaleMatrixInverted
+                m3PoseMatrix = leftCorrectionMatrix @ poseMatrix @ rightCorrectionMatrix
                
                 
                 self.boneNameToLeftCorrectionMatrix[boneName] = leftCorrectionMatrix
@@ -347,11 +347,11 @@ class Exporter:
                 self.boneNameToM3SpaceDefaultScaleMap[boneName] = m3SpaceScale
 
                 # calculate the bind matrix / absoluteInverseRestPoseMatrixFixed
-                absRestPosMatrixFixed = absRestPosMatrix * shared.rotFixMatrixInverted
+                absRestPosMatrixFixed = absRestPosMatrix @ shared.rotFixMatrixInverted
                 bindScale = blenderBone.m3_bind_scale
                 bindScaleMatrix = shared.scaleVectorToMatrix(bindScale)
                 absoluteInverseRestPoseMatrixFixed = absRestPosMatrixFixed.inverted() 
-                absoluteInverseRestPoseMatrixFixed = bindScaleMatrix * absoluteInverseRestPoseMatrixFixed
+                absoluteInverseRestPoseMatrixFixed = bindScaleMatrix @ absoluteInverseRestPoseMatrixFixed
                 absoluteInverseBoneRestPos = self.createRestPositionFromBlender4x4Matrix(absoluteInverseRestPoseMatrixFixed)
                 model.absoluteInverseBoneRestPositions.append(absoluteInverseBoneRestPos)
                 
@@ -365,10 +365,10 @@ class Exporter:
 
                 if (bone.parent != -1):
                     # The parent matrix has it's absoluteInverseRestPoseMatrixFixed multiplied to it. It needs to be undone:
-                    parentMatrix = self.boneIndexToDefaultAbsoluteMatrixMap[bone.parent] * self.boneIndexToAbsoluteInverseRestPoseMatrixFixedMap[bone.parent].inverted()
-                    absoluteBoneMatrix = parentMatrix * absoluteBoneMatrix
+                    parentMatrix = self.boneIndexToDefaultAbsoluteMatrixMap[bone.parent] @ self.boneIndexToAbsoluteInverseRestPoseMatrixFixedMap[bone.parent].inverted()
+                    absoluteBoneMatrix = parentMatrix @ absoluteBoneMatrix
 
-                absoluteBoneMatrix = absoluteBoneMatrix * absoluteInverseRestPoseMatrixFixed
+                absoluteBoneMatrix = absoluteBoneMatrix @ absoluteInverseRestPoseMatrixFixed
 
                 self.boneIndexToDefaultAbsoluteMatrixMap[boneIndex] = absoluteBoneMatrix
         startTime = time.time()
@@ -421,7 +421,7 @@ class Exporter:
                         
                         poseMatrix = armatureObject.convert_space(poseBone, poseBone.matrix, 'POSE', 'LOCAL')
                         
-                        m3PoseMatrix = leftCorrectionMatrix * poseMatrix * rightCorrectionMatrix
+                        m3PoseMatrix = leftCorrectionMatrix @ poseMatrix @ rightCorrectionMatrix
 
                         boneIndexToAbsoluteMatrixMap = frameToBoneIndexToAbsoluteMatrixMap.get(frame)
                         if boneIndexToAbsoluteMatrixMap == None:
@@ -432,12 +432,12 @@ class Exporter:
                         absoluteBoneMatrix = m3PoseMatrix
                         if (bone.parent != -1):
                             # The parent matrix has it's absoluteInverseRestPoseMatrixFixed multiplied to it. It needs to be undone:
-                            parentMatrix = boneIndexToAbsoluteMatrixMap[bone.parent] * self.boneIndexToAbsoluteInverseRestPoseMatrixFixedMap[bone.parent].inverted()
-                            absoluteBoneMatrix = parentMatrix * absoluteBoneMatrix
+                            parentMatrix = boneIndexToAbsoluteMatrixMap[bone.parent] @ self.boneIndexToAbsoluteInverseRestPoseMatrixFixedMap[bone.parent].inverted()
+                            absoluteBoneMatrix = parentMatrix @ absoluteBoneMatrix
 
                         absoluteInverseRestPoseMatrixFixed = self.boneIndexToAbsoluteInverseRestPoseMatrixFixedMap[boneIndex]
 
-                        absoluteBoneMatrix = absoluteBoneMatrix * absoluteInverseRestPoseMatrixFixed
+                        absoluteBoneMatrix = absoluteBoneMatrix @ absoluteInverseRestPoseMatrixFixed
                         
                         boneIndexToAbsoluteMatrixMap[boneIndex] = absoluteBoneMatrix
 
@@ -580,11 +580,11 @@ class Exporter:
         uvCoordinatesPerVertex = 1 # Never saw a m3 model with at least 1 UV layer
         for meshObject in shared.findMeshObjects(self.scene):
             mesh = meshObject.data
-            mesh.update(calc_tessface=True)
-            if len(mesh.tessfaces) > 0:
+            mesh.update(calc_loop_triangles=True)
+            if len(mesh.tessfaces) > 0: # TODO
                 if not mesh.m3_physics_mesh:
                     nonEmptyMeshObjects.append(meshObject)
-            uvCoordinatesPerVertex = max(uvCoordinatesPerVertex, len(mesh.tessface_uv_textures))
+            uvCoordinatesPerVertex = max(uvCoordinatesPerVertex, len(mesh.tessface_uv_textures)) # TODO
 
         
         model.setNamedBit("flags", "hasMesh", len(nonEmptyMeshObjects) > 0)
@@ -617,7 +617,7 @@ class Exporter:
         for meshObjectToCheck in  nonEmptyMeshObjects:
             meshToCheck = meshObjectToCheck.data
             
-            for vertexColorLayer in meshToCheck.tessface_vertex_colors:
+            for vertexColorLayer in meshToCheck.tessface_vertex_colors: # TODO
                 vertexColorLayerName = vertexColorLayer.name
                 if vertexColorLayerName == rgbColorChannelName:
                     exportVertexRGBA = True
@@ -639,15 +639,15 @@ class Exporter:
             if bpy.ops.object.mode_set.poll():
                 bpy.ops.object.mode_set(mode='OBJECT')
             bpy.ops.object.select_all(action = 'DESELECT')
-            self.scene.objects.active = meshObject
-            meshObject.select = True
+            self.scene.view_layers[0].objects.active = meshObject
+            meshObject.select_set(True)
             bpy.ops.object.duplicate()
-            meshObjectCopy = self.scene.objects.active 
+            meshObjectCopy = self.scene.view_layers[0].objects.active 
             bpy.ops.object.modifier_apply (modifier='EdgeSplit')
-            self.scene.objects.unlink(meshObjectCopy)
+            self.scene.collection.objects.unlink(meshObjectCopy)
             mesh = meshObjectCopy.data
             meshObject = meshObjectCopy
-            mesh.update(calc_tessface=True)
+            mesh.update(calc_loop_triangles=True)
             
             materialReferenceIndex = self.materialNameToNewReferenceIndexMap.get(mesh.m3_material_name)
             if materialReferenceIndex == None:
@@ -670,12 +670,12 @@ class Exporter:
                 raise Exception("The mesh %s has invalid modifiers: Mesh must have no modifiers except single one for the armature and one for edge split." % meshObject.name)
             objectToWorldMatrix = meshObject.matrix_world
 
-            vertexColor = mesh.tessface_vertex_colors.get(rgbColorChannelName)
+            vertexColor = mesh.tessface_vertex_colors.get(rgbColorChannelName) # TODO
             if vertexColor != None:
                 vertexColorData = vertexColor.data
             else:
                 vertexColorData = None
-            vertexAlpha = mesh.tessface_vertex_colors.get(alphaColorChannelName)
+            vertexAlpha = mesh.tessface_vertex_colors.get(alphaColorChannelName) # TODO
             if vertexAlpha != None:
                 vertexAlphaData = vertexAlpha.data
             else:
@@ -689,7 +689,7 @@ class Exporter:
             nextVertexIndex = 0
             numberOfBoneWeightPairsPerVertex = 0
             staticMeshBoneLookupIndex = None
-            for blenderFace in mesh.tessfaces:
+            for blenderFace in mesh.tessfaces: # TODO
                 faceRelativeVertexIndexAndBlenderVertexIndexTuples = []
                 if len(blenderFace.vertices) == 3 or len(blenderFace.vertices) == 4:
                     faceRelativeVertexIndexAndBlenderVertexIndexTuples.append((0, blenderFace.vertices[0]))
@@ -711,7 +711,7 @@ class Exporter:
                     blenderVertex =  mesh.vertices[blenderVertexIndex]
                     m3Vertex = m3VertexStructureDefinition.createInstance()
                     
-                    absolutePosition = objectToWorldMatrix * blenderVertex.co
+                    absolutePosition = objectToWorldMatrix @ blenderVertex.co
                     m3Vertex.position = self.blenderToM3Vector(absolutePosition)
                     
                     weightLookupIndexPairs = []
@@ -784,7 +784,7 @@ class Exporter:
                     for uvLayerIndex in range(0,uvCoordinatesPerVertex):
                         m3AttributeName = "uv" + str(uvLayerIndex)
                         blenderAttributeName = "uv%d" % (faceRelativeVertexIndex + 1)
-                        if len(mesh.tessface_uv_textures) > uvLayerIndex:
+                        if len(mesh.tessface_uv_textures) > uvLayerIndex: # TODO
                             uvData = mesh.tessface_uv_textures[uvLayerIndex].data[blenderFace.index]
                             blenderUVCoord = getattr(uvData, blenderAttributeName)
                             m3UVCoord = self.convertBlenderToM3UVCoordinates(blenderUVCoord)
@@ -979,7 +979,7 @@ class Exporter:
                 maxYBone = -float("inf")
                 maxZBone = -float("inf")
                 for untransformedPosition in boudingPoints:
-                    positionTransformedByBone = boneMatrix * untransformedPosition
+                    positionTransformedByBone = boneMatrix @ untransformedPosition
                     minXBone = min(minXBone, positionTransformedByBone.x)
                     minYBone = min(minYBone, positionTransformedByBone.y)
                     minZBone = min(minZBone, positionTransformedByBone.z)
@@ -1010,27 +1010,27 @@ class Exporter:
                 boneExists = bone != None
                 if boneExists:
                     armature = armatureObject.data
-                    armatureObject.select = True
-                    scene.objects.active = armatureObject
+                    armatureObject.select_set(True)
+                    scene.view_layers[0].objects.active = armatureObject
                 else:
                     armatureObject = shared.findArmatureObjectForNewBone(scene)
                     if armatureObject == None:
                         armature = bpy.data.armatures.new(name="Armature")
                         armatureObject = bpy.data.objects.new("Armature", armature)
-                        scene.objects.link(armatureObject)
+                        scene.collection.objects.link(armatureObject)
                     else:
                         armature = armatureObject.data
-                    armatureObject.select = True
-                    scene.objects.active = armatureObject
+                    armatureObject.select_set(True)
+                    scene.view_layers[0].objects.active = armatureObject
                     bpy.ops.object.mode_set(mode='EDIT')
-                    editBone = armature.edit_bones.new(boneName)
+                    editBone = armature.edit_bones.new(name = boneName)
                     editBone.head = location
                     editBone.tail = (editBone.head[0] + 0.05, editBone.head[1], editBone.head[2])
 
                 if bpy.ops.object.mode_set.poll():
                     bpy.ops.object.mode_set(mode='POSE')
-                scene.objects.active = armatureObject
-                armatureObject.select = True
+                scene.view_layers[0].objects.active = armatureObject
+                armatureObject.select_set(True)
                 for currentBone in armature.bones:
                     currentBone.select = currentBone.name == boneName
                 poseBone = armatureObject.pose.bones[boneName]
@@ -1046,7 +1046,7 @@ class Exporter:
                 maxZBone = -float("inf")
                 transformedPositions = []
                 for untransformedPosition in boudingPoints:
-                    positionTransformedByBone = boneMatrix * untransformedPosition
+                    positionTransformedByBone = boneMatrix @ untransformedPosition
                     transformedPositions.append(positionTransformedByBone)   
                 if len(boudingPoints) >= 8:             
                     mesh = bpy.data.meshes.new("debug_" + model.bones[boneIndex].name)
@@ -1058,7 +1058,7 @@ class Exporter:
                     meshObject.location = (0,0,0)
                     meshObject.show_name = True
                     
-                    self.scene.objects.link(meshObject)
+                    self.scene.collection.objects.link(meshObject)
             
                 
             particle_system = self.scene.m3_particle_systems.add()
