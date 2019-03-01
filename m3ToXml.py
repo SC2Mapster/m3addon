@@ -28,6 +28,7 @@ import os
 import io
 import time
 import traceback
+import re
 
 def byteDataToHex(byteData):
     return '0x' + ''.join(["%02x" % x for x in byteData])
@@ -64,7 +65,12 @@ def printObject(out, level, name, value):
         value = byteDataToHex(value)
         printXmlElement(out, level, name, value)
         return
-    
+
+    elif valueType == str:
+        value = re.sub('[^\x20-\x7F]', '.', str(value))
+        printXmlElement(out, level, name, value)
+        return
+
     elif valueType == list:
         if len(value) == 0:
             out.write(indent(level) + openTag(name) + closeTag(name))
