@@ -2797,10 +2797,9 @@
             <field name="physicalJoint" type="Reference" refTo="PHYJ" />
             <field name="clothBehavior" type="Reference" refTo="PHCL" since-version="28" />
             <field name="unknownMaybeRef4" type="Reference" />
-            <!-- it grew in size between version from 2 to 3 which indicates a reference-->
-            <field name="unknownMaybeRef5" type="Reference" />
-            <field name="ikjtData" type="Reference" refTo="IKJT"/>
             <field name="unknownbd5657bd" size="12" since-version="25" />
+            <field name="ikjtData" type="Reference" refTo="IKJT"/>
+            <field name="unknownMaybeRef5" type="Reference" />
             <field name="partsOfTurrentBehaviors" type="Reference" refTo="PATU" />
             <field name="turrentBehaviors" type="Reference" refTo="TRGD" />
             <field name="absoluteInverseBoneRestPositions" type="Reference" refTo="IREF" />
