@@ -1,15 +1,34 @@
-# m3addon - Blender Import-Export for `.m3` file format.
+# m3addon - Blender Import-Export for m3 file format.
 
-Project is still being maintained and bug reports will be taken care of. At least to the extent of my knowledge on the subject. Aswell as amount of freetime available.
+Blender addon to import and export models in `m3` format. It's used in Blizzard's games: StarCraft II and Heroes of the Storm.
 
-Bug tracker: https://github.com/Talv/m3addon/issues
+>Originally made by: [Florian Köberle aka "println"](https://github.com/flo/m3addon)
 
-Support can be provided also through SC2Mapster Discord Server: https://discord.gg/fpY4exB
+* [Bug tracker](https://github.com/Talv/m3addon/issues)
+* [SC2Mapster Discord Server](https://discord.gg/fpY4exB) - gathers small community of people familiar with this plugin - you're likely to get the help here if you ask nicely! :)
 
 ---
 
-> Original author: Florian Köberle \
-> https://github.com/flo/m3addon
+## Installation
+
+1. Download most recent version:
+    * **[Blender 2.80](https://github.com/Talv/m3addon/archive/master.zip)**
+    * [Blender 2.79](https://github.com/Talv/m3addon/archive/blender-2.7.zip) (and older)
+2. Install addon using one of the methods:
+    * __Option A__ (automatic):
+      * Rename the downloaded zipfile to `m3addon`.
+      * From Blender menu, navigate to `Edit -> Preferences`. Then`Add-ons` tab.
+      * Click on the `Install` button and point it to downloaded zipfile.
+    * __Option B__ (manual):
+      * Extract zipfile to `m3addon` directory which should be placed in following location:
+      * Linux: \
+        `~/.blender/2.80/scripts/addons`
+      * Windows:\
+        `%APPDATA%\Blender Foundation\Blender\2.80\scripts\addons`
+      * *(If addon won't appear as a choice in the Blender's preferences, click `Refresh` button or restart the application.)*
+3. Activate the addon in Blender preferences: toggle on the checkbox `[✓]` for `m3addon` entry in Add-ons tab.
+
+![](https://i.imgur.com/Jpp075Q.png)
 
 ## Features
 
@@ -46,18 +65,6 @@ back into a m3 file.
 
 The file structures.xml gets used by the m3.py library to parse the m3 files.
 Modifying this XML file will have impact of the above scripts and the blender addon.
-
-## Installation
-
-1. Download most recent version: https://github.com/Talv/m3addon/archive/master.zip and extract the archive to directory named `m3addon`.
-2. Move the directory into addons folder of your blender settings:
-   * Example for Linux and Blender 2.69:
-     * /home/$user/.blender/2.69/scripts/addons/m3addon
-   * Example for Windows XP and Blender 2.69:
-     * C:\Documents and Settings\%username%\Application Data\Blender Foundation\Blender\2.69\scripts\addons
-   * Example for Windows 7 and Blender 2.69:
-     * C:\Users\%username%\AppData\Roaming\Blender Foundation\Blender\2.69\scripts\addons
-3. Activate the addon in blender (There is another M3 addon, so watch out!)
 
 ## Usage
 
@@ -101,7 +108,7 @@ The m3 file format is basically a list of sections. Each section contains an arr
 
 The first section of an m3 file contains always a single structure of type MD34 in version 11. It is defined at the bottom of the structure.xml file:
 
-```
+```xml
     <structure name="MD34" version="11" size="24">
         <description>Header of a M3 file: Can be found at the start of the file.</description>
         <versions>
@@ -134,7 +141,7 @@ A structure definition defines a strcture for all versions that exist of it:
 
 For the creep materail for example (structure name CREP) 2 versions exist that have differnt sizes. In the structure.xml file there is however just a single structure definition:
 
-```
+```xml
     <structure name="CREP">
         <description>Creep Material</description>
         <versions>
@@ -198,19 +205,3 @@ In addition to that all structures that got defined above the structure in the s
     "-> Found a reference at offset 56 in a section of type ABCDV7". To fix the error message we need to change the structure
     definition of ABCD in version 7 to contain a field definition like this:
     `<field name="xyzData" type="Reference" refTo="XYZ_V1" />`
-
-## License (GPL 2.0 or later)
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software Foundation,
-Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.

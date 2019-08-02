@@ -144,7 +144,7 @@ def visualizeMatrix(matrix, at3DCursor):
     mesh = bpy.data.meshes.new('AxisMesh')
     meshObject = bpy.data.objects.new('AxisMesh', mesh)
     if at3DCursor:
-        meshObject.location = scene.cursor_location
+        meshObject.location = bpy.context.scene.cursor.location
     else:
         meshObject.location = (0,0,0)
     meshObject.show_name = True
@@ -155,7 +155,7 @@ def visualizeMatrix(matrix, at3DCursor):
     zVertex = oVertex + matrix3x3.col[2]
     vertices = [oVertex, xVertex,yVertex,zVertex]
     edges = [(0,1),(0,2),(0,3)]
-    bpy.context.scene.objects.link(meshObject)
+    bpy.context.scene.collection.objects.link(meshObject)
     mesh.from_pydata(vertices, edges, [])
     mesh.update(calc_edges=True)
     
@@ -238,7 +238,7 @@ def determineAbsoluteBoneRestPositions(model):
     for inverseBoneRestPosition in model.absoluteInverseBoneRestPositions:
         matrix = toBlenderMatrix(inverseBoneRestPosition.matrix)
         matrix = matrix.inverted()
-        matrix = matrix * shared.rotFixMatrix        
+        matrix = matrix @ shared.rotFixMatrix        
         matrices.append(matrix)
     return matrices
 
@@ -470,10 +470,10 @@ class Importer:
         #alternative: armature = bpy.ops.object.armature_add(view_align=False,enter_editmode=False, location=location, rotation=(0,0,0), layers=firstLayerOnly)
         scene = bpy.context.scene
         armatureObject = bpy.data.objects.new("Armature Object", self.armature)
-        armatureObject.location = scene.cursor_location
-        scene.objects.link(armatureObject)
-        scene.objects.active = armatureObject
-        armatureObject.select = True
+        armatureObject.location = scene.cursor.location
+        scene.collection.objects.link(armatureObject)
+        scene.view_layers[0].objects.active = armatureObject
+        armatureObject.select_set(True)
         self.armatureObject = armatureObject
 
         
@@ -558,13 +558,13 @@ class Importer:
             if bone.parent != -1:
                 # TODO perforamcne optimization: cache bindScaleMatrices[bone.parent].inverted()
                 # TODO find out why it's just the scale that need to be applied
-                leftCorrectionMatrix = relEditBoneMatrix.inverted() * shared.rotFixMatrixInverted * bindScaleMatrices[bone.parent].inverted()
+                leftCorrectionMatrix = relEditBoneMatrix.inverted() @ shared.rotFixMatrixInverted @ bindScaleMatrices[bone.parent].inverted()
             else:
                 leftCorrectionMatrix = relEditBoneMatrix.inverted()
-            rightCorrectionMatrix = bindMatrix * shared.rotFixMatrix
+            rightCorrectionMatrix = bindMatrix @ shared.rotFixMatrix
 
             poseBoneTransform = shared.locRotScaleMatrix(location, rotation, scale)
-            poseBoneTransform = leftCorrectionMatrix * poseBoneTransform * rightCorrectionMatrix
+            poseBoneTransform = leftCorrectionMatrix @ poseBoneTransform @ rightCorrectionMatrix
             location, rotation, scale = poseBoneTransform.decompose()
 
             poseBone.scale = scale
@@ -607,7 +607,7 @@ class Importer:
             scale = toBlenderVector3(scale)
             relSpecifiedMatrix = shared.locRotScaleMatrix(location, rotation, scale)
 
-            newMatrix = leftCorrectionMatrix * relSpecifiedMatrix * rightCorrectionMatrix
+            newMatrix = leftCorrectionMatrix @ relSpecifiedMatrix @ rightCorrectionMatrix
             location, rotation, scale = newMatrix.decompose()
             timeToLocationMap[timeInMS] = location
             timeToRotationMap[timeInMS] = rotation
@@ -668,9 +668,9 @@ class Importer:
 
             group = boneName
             if locationAnimId in animIdToTimeValueMap:
-                locXCurve = action.fcurves.new(locationAnimPath, 0, group)
-                locYCurve = action.fcurves.new(locationAnimPath, 1, group)
-                locZCurve = action.fcurves.new(locationAnimPath, 2, group)
+                locXCurve = action.fcurves.new(locationAnimPath, index = 0, action_group = group)
+                locYCurve = action.fcurves.new(locationAnimPath, index = 1, action_group = group)
+                locZCurve = action.fcurves.new(locationAnimPath, index = 2, action_group = group)
                 for timeInMS, frame in zip(timeEntries, frames):
                     location = timeToLocationMap.get(timeInMS)
                     insertLinearKeyFrame(locXCurve, frame, location.x)
@@ -678,10 +678,10 @@ class Importer:
                     insertLinearKeyFrame(locZCurve, frame, location.z)
             
             if rotationAnimId in animIdToTimeValueMap:
-                rotWCurve = action.fcurves.new(rotationAnimPath, 0, group)
-                rotXCurve = action.fcurves.new(rotationAnimPath, 1, group)
-                rotYCurve = action.fcurves.new(rotationAnimPath, 2, group)
-                rotZCurve = action.fcurves.new(rotationAnimPath, 3, group)
+                rotWCurve = action.fcurves.new(rotationAnimPath, index = 0, action_group = group)
+                rotXCurve = action.fcurves.new(rotationAnimPath, index = 1, action_group = group)
+                rotYCurve = action.fcurves.new(rotationAnimPath, index = 2, action_group = group)
+                rotZCurve = action.fcurves.new(rotationAnimPath, index = 3, action_group = group)
                 for timeInMS, frame in zip(timeEntries, frames):
                     rotation = timeToRotationMap.get(timeInMS)
                     insertLinearKeyFrame(rotWCurve, frame, rotation.w)
@@ -690,9 +690,9 @@ class Importer:
                     insertLinearKeyFrame(rotZCurve, frame, rotation.z)
                 
             if scaleAnimId in animIdToTimeValueMap:
-                scaXCurve = action.fcurves.new(scaleAnimPath, 0, group)
-                scaYCurve = action.fcurves.new(scaleAnimPath, 1, group)
-                scaZCurve = action.fcurves.new(scaleAnimPath, 2, group)
+                scaXCurve = action.fcurves.new(scaleAnimPath, index = 0, action_group = group)
+                scaYCurve = action.fcurves.new(scaleAnimPath, index = 1, action_group = group)
+                scaZCurve = action.fcurves.new(scaleAnimPath, index = 2, action_group = group)
                 for timeInMS, frame in zip(timeEntries, frames):
                     scale = timeToScaleMap.get(timeInMS)
                     insertLinearKeyFrame(scaXCurve, frame, scale.x)
@@ -1131,10 +1131,10 @@ class Importer:
                     mesh.m3_physics_mesh = True
                     
                     meshObject = bpy.data.objects.new('PhysicsMeshObject', mesh)
-                    meshObject.location = scene.cursor_location
+                    meshObject.location = scene.cursor.location
                     meshObject.show_name = True
                     
-                    scene.objects.link(meshObject)
+                    scene.collection.objects.link(meshObject)
                     
                     physics_shape.meshObjectName = meshObject.name
                 
@@ -1292,9 +1292,9 @@ class Importer:
                     preferedMeshName = self.model.bones[boneIndexLookup[0]].name
                 mesh = bpy.data.meshes.new(preferedMeshName)
                 meshObject = bpy.data.objects.new(preferedMeshName, mesh)
-                meshObject.location = self.scene.cursor_location
+                meshObject.location = self.scene.cursor.location
                 meshObject.show_name = True
-                self.scene.objects.link(meshObject)
+                self.scene.collection.objects.link(meshObject)
 
                 mesh.m3_material_name = self.getNameOfMaterialWithReferenceIndex(m3Object.materialReferenceIndex)
                 
@@ -1387,26 +1387,26 @@ class Importer:
                 
                 for vertexUVAttribute in ["uv0", "uv1", "uv2", "uv3"]:
                     if vertexStructureDescription.hasField(vertexUVAttribute):
-                        uvTexture = mesh.uv_textures.new()
-                        uvLayer = mesh.uv_layers[len(mesh.uv_layers)-1]
+                        uvLayer = mesh.uv_layers.new()
+                        # uvLayer = mesh.uv_layers[len(mesh.uv_layers)-1]
                         for faceIndex, polygon in enumerate(mesh.polygons):
                             oldIndices = tranglesWithOldIndices[faceIndex]
                             for i in range(3):
                                 uvLayer.data[polygon.loop_start + i].uv = toBlenderUVCoordinate(getattr(m3Vertices[oldIndices[i]],vertexUVAttribute))
                             
                             
-                        if False:# old:
-                            uvLayer = mesh.tessface_uv_textures.new()
+                        # if False:# old:
+                        #     uvLayer = mesh.tessface_uv_textures.new()
 
-                            for faceIndex in range(len(trianglesWithNewIndices)):
-                                tessFace = mesh.tessfaces[faceIndex]
-                                faceUV = uvLayer.data[faceIndex]
-                                setOfOldVertexIndicesOfFace = set(tranglesWithOldIndices[faceIndex])
-                                # It's necessary to take vertex indices from tessface
-                                # Since the vertex indices may get reordered within a triangle
-                                faceUV.uv1 = getUVsFor(tessFace.vertices[0], vertexUVAttribute, setOfOldVertexIndicesOfFace)
-                                faceUV.uv2 = getUVsFor(tessFace.vertices[1], vertexUVAttribute, setOfOldVertexIndicesOfFace)
-                                faceUV.uv3 = getUVsFor(tessFace.vertices[2], vertexUVAttribute, setOfOldVertexIndicesOfFace)
+                        #     for faceIndex in range(len(trianglesWithNewIndices)):
+                        #         tessFace = mesh.tessfaces[faceIndex]
+                        #         faceUV = uvLayer.data[faceIndex]
+                        #         setOfOldVertexIndicesOfFace = set(tranglesWithOldIndices[faceIndex])
+                        #         # It's necessary to take vertex indices from tessface
+                        #         # Since the vertex indices may get reordered within a triangle
+                        #         faceUV.uv1 = getUVsFor(tessFace.vertices[0], vertexUVAttribute, setOfOldVertexIndicesOfFace)
+                        #         faceUV.uv2 = getUVsFor(tessFace.vertices[1], vertexUVAttribute, setOfOldVertexIndicesOfFace)
+                        #         faceUV.uv3 = getUVsFor(tessFace.vertices[2], vertexUVAttribute, setOfOldVertexIndicesOfFace)
 
 
                 mesh.validate()   
@@ -1420,7 +1420,7 @@ class Importer:
                         if boneName in meshObject.vertex_groups:
                             vertexGroup = meshObject.vertex_groups[boneName]
                         else:
-                            vertexGroup =  meshObject.vertex_groups.new(boneName)
+                            vertexGroup =  meshObject.vertex_groups.new(name = boneName)
                         vertexGroupLookup.append(vertexGroup)
                     for vertexIndex in range(region.firstVertexIndex,region.firstVertexIndex + region.numberOfVertices):
                         m3Vertex = m3Vertices[vertexIndex]
@@ -1444,8 +1444,8 @@ class Importer:
                     # Remove doubles after marking the sharp edges
                     # since the sharp edge detection algrithm depend on it
                     bpy.ops.object.select_all(action='DESELECT')
-                    self.scene.objects.active = meshObject
-                    meshObject.select = True
+                    self.scene.view_layers[0].objects.active = meshObject
+                    meshObject.select_set(True)
                     bpy.ops.object.mode_set(mode='EDIT') 
                     bpy.ops.mesh.select_all(action='SELECT') 
                     bpy.ops.mesh.remove_doubles()    
@@ -1463,14 +1463,15 @@ class Importer:
                     modifier = meshObject.modifiers.new('EdgeSplit', 'EDGE_SPLIT')
                     modifier.use_edge_angle = False
 
-                if self.scene.m3_import_options.generateBlenderMaterials:
-                    shared.createBlenderMaterialForMeshObject(self.scene, meshObject)
+                # TODO: fix generateBlenderMaterials
+                # if self.scene.m3_import_options.generateBlenderMaterials:
+                #     shared.createBlenderMaterialForMeshObject(self.scene, meshObject)
 
     def setOriginToCenter(self, meshObject):
         bpy.ops.object.mode_set(mode='OBJECT')
         bpy.ops.object.select_all(action='DESELECT')
-        self.scene.objects.active = meshObject
-        meshObject.select = True
+        self.scene.view_layers[0].objects.active = meshObject
+        meshObject.select_set(True)
         bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY', center='MEDIAN')
     
 
@@ -1511,7 +1512,7 @@ class Importer:
                 edge = (edgeObject.vertices[1],edgeObject.vertices[0])
             if edge in uniqueEdges:
                 edgeObject.use_edge_sharp = True
-        mesh.show_edge_sharp = True
+        # mesh.show_edge_sharp = True
 
     def determineRelEditBoneMatrices(self, m3Bones, editBones):
         absEditBoneMatrices = []
@@ -1522,7 +1523,7 @@ class Importer:
             if boneEntry.parent != -1:
                 parentEditBone = editBones[boneEntry.parent]
                 absParentEditBoneMatrix = parentEditBone.matrix
-                relEditBoneMatrix = absParentEditBoneMatrix.inverted() * absEditBoneMatrix 
+                relEditBoneMatrix = absParentEditBoneMatrix.inverted() @ absEditBoneMatrix 
             else:
                 relEditBoneMatrix = absEditBoneMatrix
             relEditBoneMatrices.append(relEditBoneMatrix)
@@ -1749,7 +1750,7 @@ class Importer:
         
         self.addAnimIdData(animId, objectId=shared.animObjectIdScene, animPath=path)
         for action, timeValueMap in self.actionAndTimeValueMapPairsFor(animId):
-            curve = action.fcurves.new(path, 0)
+            curve = action.fcurves.new(path, index = 0)
             for frame, value in frameValuePairs(timeValueMap):
                 insertLinearKeyFrame(curve, frame, value)
     
@@ -1759,7 +1760,7 @@ class Importer:
         
         self.addAnimIdData(animId, objectId=shared.animObjectIdScene, animPath=path)
         for action, timeValueMap in self.actionAndTimeValueMapPairsFor(animId):
-            curve = action.fcurves.new(path, 0)
+            curve = action.fcurves.new(path, index = 0)
             for frame, value in frameValuePairs(timeValueMap):
                 insertConstantKeyFrame(curve, frame, value)
 
@@ -1771,9 +1772,9 @@ class Importer:
         
         self.addAnimIdData(animId, objectId=shared.animObjectIdScene, animPath=path)
         for action, timeValueMap in self.actionAndTimeValueMapPairsFor(animId):
-            xCurve = action.fcurves.new(path, 0)
-            yCurve = action.fcurves.new(path, 1)
-            zCurve = action.fcurves.new(path, 2)
+            xCurve = action.fcurves.new(path, index = 0)
+            yCurve = action.fcurves.new(path, index = 1)
+            zCurve = action.fcurves.new(path, index = 2)
             
             for frame, value in frameValuePairs(timeValueMap):
                 insertLinearKeyFrame(xCurve, frame, value.x)
@@ -1790,8 +1791,8 @@ class Importer:
         
         self.addAnimIdData(animId, objectId=shared.animObjectIdScene, animPath=path)
         for action, timeValueMap in self.actionAndTimeValueMapPairsFor(animId):
-            xCurve = action.fcurves.new(path, 0)
-            yCurve = action.fcurves.new(path, 1)
+            xCurve = action.fcurves.new(path, index = 0)
+            yCurve = action.fcurves.new(path, index = 1)
             
             for frame, value in frameValuePairs(timeValueMap):
                 insertLinearKeyFrame(xCurve, frame, value.x)
@@ -1805,10 +1806,10 @@ class Importer:
         
         self.addAnimIdData(animId, objectId=shared.animObjectIdScene, animPath=path)
         for action, timeValueMap in self.actionAndTimeValueMapPairsFor(animId):
-            redCurve = action.fcurves.new(path, 0)
-            greenCurve = action.fcurves.new(path, 1)
-            blueCurve = action.fcurves.new(path, 2)
-            alphaCurve = action.fcurves.new(path, 3)
+            redCurve = action.fcurves.new(path, index = 0)
+            greenCurve = action.fcurves.new(path, index = 1)
+            blueCurve = action.fcurves.new(path, index = 2)
+            alphaCurve = action.fcurves.new(path, index = 3)
 
             for frame, value in frameValuePairs(timeValueMap):
                 v = toBlenderColorVector(value)
@@ -1832,13 +1833,13 @@ class Importer:
         # since they all would result in the same longAnimId (see getLongAnimIdOf):
         self.addAnimIdData(animId, objectId=shared.animObjectIdScene, animPath=animPathMinBorder)
         for action, timeValueMap in self.actionAndTimeValueMapPairsFor(animId):
-            minXCurve = action.fcurves.new(animPathMinBorder, 0)
-            minYCurve = action.fcurves.new(animPathMinBorder, 1)
-            minZCurve = action.fcurves.new(animPathMinBorder, 2)
-            maxXCurve = action.fcurves.new(animPathMaxBorder, 0)
-            maxYCurve = action.fcurves.new(animPathMaxBorder, 1)
-            maxZCurve = action.fcurves.new(animPathMaxBorder, 2)
-            radiusCurve = action.fcurves.new(animPathRadius, 0)
+            minXCurve = action.fcurves.new(animPathMinBorder, index = 0)
+            minYCurve = action.fcurves.new(animPathMinBorder, index = 1)
+            minZCurve = action.fcurves.new(animPathMinBorder, index = 2)
+            maxXCurve = action.fcurves.new(animPathMaxBorder, index = 0)
+            maxYCurve = action.fcurves.new(animPathMaxBorder, index = 1)
+            maxZCurve = action.fcurves.new(animPathMaxBorder, index = 2)
+            radiusCurve = action.fcurves.new(animPathRadius, index = 0)
             
             for frame, value in frameValuePairs(timeValueMap):
                 insertLinearKeyFrame(minXCurve, frame, value.minBorder.x)
@@ -1872,7 +1873,7 @@ def boneRotMatrix(head, tail, roll):
             (0, 0, 1)))
     
     rMatrix = mathutils.Matrix.Rotation(roll, 3, v)
-    return rMatrix *bMatrix
+    return rMatrix @bMatrix
 
 def boneMatrix(head, tail, roll):
     """unused: how blender calculates the matrix of a bone """

@@ -19,6 +19,7 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
+from typing import Iterable
 import bpy
 import mathutils
 import random
@@ -162,7 +163,7 @@ def setDefaultValue(defaultAction, path, index, value):
             curve = c
             break
     if curve == None:
-        curve = defaultAction.fcurves.new(path, index)
+        curve = defaultAction.fcurves.new(path, index = index)
     keyFrame = curve.keyframe_points.insert(0, value)
     keyFrame.interpolation = "CONSTANT"
 
@@ -264,6 +265,21 @@ class UniqueNameFinder:
             name = name[:-1]
         return name
 
+
+def dump(obj, title = None):
+    o: List[str] = []
+    o.append("%s" % (title if title else obj))
+    if hasattr(obj, '__iter__'):
+        c = int(len(obj) / 10) + 1
+        for i, x in enumerate(obj):
+            o.append(dump(x, "[%0*d]" % (c, i)))
+    else:
+        for attr in dir(obj):
+            if hasattr(obj, attr):
+                o.append("  %16s = %s" % (attr, getattr(obj, attr)))
+    return "\n".join(o)
+
+
 def isVideoFilePath(filePath):
     return filePath.endswith(".ogv") or filePath.endswith(".ogg")
 
@@ -361,7 +377,7 @@ def simplifyAnimationWithInterpolation(timeValuesInMS, values, interpolationFunc
     newValues.append(values[-1])
     return newTimeValuesInMS, newValues
 
-def findMeshObjects(scene):
+def findMeshObjects(scene: bpy.types.Scene) -> Iterable[bpy.types.Object]:
     for currentObject in scene.objects:
         if currentObject.type == 'MESH':
             yield currentObject
@@ -899,7 +915,7 @@ def composeMatrix(location, rotation, scale):
     scaleMatrix = mathutils.Matrix()
     for i in range(3):
         scaleMatrix[i][i] = scale[i]
-    return locMatrix * rotationMatrix * scaleMatrix
+    return locMatrix @ rotationMatrix @ scaleMatrix
             
 def getLongAnimIdOf(objectId, animPath):
     if objectId == animObjectIdScene and animPath.startswith("m3_boundings"):
@@ -921,13 +937,15 @@ def createHiddenMeshObject(name, untransformedPositions, faces, matrix):
 
     transformedPositions = []
     for v in untransformedPositions:
-        transformedPositions.append(matrix * mathutils.Vector(v))
+        transformedPositions.append(matrix @ mathutils.Vector(v))
 
-    mesh.vertices.add(len(transformedPositions))
-    mesh.vertices.foreach_set("co", io_utils.unpack_list(transformedPositions))
+    mesh.from_pydata(transformedPositions, [], faces)
 
-    mesh.tessfaces.add(len(faces))
-    mesh.tessfaces.foreach_set("vertices_raw", io_utils.unpack_face_list(faces))
+    # mesh.vertices.add(len(transformedPositions))
+    #mesh.vertices.foreach_set("co", io_utils.unpack_list(transformedPositions))
+
+    # mesh.loop_triangles.add(len(faces))
+    # mesh.loop_triangles.foreach_set("vertices", io_utils.unpack_face_list(faces))
     
     mesh.update(calc_edges=True)
     return meshObject
@@ -1119,7 +1137,7 @@ def createPhysicsShapeMeshData(shape):
         faces = [f.vertices for f in mesh.polygons]
     
     matrix = composeMatrix(shape.offset, shape.rotationEuler, shape.scale)
-    vertices = [matrix * mathutils.Vector(v) for v in vertices]
+    vertices = [matrix @ mathutils.Vector(v) for v in vertices]
     
     return vertices, faces
 
@@ -1156,14 +1174,14 @@ def removeRigidBodyBoneShape(scene, rigidBody):
 
 def updateBoneShape(bone, poseBone, meshName, untransformedPositions, faces, matrix=mathutils.Matrix()):
     # Undo the rotation fix:
-    matrix = rotFixMatrixInverted * matrix
+    matrix = rotFixMatrixInverted @ matrix
     boneScale = (bone.head - bone.tail).length
     invertedBoneScale = 1.0 / boneScale
     scaleMatrix = mathutils.Matrix()
     scaleMatrix[0][0] = invertedBoneScale
     scaleMatrix[1][1] = invertedBoneScale
     scaleMatrix[2][2] = invertedBoneScale
-    matrix = scaleMatrix * matrix
+    matrix = scaleMatrix @ matrix
     
     #TODO reuse existing mesh of bone if it exists
     poseBone.custom_shape = createHiddenMeshObject(meshName, untransformedPositions, faces, matrix)
