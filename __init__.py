@@ -20,12 +20,12 @@
 # ##### END GPL LICENSE BLOCK #####
 
 bl_info = {
-    "name": "Importer and exporter for Blizzard's Starcraft 2 model files (*.m3)",
+    "name": "m3addon for M3 format: used by Blizzard's StarCraft 2 and Heroes of the Storm",
     'author': 'Florian Köberle, netherh, chaos2night, Talv',
-    "version": (0, 2, 0),
+    "version": (0, 3, 0),
     "blender": (2, 80, 0),
     "location": "Properties Editor -> Scene -> M3 Panels",
-    "description": "Allows to export (and import) simple Starcraft 2 models (.m3) with particle systems. Use on own risk!",
+    "description": "Allows to export and import models in M3 format.",
     "category": "Import-Export",
     "wiki_url": "https://github.com/Talv/m3addon/blob/master/README.md",
     "tracker_url": "https://github.com/Talv/m3addon/issues"
