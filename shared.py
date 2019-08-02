@@ -19,6 +19,7 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
+from typing import Iterable
 import bpy
 import mathutils
 import random
@@ -264,6 +265,21 @@ class UniqueNameFinder:
             name = name[:-1]
         return name
 
+
+def dump(obj, title = None):
+    o: List[str] = []
+    o.append("%s" % (title if title else obj))
+    if hasattr(obj, '__iter__'):
+        c = int(len(obj) / 10) + 1
+        for i, x in enumerate(obj):
+            o.append(dump(x, "[%0*d]" % (c, i)))
+    else:
+        for attr in dir(obj):
+            if hasattr(obj, attr):
+                o.append("  %16s = %s" % (attr, getattr(obj, attr)))
+    return "\n".join(o)
+
+
 def isVideoFilePath(filePath):
     return filePath.endswith(".ogv") or filePath.endswith(".ogg")
 
@@ -361,7 +377,7 @@ def simplifyAnimationWithInterpolation(timeValuesInMS, values, interpolationFunc
     newValues.append(values[-1])
     return newTimeValuesInMS, newValues
 
-def findMeshObjects(scene):
+def findMeshObjects(scene: bpy.types.Scene) -> Iterable[bpy.types.Object]:
     for currentObject in scene.objects:
         if currentObject.type == 'MESH':
             yield currentObject

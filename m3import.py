@@ -144,7 +144,7 @@ def visualizeMatrix(matrix, at3DCursor):
     mesh = bpy.data.meshes.new('AxisMesh')
     meshObject = bpy.data.objects.new('AxisMesh', mesh)
     if at3DCursor:
-        meshObject.location = scene.cursor_location
+        meshObject.location = bpy.context.scene.cursor.location
     else:
         meshObject.location = (0,0,0)
     meshObject.show_name = True
@@ -470,7 +470,7 @@ class Importer:
         #alternative: armature = bpy.ops.object.armature_add(view_align=False,enter_editmode=False, location=location, rotation=(0,0,0), layers=firstLayerOnly)
         scene = bpy.context.scene
         armatureObject = bpy.data.objects.new("Armature Object", self.armature)
-        armatureObject.location = scene.cursor_location
+        armatureObject.location = scene.cursor.location
         scene.collection.objects.link(armatureObject)
         scene.view_layers[0].objects.active = armatureObject
         armatureObject.select_set(True)
@@ -1131,7 +1131,7 @@ class Importer:
                     mesh.m3_physics_mesh = True
                     
                     meshObject = bpy.data.objects.new('PhysicsMeshObject', mesh)
-                    meshObject.location = scene.cursor_location
+                    meshObject.location = scene.cursor.location
                     meshObject.show_name = True
                     
                     scene.collection.objects.link(meshObject)
@@ -1292,7 +1292,7 @@ class Importer:
                     preferedMeshName = self.model.bones[boneIndexLookup[0]].name
                 mesh = bpy.data.meshes.new(preferedMeshName)
                 meshObject = bpy.data.objects.new(preferedMeshName, mesh)
-                meshObject.location = self.scene.cursor_location
+                meshObject.location = self.scene.cursor.location
                 meshObject.show_name = True
                 self.scene.collection.objects.link(meshObject)
 

@@ -29,6 +29,7 @@ if "bpy" in locals():
         imp.reload(calculateTangents)
         
 
+from typing import Iterator, Iterable, List, Dict
 from . import m3
 from . import shared
 import bpy
@@ -43,7 +44,7 @@ actionTypeScene = "SCENE"
 actionTypeArmature = "OBJECT"
 
 class Exporter:
-    def export(self, scene, m3FileName):
+    def export(self, scene: bpy.types.Scene, m3FileName):
         self.scene = scene
         self.initStructureVersionMap()
         self.selectAnimationsForExport()
@@ -259,7 +260,7 @@ class Exporter:
         self.boneNameToBoneIndexMap = {} # map: bone name to index in model bone list
         boneNameToAbsInvRestPoseMatrix = {}
         self.boneIndexToAbsoluteInverseRestPoseMatrixFixedMap = {}
-        self.armatureObjectNameToBoneNamesMap = {}
+        self.armatureObjectNameToBoneNamesMap: Dict[str, bpy.types.Object] = {}
         
         # Place all bones at the default position by selecting no animation:
         self.scene.m3_animation_index = -1
@@ -314,10 +315,14 @@ class Exporter:
                 else:
                     bone.parent = -1
                     relRestPosMatrix = absRestPosMatrix
-                    
-                poseBone = armatureObject.pose.bones[boneName]
-                    
-                poseMatrix = armatureObject.convert_space(poseBone, poseBone.matrix, 'POSE', 'LOCAL')
+
+                poseBone: bpy.types.Bone = armatureObject.pose.bones[boneName]
+                poseMatrix = armatureObject.convert_space(
+                    pose_bone=poseBone,
+                    matrix=poseBone.matrix,
+                    from_space='POSE',
+                    to_space='LOCAL',
+                )
 
                 bindScaleInverted = mathutils.Vector((1.0 / blenderBone.m3_bind_scale[i] for i in range(3)))
                 bindScaleMatrixInverted = shared.scaleVectorToMatrix(bindScaleInverted)
@@ -418,9 +423,14 @@ class Exporter:
                         
                         leftCorrectionMatrix = self.boneNameToLeftCorrectionMatrix[boneName]
                         rightCorrectionMatrix = self.boneNameToRightCorrectionMatrix[boneName]
-                        
-                        poseMatrix = armatureObject.convert_space(poseBone, poseBone.matrix, 'POSE', 'LOCAL')
-                        
+
+                        poseMatrix = armatureObject.convert_space(
+                            pose_bone=poseBone,
+                            matrix=poseBone.matrix,
+                            from_space='POSE',
+                            to_space='LOCAL',
+                        )
+
                         m3PoseMatrix = leftCorrectionMatrix @ poseMatrix @ rightCorrectionMatrix
 
                         boneIndexToAbsoluteMatrixMap = frameToBoneIndexToAbsoluteMatrixMap.get(frame)
@@ -574,19 +584,17 @@ class Exporter:
         for newRefeferenceIndex, oldReferenceIndex in enumerate(self.oldReferenceIndicesInCorrectedOrder):
             materialReference = self.scene.m3_material_references[oldReferenceIndex]
             self.materialNameToNewReferenceIndexMap[materialReference.name] = newRefeferenceIndex
-        
+
     def initMesh(self, model):
-        nonEmptyMeshObjects = []
+        nonEmptyMeshObjects: List[bpy.types.Object] = []
         uvCoordinatesPerVertex = 1 # Never saw a m3 model with at least 1 UV layer
         for meshObject in shared.findMeshObjects(self.scene):
-            mesh = meshObject.data
-            mesh.update(calc_loop_triangles=True)
-            if len(mesh.tessfaces) > 0: # TODO
-                if not mesh.m3_physics_mesh:
-                    nonEmptyMeshObjects.append(meshObject)
-            uvCoordinatesPerVertex = max(uvCoordinatesPerVertex, len(mesh.tessface_uv_textures)) # TODO
+            mesh: bpy.types.Mesh = meshObject.data
+            mesh.calc_loop_triangles()
+            if len(mesh.loop_triangles) > 0 and not mesh.m3_physics_mesh:
+                nonEmptyMeshObjects.append(meshObject)
+            uvCoordinatesPerVertex = max(uvCoordinatesPerVertex, len(mesh.uv_layers))
 
-        
         model.setNamedBit("flags", "hasMesh", len(nonEmptyMeshObjects) > 0)
         model.boundings = self.createAlmostEmptyBoundingsWithRadius(2.0)
         
@@ -615,9 +623,9 @@ class Exporter:
         
         exportVertexRGBA = False
         for meshObjectToCheck in  nonEmptyMeshObjects:
-            meshToCheck = meshObjectToCheck.data
-            
-            for vertexColorLayer in meshToCheck.tessface_vertex_colors: # TODO
+            meshToCheck: bpy.types.Mesh = meshObjectToCheck.data
+
+            for vertexColorLayer in meshToCheck.vertex_colors:
                 vertexColorLayerName = vertexColorLayer.name
                 if vertexColorLayerName == rgbColorChannelName:
                     exportVertexRGBA = True
@@ -634,7 +642,7 @@ class Exporter:
         model.divisions.append(division)
         m3Vertices = []
         for meshIndex, meshObject in enumerate(nonEmptyMeshObjects):   
-            mesh = meshObject.data
+            mesh: bpy.types.Mesh = meshObject.data
             print("Exporting mesh object %s" % meshObject.name)
             if bpy.ops.object.mode_set.poll():
                 bpy.ops.object.mode_set(mode='OBJECT')
@@ -670,12 +678,12 @@ class Exporter:
                 raise Exception("The mesh %s has invalid modifiers: Mesh must have no modifiers except single one for the armature and one for edge split." % meshObject.name)
             objectToWorldMatrix = meshObject.matrix_world
 
-            vertexColor = mesh.tessface_vertex_colors.get(rgbColorChannelName) # TODO
+            vertexColor = mesh.vertex_colors.get(rgbColorChannelName)
             if vertexColor != None:
                 vertexColorData = vertexColor.data
             else:
                 vertexColorData = None
-            vertexAlpha = mesh.tessface_vertex_colors.get(alphaColorChannelName) # TODO
+            vertexAlpha = mesh.vertex_colors.get(alphaColorChannelName)
             if vertexAlpha != None:
                 vertexAlphaData = vertexAlpha.data
             else:
@@ -689,26 +697,11 @@ class Exporter:
             nextVertexIndex = 0
             numberOfBoneWeightPairsPerVertex = 0
             staticMeshBoneLookupIndex = None
-            for blenderFace in mesh.tessfaces: # TODO
-                faceRelativeVertexIndexAndBlenderVertexIndexTuples = []
-                if len(blenderFace.vertices) == 3 or len(blenderFace.vertices) == 4:
-                    faceRelativeVertexIndexAndBlenderVertexIndexTuples.append((0, blenderFace.vertices[0]))
-                    faceRelativeVertexIndexAndBlenderVertexIndexTuples.append((1, blenderFace.vertices[1]))
-                    faceRelativeVertexIndexAndBlenderVertexIndexTuples.append((2, blenderFace.vertices[2]))
-                    
-                    if len(blenderFace.vertices) == 4:
-                        faceRelativeVertexIndexAndBlenderVertexIndexTuples.append((0, blenderFace.vertices[0]))
-                        faceRelativeVertexIndexAndBlenderVertexIndexTuples.append((2, blenderFace.vertices[2]))
-                        faceRelativeVertexIndexAndBlenderVertexIndexTuples.append((3, blenderFace.vertices[3]))
-                    
-                else:
-                    raise Exception("Only the export of meshes with triangles and quads has been implemented")
-                
-                
-                
-                
-                for faceRelativeVertexIndex, blenderVertexIndex in faceRelativeVertexIndexAndBlenderVertexIndexTuples:
-                    blenderVertex =  mesh.vertices[blenderVertexIndex]
+            mesh.calc_loop_triangles()
+            for tri in mesh.loop_triangles:
+                assert(len(tri.vertices) == 3)
+                for faceRelativeVertexIndex, vertIndex in enumerate(tri.vertices):
+                    blenderVertex = mesh.vertices[vertIndex]
                     m3Vertex = m3VertexStructureDefinition.createInstance()
                     
                     absolutePosition = objectToWorldMatrix @ blenderVertex.co
@@ -780,14 +773,14 @@ class Exporter:
                     usedBoneWeightSlots = len(roundedWeightLookupIndexPairs)
                     if usedBoneWeightSlots > numberOfBoneWeightPairsPerVertex:
                         numberOfBoneWeightPairsPerVertex = usedBoneWeightSlots
-                    
+
                     for uvLayerIndex in range(0,uvCoordinatesPerVertex):
                         m3AttributeName = "uv" + str(uvLayerIndex)
-                        blenderAttributeName = "uv%d" % (faceRelativeVertexIndex + 1)
-                        if len(mesh.tessface_uv_textures) > uvLayerIndex: # TODO
-                            uvData = mesh.tessface_uv_textures[uvLayerIndex].data[blenderFace.index]
-                            blenderUVCoord = getattr(uvData, blenderAttributeName)
-                            m3UVCoord = self.convertBlenderToM3UVCoordinates(blenderUVCoord)
+                        if len(mesh.uv_layers) > uvLayerIndex:
+                            uvData = mesh.uv_layers[uvLayerIndex].data[tri.loops[faceRelativeVertexIndex]]
+                            # print(shared.dump(mesh.uv_layers[0].data))
+                            print(shared.dump(uvData))
+                            m3UVCoord = self.convertBlenderToM3UVCoordinates(uvData.uv)
                             setattr(m3Vertex, m3AttributeName, m3UVCoord)
                         else:
                             setattr(m3Vertex, m3AttributeName, self.createM3UVVector(0.0, 0.0))
@@ -803,14 +796,14 @@ class Exporter:
                     if exportVertexRGBA:
                         if vertexColorData != None:
                             blenderAttributeName = "color%d" % (faceRelativeVertexIndex + 1)
-                            blenderColor = getattr(vertexColorData[blenderFace.index],blenderAttributeName)
+                            blenderColor = getattr(vertexColorData[tri.loops[faceRelativeVertexIndex]],blenderAttributeName)
                             
                             red = blenderColor.r
                             green = blenderColor.g
                             blue = blenderColor.b
                         if vertexAlphaData != None:
                             blenderAttributeName = "color%d" % (faceRelativeVertexIndex + 1)
-                            blenderColor = getattr(vertexAlphaData[blenderFace.index],blenderAttributeName)
+                            blenderColor = getattr(vertexAlphaData[tri.loops[faceRelativeVertexIndex]],blenderAttributeName)
                             alpha = (blenderColor.r + blenderColor.g + blenderColor.b) / 3.0
                         m3Vertex.color = self.createColor(red, green, blue, alpha)
                         
@@ -1198,7 +1191,8 @@ class Exporter:
         self.restPositionsOfExportedBones.append(mathutils.Matrix())
         return boneIndex
 
-    def findArmatureObjects(self):
+
+    def findArmatureObjects(self) -> Iterable[bpy.types.Object]:
         for currentObject in self.scene.objects:
             if currentObject.type == 'ARMATURE':
                 yield currentObject
