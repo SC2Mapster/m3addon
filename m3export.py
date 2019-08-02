@@ -778,8 +778,6 @@ class Exporter:
                         m3AttributeName = "uv" + str(uvLayerIndex)
                         if len(mesh.uv_layers) > uvLayerIndex:
                             uvData = mesh.uv_layers[uvLayerIndex].data[tri.loops[faceRelativeVertexIndex]]
-                            # print(shared.dump(mesh.uv_layers[0].data))
-                            print(shared.dump(uvData))
                             m3UVCoord = self.convertBlenderToM3UVCoordinates(uvData.uv)
                             setattr(m3Vertex, m3AttributeName, m3UVCoord)
                         else:
