@@ -4884,7 +4884,8 @@ def register():
 
  
 def unregister():
-    for cls in reverse(classes): bpy.utils.unregister_class(cls)
+    for cls in classes.reversed:
+        bpy.utils.unregister_class(cls)
     bpy.types.TOPBAR_MT_file_import.remove(menu_func_import)
     bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)
     bpy.types.IMAGE_MT_image.remove(menu_func_convertNormalMaps)
