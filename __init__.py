@@ -46,6 +46,7 @@ from . import shared
 import bpy
 
 from bpy.props import StringProperty
+import bpy.types as bt
 from bpy_extras.io_utils import ExportHelper, ImportHelper
 import mathutils
 import math
@@ -2003,7 +2004,7 @@ class MaterialSelectionPanel(bpy.types.Panel):
         row.prop_search(mesh, 'm3_material_name', scene, 'm3_material_references', text="M3 Material", icon='NONE')
         row.operator("m3.create_material_for_mesh", icon='ZOOM_IN', text="")
 
-def displayMaterialPropertiesUI(scene, layout, materialReference):
+def displayMaterialPropertiesUI(scene: bt.Scene, layout: bt.UILayout, materialReference):
         materialType = materialReference.materialType
         materialIndex = materialReference.materialIndex
         
@@ -2020,7 +2021,7 @@ def displayMaterialPropertiesUI(scene, layout, materialReference):
             layout.prop(material, 'emisBlendType', text="Emis. Blend Type")
             layout.prop(material, 'specType', text="Spec. Type")
            
-            split = layout.split(percentage=0.7)
+            split = layout.split()
             split.prop(material, 'useDepthBlendFalloff', text="Depth Blend Falloff:")
             row = split.row()
             row.active = material.useDepthBlendFalloff
@@ -2043,7 +2044,7 @@ def displayMaterialPropertiesUI(scene, layout, materialReference):
             layout.prop(material, 'transparency', text="Transparency")
             layout.prop(material, 'disableSoft', text="Disable Soft")
             layout.prop(material, 'darkNormalMapping', text="Dark Normal Mapping")
-            split = layout.split(percentage=0.6)
+            split = layout.split()
             split.prop(material, 'acceptSplats', text="Accept Splats:")
             row = split.row()
             row.active = material.acceptSplats
