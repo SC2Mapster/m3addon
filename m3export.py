@@ -632,7 +632,7 @@ class Exporter:
                 elif vertexColorLayerName == alphaColorChannelName:
                     exportVertexRGBA = True
                 else:
-                    raise Exception("The mesh %s has has a color layer called %s. Only color layers with the names 'color' and 'alpha' can be exported" % (meshObjectToCheck.name, vertexColorLayerName))
+                    print("The mesh %s has has a color layer called %s. Only color layers with the names 'color' and 'alpha' can be exported" % (meshObjectToCheck.name, vertexColorLayerName))
 
         model.setNamedBit("vFlags", "hasVertexColors", exportVertexRGBA);
             
@@ -787,22 +787,20 @@ class Exporter:
                     m3Vertex.sign = 1.0
                     m3Vertex.tangent = self.createVector3As3Fixed8(0.0, 0.0, 0.0)
                     
+                    # TODO: unsure if this actually works as intended.. find a model for test
                     red = 1.0
                     green = 1.0
                     blue = 1.0
                     alpha = 1.0
                     if exportVertexRGBA:
                         if vertexColorData != None:
-                            blenderAttributeName = "color%d" % (faceRelativeVertexIndex + 1)
-                            blenderColor = getattr(vertexColorData[tri.loops[faceRelativeVertexIndex]],blenderAttributeName)
-                            
-                            red = blenderColor.r
-                            green = blenderColor.g
-                            blue = blenderColor.b
+                            blenderColor = vertexColorData[tri.loops[faceRelativeVertexIndex]].color
+                            red = blenderColor[0]
+                            green = blenderColor[1]
+                            blue = blenderColor[2]
                         if vertexAlphaData != None:
-                            blenderAttributeName = "color%d" % (faceRelativeVertexIndex + 1)
-                            blenderColor = getattr(vertexAlphaData[tri.loops[faceRelativeVertexIndex]],blenderAttributeName)
-                            alpha = (blenderColor.r + blenderColor.g + blenderColor.b) / 3.0
+                            blenderColor = vertexAlphaData[tri.loops[faceRelativeVertexIndex]].color
+                            alpha = (blenderColor[0] + blenderColor[1] + blenderColor[2]) / 3.0
                         m3Vertex.color = self.createColor(red, green, blue, alpha)
                         
                     v = m3Vertex
