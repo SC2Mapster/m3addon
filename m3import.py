@@ -47,8 +47,13 @@ def toBlenderVector2(m3Vector2):
 def toBlenderColorVector(m3Color):
     return mathutils.Vector((m3Color.red /255.0, m3Color.green /255.0, m3Color.blue /255.0, m3Color.alpha /255.0))
 
-def toBlenderUVCoordinate(m3UVCoordinate):
-    return (m3UVCoordinate.x / 2048.0, 1 - m3UVCoordinate.y / 2048.0)
+
+def toBlenderUVCoordinate(m3UVCoordinate, uvwMult, uvwOffset):
+    return (
+        (m3UVCoordinate.x * (uvwMult / 16.0) / 2048.0) + uvwOffset,
+        1 - ((m3UVCoordinate.y * (uvwMult / 16.0) / 2048.0) + uvwOffset)
+    )
+
 
 def toBlenderMatrix(m3Matrix):
     return mathutils.Matrix((
@@ -1275,6 +1280,9 @@ class Importer:
                 firstVertexIndex = region.firstVertexIndex
                 assert region.numberOfFaceVertexIndices % 3 == 0
 
+                uvwMult = getattr(region, 'uvwMult', 16.0)
+                uvwOffset = getattr(region, 'uvwOffset', 0.0)
+
                 facesWithOldIndices = [] # old index = index of vertex in m3Vertices
                 while vertexIndexIndex + 2 <= lastVertexIndexIndex:
                     i0 = firstVertexIndex + divisionFaceIndices[vertexIndexIndex]
@@ -1372,42 +1380,17 @@ class Importer:
                 mesh.polygons.foreach_set("loop_total", (3,) * triangleCount)
                 mesh.loops.foreach_set("vertex_index", io_utils.unpack_list(trianglesWithNewIndices))
 
-                #mesh.tessfaces.add(len(trianglesWithNewIndices))
-                #mesh.tessfaces.foreach_set("vertices_raw", io_utils.unpack_face_list(trianglesWithNewIndices))
-                
-                def getUVsFor(newVertexIndex, vertexUVAttribute, setOfOldVertexIndicesOfFace):
-                    oldVertexIndices = newVertexIndexToOldVertexIndicesMap[newVertexIndex]
-                    # When multiple vertices got merged to single one, it's still important to determine
-                    # the correct old vertex index, in order to get correct uvs.
-                    matchingOldVertexIndices = oldVertexIndices.intersection(setOfOldVertexIndicesOfFace)
-                    if len(matchingOldVertexIndices) != 1:
-                        raise Exception("There was a problem with calculating which UV belongs to which vertex: matching vertices %s; newToOldIndices: %s, triangle: %s" % (len(matchingOldVertexIndices), oldVertexIndices, setOfOldVertexIndicesOfFace))
-                    oldVertexIndex = matchingOldVertexIndices.pop()
-                    return toBlenderUVCoordinate(getattr(m3Vertices[oldVertexIndex],vertexUVAttribute))
-                
                 for vertexUVAttribute in ["uv0", "uv1", "uv2", "uv3"]:
                     if vertexStructureDescription.hasField(vertexUVAttribute):
                         uvLayer = mesh.uv_layers.new()
-                        # uvLayer = mesh.uv_layers[len(mesh.uv_layers)-1]
                         for faceIndex, polygon in enumerate(mesh.polygons):
                             oldIndices = tranglesWithOldIndices[faceIndex]
                             for i in range(3):
-                                uvLayer.data[polygon.loop_start + i].uv = toBlenderUVCoordinate(getattr(m3Vertices[oldIndices[i]],vertexUVAttribute))
-                            
-                            
-                        # if False:# old:
-                        #     uvLayer = mesh.tessface_uv_textures.new()
-
-                        #     for faceIndex in range(len(trianglesWithNewIndices)):
-                        #         tessFace = mesh.tessfaces[faceIndex]
-                        #         faceUV = uvLayer.data[faceIndex]
-                        #         setOfOldVertexIndicesOfFace = set(tranglesWithOldIndices[faceIndex])
-                        #         # It's necessary to take vertex indices from tessface
-                        #         # Since the vertex indices may get reordered within a triangle
-                        #         faceUV.uv1 = getUVsFor(tessFace.vertices[0], vertexUVAttribute, setOfOldVertexIndicesOfFace)
-                        #         faceUV.uv2 = getUVsFor(tessFace.vertices[1], vertexUVAttribute, setOfOldVertexIndicesOfFace)
-                        #         faceUV.uv3 = getUVsFor(tessFace.vertices[2], vertexUVAttribute, setOfOldVertexIndicesOfFace)
-
+                                uvLayer.data[polygon.loop_start + i].uv = toBlenderUVCoordinate(
+                                    getattr(m3Vertices[oldIndices[i]],vertexUVAttribute),
+                                    uvwMult,
+                                    uvwOffset
+                                )
 
                 mesh.validate()   
                 mesh.update(calc_edges=True)    

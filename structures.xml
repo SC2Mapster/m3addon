@@ -22,6 +22,7 @@
     * Phygit - who provided NiNtoxicated with bug fixes and development information to do with the M3 format
     * ufoZ - who was One of the original people to reverse engineer the M2 format and to make a good maxscript importer from which NiNtoxicated importer/exporters were originally based
     * The SC2Mapster community (http://www.sc2mapster.com/) - who also collected information about m3 in the wiki: http://www.sc2mapster.com/wiki/sc2-api/game-files/models/model-header/
+    * CaptainD001 - https://github.com/CaptainD001/M3_Import
 
     Please give credit to this people if you use the xml or the (generated) code in your own scripts.
 
@@ -1218,7 +1219,8 @@
             <field name="unknown4" type="uint8" default-value="1" />
             <field name="rootBoneIndex" type="uint16" />
             <field name="unknown5" type="uint32" since-version="4" />
-            <field name="unknown4d066bda" size="8" since-version="5" />
+            <field name="uvwMult" type="float" default-value="16.0" since-version="5" />
+            <field name="uvwOffset" type="float" default-value="0.0" since-version="5" />
         </fields>
     </structure>
     
