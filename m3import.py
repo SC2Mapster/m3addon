@@ -32,6 +32,7 @@ import bpy
 import mathutils
 import math
 from bpy_extras import io_utils
+import bpy.types as bt
 from os import path
 
 
@@ -407,7 +408,7 @@ class AnimationTempData:
     
 class Importer:
     
-    def importM3BasedOnM3ImportOptions(self, scene):
+    def importM3BasedOnM3ImportOptions(self, scene: bt.Scene):
         fileName = scene.m3_import_options.path
         contentToImport = scene.m3_import_options.contentToImport
         self.rootDirectory = scene.m3_import_options.rootDirectory
@@ -1446,9 +1447,8 @@ class Importer:
                     modifier = meshObject.modifiers.new('EdgeSplit', 'EDGE_SPLIT')
                     modifier.use_edge_angle = False
 
-                # TODO: fix generateBlenderMaterials
-                # if self.scene.m3_import_options.generateBlenderMaterials:
-                #     shared.createBlenderMaterialForMeshObject(self.scene, meshObject)
+                if self.scene.m3_import_options.generateBlenderMaterials:
+                    shared.createBlenderMaterialForMeshObject(self.scene, meshObject)
 
     def setOriginToCenter(self, meshObject):
         bpy.ops.object.mode_set(mode='OBJECT')

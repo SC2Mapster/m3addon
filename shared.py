@@ -27,6 +27,7 @@ import math
 from bpy_extras import io_utils
 from os import path
 from bpy_extras import image_utils
+from . import im
 
 materialNames = ["No Material", "Standard", "Displacement", "Composite", "Terrain", "Volume", "Unknown", "Creep", "Volume Noise", "Splat Terrain Bake"]
 standardMaterialTypeIndex = 1
@@ -419,55 +420,6 @@ def createImageObjetForM3MaterialLayer(blenderM3Layer, directoryList):
     print("Failed to load a texture. The following paths have been searched: %s" % searchedImagePaths)
     return None
 
-def createTextureObjectForM3MaterialLayer(blenderM3Layer, directoryList):
-    image = createImageObjetForM3MaterialLayer(blenderM3Layer, directoryList)
-    if not image:
-        return None
-
-    texture = bpy.data.textures.new(blenderM3Layer.name, type='IMAGE')
-    # Clamp options seem not to work
-    # might be related to the following bug:
-    # https://projects.blender.org/tracker/?func=detail&atid=306&aid=27624&group_id=9
-    image.use_clamp_x = not blenderM3Layer.textureWrapX 
-    image.use_clamp_y = not blenderM3Layer.textureWrapY
-    texture.image = image
-    if blenderM3Layer.textureWrapX and blenderM3Layer.textureWrapY:
-        texture.extension = 'REPEAT'
-    else:
-        texture.extension = 'CLIP'
-    return texture
-
-def addTextureSlotBasedOnM3MaterialLayer(mesh, classicBlenderMaterial, blenderM3Material, layerFieldName , directoryList):
-    blenderM3Layer = blenderM3Material.layers[getLayerNameFromFieldName(layerFieldName)]
-
-    texture = createTextureObjectForM3MaterialLayer(blenderM3Layer, directoryList)
-    if texture == None:
-        return
-    textureSlot = classicBlenderMaterial.texture_slots.add()
-    textureSlot.texture = texture
-    textureSlot.texture_coords = 'UV'
-    # There is no known scale field, but there might be one:
-    # textureSlot.scale = (scaleX, scaleY, 1.0)
-    textureSlot.offset = (blenderM3Layer.uvOffset[0], blenderM3Layer.uvOffset[1], 0.0)
-    textureSlot.use_map_color_diffuse = False
-
-    uvLayerName = convertM3UVSourceValueToUVLayerName(mesh, blenderM3Layer.uvSource)
-    if uvLayerName != None: 
-        textureSlot.uv_layer = convertM3UVSourceValueToUVLayerName(mesh, blenderM3Layer.uvSource)
-
-    if layerFieldName == "diffuseLayer":
-        textureSlot.use_map_color_diffuse = True
-    elif layerFieldName == "decalLayer":
-        textureSlot.use_map_color_diffuse = True
-    elif layerFieldName == "specularLayer":
-        textureSlot.use_map_specular = True  
-    elif layerFieldName == "normalLayer":
-        texture.use_normal_map = True
-        textureSlot.use_map_normal = True
-        textureSlot.normal_map_space = 'WORLD' # maybe green needs flipped and 'TANGENT' used here?
-        textureSlot.use_stencil = True # Not sure why but this option seems necessary
-    elif layerFieldName in ["emissiveLayer", "emissive2Layer"]:
-        textureSlot.use_map_emit = True
 
 def getStandardMaterialOrNull(scene, mesh):  
     if mesh.m3_material_name == "":
@@ -517,8 +469,6 @@ def createTextureNodeForM3MaterialLayer(mesh, tree, blenderM3Layer, directoryLis
         return None
     
     textureNode = tree.nodes.new("ShaderNodeTexImage")
-    textureNode.color_space = "COLOR"
-    textureNode.projection = "FLAT"
     textureNode.image = image
 
     uvSocket = createUVNodesFromM3LayerAndReturnSocket(mesh, tree, blenderM3Layer)
@@ -628,7 +578,7 @@ def createCyclesMaterialForMeshObject(scene, meshObject):
     if standardMaterial == None:
         return
              
-    realMaterial = bpy.data.materials.new('Material')
+    realMaterial = bpy.data.materials.new(standardMaterial.name)
     directoryList = determineTextureDirectoryList(scene)
     
     diffuseLayer = standardMaterial.layers[getLayerNameFromFieldName("diffuseLayer")]
@@ -851,58 +801,12 @@ def layoutInputNodesOf(tree):
         nodesWithFinalPosition.append(node)   
     
 
-def createClassicBlenderMaterialForMeshObject(scene, meshObject):
-    mesh = meshObject.data
-    standardMaterial = getStandardMaterialOrNull(scene, mesh)
-    if standardMaterial == None:
-        return
-    realMaterial = bpy.data.materials.new('Material')
-
-    diffuseLayer = standardMaterial.layers[getLayerNameFromFieldName("diffuseLayer")]
-    specularLayer = standardMaterial.layers[getLayerNameFromFieldName("specularLayer")]
-    if diffuseLayer.colorEnabled:
-        red = diffuseLayer.color[0]
-        green = diffuseLayer.color[1]
-        blue = diffuseLayer.color[2]
-        alpha =  diffuseLayer.color[3] # no known blender equivalent
-        realMaterial.diffuse_color = (red, green, blue)
-    else:
-        # transparent parts are usually team colored:
-        realMaterial.diffuse_color = tuple(f for f in scene.m3_import_options.teamColor)
-    realMaterial.diffuse_shader = 'FRESNEL' #gave most similar result. Another option would be 'LAMBERT' 
-    realMaterial.diffuse_intensity = diffuseLayer.brightMult
-    
-    if specularLayer.colorEnabled:
-        red = specularLayer.color[0]
-        green = specularLayer.color[1]
-        blue = specularLayer.color[2]
-        alpha =  specularLayer.color[3] # no known blender equivalent
-        realMaterial.specular_color = (red, green, blue)
-    realMaterial.specular_shader = 'COOKTORR'
-    realMaterial.specular_intensity = specularLayer.brightMult
-    
-    # unsued so far:
-    #realMaterial.alpha = 1 # 0.0 - 1.0
-    #realMaterial.ambient = 1
-    
-    textureDirectories = determineTextureDirectoryList(scene)
-    
-    for layerFieldName in ["diffuseLayer", "decalLayer", "specularLayer", "normalLayer","emissiveLayer", "emissive2Layer"]:
-        addTextureSlotBasedOnM3MaterialLayer(mesh, realMaterial, standardMaterial, layerFieldName,  textureDirectories)
-
-    
-    # Remove old materials:
-    while len(mesh.materials) > 0:
-        mesh.materials.pop(0, update_data=True)
-        
-    mesh.materials.append(realMaterial)
 
 def createBlenderMaterialForMeshObject(scene, meshObject):
-    renderEngine = scene.render.engine
-    if renderEngine == 'CYCLES':
-        createCyclesMaterialForMeshObject(scene, meshObject)
-    else:
-        createClassicBlenderMaterialForMeshObject(scene, meshObject)
+    if scene.render.engine != 'BLENDER_EEVEE':
+        scene.render.engine = 'BLENDER_EEVEE'
+    im.material.createMaterialForMesh(scene, meshObject.data)
+    # createCyclesMaterialForMeshObject(scene, meshObject)
 
 
 def createBlenderMaterialsFromM3Materials(scene):

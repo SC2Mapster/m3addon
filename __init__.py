@@ -42,6 +42,10 @@ if "bpy" in locals():
     if "shared" in locals():
         imp.reload(shared)
 
+    if "im" in locals():
+        imp.reload(im)
+        imp.reload(im.material)
+
 from . import shared
 import bpy
 
@@ -4885,7 +4889,7 @@ def register():
 
  
 def unregister():
-    for cls in classes.reversed:
+    for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
     bpy.types.TOPBAR_MT_file_import.remove(menu_func_import)
     bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)
