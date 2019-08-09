@@ -15,7 +15,9 @@ insert_final_newline = true
 # legacy files
 [{__init__.py,calculateTangents.py,createChangeLog.py,listOffsets.py,m3.py,m3ToXml.py,m3export.py,m3import.py,shared.py,structures.xml,transferAnimationIds.py,transferAnimations.py,xmlToM3.py}]
 trim_trailing_whitespace = false
-end_of_line = unset
+
+[*/**.py]
+trim_trailing_whitespace = true
 
 [*.{py,xml}]
 indent_size = 4

@@ -1,34 +1,35 @@
 # m3addon - Blender Import-Export for m3 file format.
 
-Blender addon to import and export models in `m3` format. It's used in Blizzard's games: StarCraft II and Heroes of the Storm.
+**Blender** addon to **import and export** models in **`.m3`** format, which is used in Blizzard's games: **StarCraft II** and **Heroes of the Storm**.
 
->Originally made by: [Florian Köberle aka "println"](https://github.com/flo/m3addon)
-
-* [Bug tracker](https://github.com/Talv/m3addon/issues)
-* [SC2Mapster Discord Server](https://discord.gg/fpY4exB) - gathers small community of people familiar with this plugin - you're likely to get the help here if you ask nicely! :)
-
----
+>Originally made by: [Florian Köberle](https://github.com/flo/m3addon) *(aka "println")*.
 
 ## Installation
 
 1. Download most recent version:
     * **[Blender 2.80](https://github.com/Talv/m3addon/archive/master.zip)**
-    * [Blender 2.79](https://github.com/Talv/m3addon/archive/blender-2.7.zip) (and older)
+    * Older versions, no longer maintained:
+      * [Blender 2.7X](https://github.com/Talv/m3addon/archive/blender-2.7.zip)
 2. Install addon using one of the methods:
     * __Option A__ (automatic):
       * Rename the downloaded zipfile to `m3addon`.
-      * From Blender menu, navigate to `Edit -> Preferences`. Then`Add-ons` tab.
+      * From Blender menu, navigate to `Edit -> Preferences`. Then `Add-ons` tab.
       * Click on the `Install` button and point it to downloaded zipfile.
     * __Option B__ (manual):
       * Extract zipfile to `m3addon` directory which should be placed in following location:
-      * Linux: \
-        `~/.blender/2.80/scripts/addons`
       * Windows:\
         `%APPDATA%\Blender Foundation\Blender\2.80\scripts\addons`
+      * Linux: \
+        `~/.config/blender/2.80/scripts/addons`
       * *(If addon won't appear as a choice in the Blender's preferences, click `Refresh` button or restart the application.)*
 3. Activate the addon in Blender preferences: toggle on the checkbox `[✓]` for `m3addon` entry in Add-ons tab.
 
 ![](https://i.imgur.com/Jpp075Q.png)
+
+### Useful links
+
+* [Bug tracker](https://github.com/Talv/m3addon/issues): Encountered a bug? Feel free to report, but please include any relevant details. For general import/export related bugs, **provide a name of the model** - assuming it comes from either StarCraft II or Heroes of the Storm. In which case filename is enough for me as I can access the files from my local installation directory.
+* [SC2Mapster Discord Server](https://discord.gg/fpY4exB): Gathers small community of people familiar with this addon (channel `#artisttavern`). That's the place to go for some general guidance and support.
 
 ## Features
 

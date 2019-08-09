@@ -12,3 +12,6 @@ test/
 # m3xml to exe
 build/
 dist/
+
+# working docs
+TODO.md
