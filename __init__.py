@@ -972,7 +972,7 @@ def createMaterial(scene, materialName, defaultSetting):
             material.noShadowsCast = True
             material.noHitTest = True
             material.noShadowsReceived = True
-            material.forParticles = True
+            material.transparentShadows = True
             material.useDepthBlendFalloff = True
             material.depthBlendFalloff = shared.defaultDepthBlendFalloff
             material.unknownFlag0x2 = True
@@ -1334,50 +1334,81 @@ class M3Material(bpy.types.PropertyGroup):
     name : bpy.props.StringProperty(name="name", default="Material", options=set())
     materialType : bpy.props.IntProperty(options=set())
     materialIndex : bpy.props.IntProperty(options=set())
-    
+
+
 class M3StandardMaterial(bpy.types.PropertyGroup):
-    name : bpy.props.StringProperty(name="name", default="Material", update=handleMaterialNameChange, options=set())
+    name: bpy.props.StringProperty(name="name", default="Material", update=handleMaterialNameChange, options=set())
     # the following field gets used to update the name of the material reference:
-    materialReferenceIndex : bpy.props.IntProperty(options=set(), default=-1)
-    layers : bpy.props.CollectionProperty(type=M3MaterialLayer, options=set())
-    blendMode : bpy.props.EnumProperty(items=matBlendModeList, options=set(), default="0")
-    priority : bpy.props.IntProperty(options=set())
-    specularity : bpy.props.FloatProperty(name="specularity", options=set())
-    cutoutThresh : bpy.props.IntProperty(name="cutoutThresh", min=0, max=255, default=0, options=set())
-    specMult : bpy.props.FloatProperty(name="spec. mult.", options=set(), default=1.0)
-    emisMult : bpy.props.FloatProperty(name="emis. mult.", options=set(), default=1.0)
-    layerBlendType : bpy.props.EnumProperty(items=matLayerAndEmisBlendModeList, options=set(), default="2")
-    emisBlendType : bpy.props.EnumProperty(items=matLayerAndEmisBlendModeList, options=set(), default="3")
-    specType : bpy.props.EnumProperty(items=matSpecularTypeList, options=set(), default="0")
-    unfogged : bpy.props.BoolProperty(options=set(), default=True)
-    twoSided : bpy.props.BoolProperty(options=set(), default=False)
-    unshaded : bpy.props.BoolProperty(options=set(), default=False)
-    noShadowsCast : bpy.props.BoolProperty(options=set(), default=False)
-    noHitTest : bpy.props.BoolProperty(options=set(), default=False)
-    noShadowsReceived : bpy.props.BoolProperty(options=set(), default=False)
-    depthPrepass : bpy.props.BoolProperty(options=set(), default=False)
-    useTerrainHDR : bpy.props.BoolProperty(options=set(), default=False)
-    splatUVfix : bpy.props.BoolProperty(options=set(), default=False)
-    softBlending : bpy.props.BoolProperty(options=set(), default=False)
-    forParticles : bpy.props.BoolProperty(options=set(), default=False)
-    transparency : bpy.props.BoolProperty(options=set(), default=False)
-    disableSoft : bpy.props.BoolProperty(options=set(), default=False)
-    darkNormalMapping : bpy.props.BoolProperty(options=set(), default=False)
-    decalRequiredOnLowEnd : bpy.props.BoolProperty(options=set(), default=False)
-    acceptSplats : bpy.props.BoolProperty(options=set(), default=False)
-    acceptSplatsOnly : bpy.props.BoolProperty(options=set(), default=False)
-    emissiveRequiredOnLowEnd : bpy.props.BoolProperty(options=set(), default=False)
-    backgroundObject : bpy.props.BoolProperty(options=set(), default=False)
-    zpFillRequiredOnLowEnd : bpy.props.BoolProperty(options=set(), default=False)
-    excludeFromHighlighting : bpy.props.BoolProperty(options=set(), default=False)
-    clampOutput : bpy.props.BoolProperty(options=set(), default=False)
-    geometryVisible : bpy.props.BoolProperty(options=set(), default=True)
-    
-    depthBlendFalloff : bpy.props.FloatProperty(name="depth blend falloff", options=set(), update=handleDepthBlendFalloffChanged, default=0.0)
-    useDepthBlendFalloff : bpy.props.BoolProperty(options=set(), update=handleUseDepthBlendFalloffChanged, description="Should be true for particle system materials", default=False)
-    useVertexColor : bpy.props.BoolProperty(options=set(), description="The vertex color layer named color will be used to tint the model", default=False)
-    useVertexAlpha : bpy.props.BoolProperty(options=set(), description="The vertex color layer named alpha, will be used to determine the alpha of the model", default=False)
-    unknownFlag0x200 : bpy.props.BoolProperty(options=set())
+    materialReferenceIndex: bpy.props.IntProperty(options=set(), default=-1)
+    layers: bpy.props.CollectionProperty(type=M3MaterialLayer, options=set())
+    blendMode: bpy.props.EnumProperty(items=matBlendModeList, options=set(), default="0")
+    priority: bpy.props.IntProperty(options=set(),
+        name='Priority',
+        description=f'''\
+Defines the sorting relationship between this material and other transparent materials in the model file. Within a given model, materials are drawn in order from highest priority value to lowest. Sorting for materials of equal priority is undefined. Priorities have no effect across multiple models.'''
+    )
+    specularity: bpy.props.FloatProperty(options=set(),
+        name='Specularity',
+    )
+    cutoutThresh: bpy.props.IntProperty(name="cutoutThresh", min=0, max=255, default=0, options=set())
+    specMult: bpy.props.FloatProperty(options=set(), default=1.0,
+        name='Specular Multiplier',
+    )
+    emisMult: bpy.props.FloatProperty(options=set(), default=1.0,
+        name='Emissive Multiplier',
+    )
+    layerBlendType: bpy.props.EnumProperty(items=matLayerAndEmisBlendModeList, options=set(), default="2",
+        name='Layer Blend Type',
+    )
+    emisBlendType: bpy.props.EnumProperty(items=matLayerAndEmisBlendModeList, options=set(), default="3")
+    specType: bpy.props.EnumProperty(items=matSpecularTypeList, options=set(), default="0")
+    unfogged: bpy.props.BoolProperty(options=set(), default=True)
+    twoSided: bpy.props.BoolProperty(options=set(), default=False)
+    unshaded: bpy.props.BoolProperty(options=set(), default=False)
+    noShadowsCast: bpy.props.BoolProperty(options=set(), default=False)
+    noHitTest: bpy.props.BoolProperty(options=set(), default=False)
+    noShadowsReceived: bpy.props.BoolProperty(options=set(), default=False)
+    depthPrepass: bpy.props.BoolProperty(options=set(), default=False)
+    useTerrainHDR: bpy.props.BoolProperty(options=set(), default=False,
+        name='Use Terrain HDR',
+    )
+    unknown0x400: bpy.props.BoolProperty(options=set(), default=False,
+        name='unknown0x400',
+    )
+    simulateRoughness: bpy.props.BoolProperty(options=set(), default=False,
+        name='Simulate roughness',
+    )
+    perPixelForwardLighting: bpy.props.BoolProperty(options=set(), default=False)
+    depthFog: bpy.props.BoolProperty(options=set(), default=False)
+    transparentShadows: bpy.props.BoolProperty(options=set(), default=False)
+    decalLighting: bpy.props.BoolProperty(options=set(), default=False)
+    transparencyDepthEffects: bpy.props.BoolProperty(options=set(), default=False)
+    transparencyLocalLights: bpy.props.BoolProperty(options=set(), default=False)
+    disableSoft: bpy.props.BoolProperty(options=set(), default=False)
+    darkNormalMapping: bpy.props.BoolProperty(options=set(), default=False)
+    hairLayerSorting: bpy.props.BoolProperty(options=set(), default=False)
+    acceptSplats: bpy.props.BoolProperty(options=set(), default=False)
+    decalRequiredOnLowEnd: bpy.props.BoolProperty(options=set(), default=False)
+    emissiveRequiredOnLowEnd: bpy.props.BoolProperty(options=set(), default=False)
+    specularRequiredOnLowEnd: bpy.props.BoolProperty(options=set(), default=False)
+    acceptSplatsOnly: bpy.props.BoolProperty(options=set(), default=False)
+    backgroundObject: bpy.props.BoolProperty(options=set(), default=False)
+    unknown0x8000000: bpy.props.BoolProperty(options=set(), default=False)
+    zpFillRequiredOnLowEnd: bpy.props.BoolProperty(options=set(), default=False)
+    excludeFromHighlighting: bpy.props.BoolProperty(options=set(), default=False)
+    clampOutput: bpy.props.BoolProperty(options=set(), default=False)
+    geometryVisible: bpy.props.BoolProperty(options=set(), default=True)
+
+    depthBlendFalloff: bpy.props.FloatProperty(name="depth blend falloff", options=set(), update=handleDepthBlendFalloffChanged, default=0.0,
+        description=f'''\
+Extends the distance over which particle effects fade out when they get close to a solid object. To reduce visual clipping artifacts, particle effects in StarCraft II fade out as they get close to another surface. Increasing this value causes the blend to happen over a wider range. Disable Soft (Depth Blend) can bypass this effect when no depth blend is desired.
+'''
+    )
+    useDepthBlendFalloff: bpy.props.BoolProperty(options=set(), update=handleUseDepthBlendFalloffChanged, description="Should be true for particle system materials", default=False)
+    useVertexColor: bpy.props.BoolProperty(options=set(), description="The vertex color layer named color will be used to tint the model", default=False)
+    useVertexAlpha: bpy.props.BoolProperty(options=set(), description="The vertex color layer named alpha, will be used to determine the alpha of the model", default=False)
+    unknownFlag0x200: bpy.props.BoolProperty(options=set())
+
 
 class M3DisplacementMaterial(bpy.types.PropertyGroup):
     name : bpy.props.StringProperty(name="name", default="Material", update=handleMaterialNameChange, options=set())
@@ -2008,118 +2039,133 @@ class MaterialSelectionPanel(bpy.types.Panel):
         row.prop_search(mesh, 'm3_material_name', scene, 'm3_material_references', text="M3 Material", icon='NONE')
         row.operator("m3.create_material_for_mesh", icon='ZOOM_IN', text="")
 
+
 def displayMaterialPropertiesUI(scene: bt.Scene, layout: bt.UILayout, materialReference):
-        materialType = materialReference.materialType
-        materialIndex = materialReference.materialIndex
+    materialType = materialReference.materialType
+    materialIndex = materialReference.materialIndex
+    
+    if materialType == shared.standardMaterialTypeIndex:
+        material = scene.m3_standard_materials[materialIndex]
+        layout.prop(material, 'name', text="Name")
+        layout.prop(material, 'blendMode', text="Blend Mode")
+        layout.prop(material, 'priority')
+        layout.prop(material, 'specularity')
+        layout.prop(material, 'cutoutThresh', text="Cutout Thresh.", slider=True)
+        layout.prop(material, 'specMult')
+        layout.prop(material, 'emisMult')
+        layout.prop(material, 'layerBlendType')
+        layout.prop(material, 'emisBlendType', text="Emis. Blend Type")
+        layout.prop(material, 'specType', text="Spec. Type")
         
-        if materialType == shared.standardMaterialTypeIndex:
-            material = scene.m3_standard_materials[materialIndex]
-            layout.prop(material, 'name', text="Name")
-            layout.prop(material, 'blendMode', text="Blend Mode")
-            layout.prop(material, 'priority', text="Priority")
-            layout.prop(material, 'specularity', text="Specularity")
-            layout.prop(material, 'cutoutThresh', text="Cutout Thresh.", slider=True)
-            layout.prop(material, 'specMult', text="Spec. Mult.")
-            layout.prop(material, 'emisMult', text="Emis. Mult.")
-            layout.prop(material, 'layerBlendType', text="Layer Blend Type")
-            layout.prop(material, 'emisBlendType', text="Emis. Blend Type")
-            layout.prop(material, 'specType', text="Spec. Type")
-           
-            split = layout.split()
-            split.prop(material, 'useDepthBlendFalloff', text="Depth Blend Falloff:")
-            row = split.row()
-            row.active = material.useDepthBlendFalloff
-            row.prop(material, 'depthBlendFalloff', text="")
-            
-            layout.prop(material, 'useVertexColor', text="Use Vertex Color")
-            layout.prop(material, 'useVertexAlpha', text="Use Vertex Alpha")
-            layout.prop(material, 'unknownFlag0x200', text="unknownFlag0x200")
-            layout.prop(material, 'unfogged', text="Unfogged")
-            layout.prop(material, 'twoSided', text="Two Sided")
-            layout.prop(material, 'unshaded', text="Unshaded")
-            layout.prop(material, 'noShadowsCast', text="No Shadows Cast")
-            layout.prop(material, 'noHitTest', text="No Hit Test")
-            layout.prop(material, 'noShadowsReceived', text="No Shadows Received")
-            layout.prop(material, 'depthPrepass', text="Depth Prepass")
-            layout.prop(material, 'useTerrainHDR', text="Use Terrain HDR")
-            layout.prop(material, 'splatUVfix', text="Splat UV Fix")
-            layout.prop(material, 'softBlending', text="Soft Blending")
-            layout.prop(material, 'forParticles', text="For Particles (?)")
-            layout.prop(material, 'transparency', text="Transparency")
-            layout.prop(material, 'disableSoft', text="Disable Soft")
-            layout.prop(material, 'darkNormalMapping', text="Dark Normal Mapping")
-            split = layout.split()
-            split.prop(material, 'acceptSplats', text="Accept Splats:")
-            row = split.row()
-            row.active = material.acceptSplats
-            row.prop(material, 'acceptSplatsOnly', text="Only")
-            layout.prop(material, 'backgroundObject', text="Background Object")
-            layout.prop(material, 'excludeFromHighlighting', text="No Highlighting")
-            layout.prop(material, 'clampOutput', text="Clamp Output")
-            layout.prop(material, 'geometryVisible', text="Geometry Visible")
+        split = layout.split()
+        split.prop(material, 'useDepthBlendFalloff', text="Depth Blend Falloff:")
+        row = split.row()
+        row.active = material.useDepthBlendFalloff
+        row.prop(material, 'depthBlendFalloff', text="")
 
+        split = layout.split(align=True)
+        split.label(text="Flags")
 
-            split = layout.split(align=True)
-            split.label(text = "Required On Low End:")
+        box = layout.box()
+        col = box.column_flow()
+        
+        col.prop(material, 'useVertexColor', text="Use Vertex Color")
+        col.prop(material, 'useVertexAlpha', text="Use Vertex Alpha")
+        col.prop(material, 'unknownFlag0x200', text="unknownFlag0x200")
+        col.prop(material, 'unfogged', text="Unfogged")
+        col.prop(material, 'twoSided', text="Two Sided")
+        col.prop(material, 'unshaded', text="Unshaded")
+        col.prop(material, 'noShadowsCast', text="No Shadows Cast")
+        col.prop(material, 'noHitTest', text="No Hit Test")
+        col.prop(material, 'noShadowsReceived', text="No Shadows Received")
+        col.prop(material, 'depthPrepass', text="Depth Prepass")
+        col.prop(material, 'useTerrainHDR', text="Use Terrain HDR")
+        col.prop(material, 'unknown0x400')
+        col.prop(material, 'simulateRoughness')
+        col.prop(material, 'perPixelForwardLighting', text="Soft Blending")
+        col.prop(material, 'depthFog')
+        col.prop(material, 'transparentShadows')
+        col.prop(material, 'decalLighting')
+        col.prop(material, 'transparencyDepthEffects')
+        col.prop(material, 'transparencyLocalLights')
+        col.prop(material, 'disableSoft', text="Disable Soft")
+        col.prop(material, 'darkNormalMapping', text="Dark Normal Mapping")
+        col.prop(material, 'hairLayerSorting')
+        col.prop(material, 'backgroundObject', text="Background Object")
+        col.prop(material, 'unknown0x8000000')
+        col.prop(material, 'excludeFromHighlighting', text="No Highlighting")
+        col.prop(material, 'clampOutput', text="Clamp Output")
+        col.prop(material, 'geometryVisible', text="Geometry Visible")
 
-            box = layout.box()
-            col = box.column_flow()
-            col.prop(material, 'decalRequiredOnLowEnd', text="Decal")
-            col.prop(material, 'emissiveRequiredOnLowEnd', text="Emissive")
-            col.prop(material, 'zpFillRequiredOnLowEnd', text="ZP Fill")
-            
-        elif materialType == shared.displacementMaterialTypeIndex:
-            material = scene.m3_displacement_materials[materialIndex]
-            layout.prop(material, 'name', text="Name")
-            layout.prop(material, 'strengthFactor', text="Strength Factor")
-            layout.prop(material, 'priority', text="Priority")
-        elif materialType == shared.compositeMaterialTypeIndex:
-            material = scene.m3_composite_materials[materialIndex]
-            layout.prop(material, 'name', text="Name")
-            layout.label(text = "Sections:")
-            row = layout.row()
-            col = row.column()
-            col.template_list("UI_UL_list", "m3_material_sections", material, "sections", material, "sectionIndex", rows=2)
-            
-            col = row.column(align=True)
-            col.operator("m3.composite_material_add_section", icon='ZOOM_IN', text="")
-            col.operator("m3.composite_material_remove_section", icon='ZOOM_OUT', text="")
-            sectionIndex = material.sectionIndex
-            if (sectionIndex >= 0) and (sectionIndex < len(material.sections)):
-                section = material.sections[sectionIndex]
-                layout.prop_search(section, 'name', scene, 'm3_material_references', text="Material", icon='NONE')
-                layout.prop(section, "alphaFactor", text="Alpha Factor")
-            
-        elif materialType == shared.terrainMaterialTypeIndex:
-            material = scene.m3_terrain_materials[materialIndex]
-            layout.prop(material, 'name', text="Name")
-        elif materialType == shared.volumeMaterialTypeIndex:
-            material = scene.m3_volume_materials[materialIndex]
-            layout.prop(material, 'name', text="Name")
-            layout.prop(material, 'volumeDensity', text="Volume Density")
-        elif materialType == shared.volumeNoiseMaterialTypeIndex:
-            material = scene.m3_volume_noise_materials[materialIndex]
-            layout.prop(material, 'name', text="Name")
-            layout.prop(material, 'volumeDensity', text="Volume Density")
-            layout.prop(material, 'nearPlane', text="Near Plane")
-            layout.prop(material, 'falloff', text="Falloff")
-            layout.prop(material, 'scrollRate', text="Scroll Rate")
-            layout.prop(material, 'translation', text="Translation")
-            layout.prop(material, 'scale', text="Scale")
-            layout.prop(material, 'rotation', text="Rotation")
-            layout.prop(material, 'alphaTreshhold', text="Alpha Treshhold")
-            layout.prop(material, 'drawAfterTransparency', text="Draw after transparency")
-        elif materialType == shared.creepMaterialTypeIndex:
-            material = scene.m3_creep_materials[materialIndex]
-            layout.prop(material, 'name', text="Name")
-        elif materialType == shared.stbMaterialTypeIndex:
-            material = scene.m3_stb_materials[materialIndex]
-            layout.prop(material, 'name', text="Name")
-        elif materialType == shared.lensFlareMaterialTypeIndex:
-            material = scene.m3_lens_flare_materials[materialIndex]
-            layout.prop(material, 'name', text="Name")
-        else:
-            layout.label(text=("Unsupported material type %d" % materialType))
+        split = box.split()
+        split.prop(material, 'acceptSplats', text="Accept Splats")
+        row = split.row()
+        row.active = material.acceptSplats
+        row.prop(material, 'acceptSplatsOnly', text="Accept Splats Only")
+
+        split = layout.split(align=True)
+        split.label(text = "Required On Low End:")
+
+        box = layout.box()
+        col = box.column_flow()
+        col.prop(material, 'decalRequiredOnLowEnd', text="Decal")
+        col.prop(material, 'emissiveRequiredOnLowEnd', text="Emissive")
+        col.prop(material, 'specularRequiredOnLowEnd', text="Specular")
+        col.prop(material, 'zpFillRequiredOnLowEnd', text="ZP Fill")
+        
+    elif materialType == shared.displacementMaterialTypeIndex:
+        material = scene.m3_displacement_materials[materialIndex]
+        layout.prop(material, 'name', text="Name")
+        layout.prop(material, 'strengthFactor', text="Strength Factor")
+        layout.prop(material, 'priority', text="Priority")
+    elif materialType == shared.compositeMaterialTypeIndex:
+        material = scene.m3_composite_materials[materialIndex]
+        layout.prop(material, 'name', text="Name")
+        layout.label(text = "Sections:")
+        row = layout.row()
+        col = row.column()
+        col.template_list("UI_UL_list", "m3_material_sections", material, "sections", material, "sectionIndex", rows=2)
+        
+        col = row.column(align=True)
+        col.operator("m3.composite_material_add_section", icon='ZOOM_IN', text="")
+        col.operator("m3.composite_material_remove_section", icon='ZOOM_OUT', text="")
+        sectionIndex = material.sectionIndex
+        if (sectionIndex >= 0) and (sectionIndex < len(material.sections)):
+            section = material.sections[sectionIndex]
+            layout.prop_search(section, 'name', scene, 'm3_material_references', text="Material", icon='NONE')
+            layout.prop(section, "alphaFactor", text="Alpha Factor")
+        
+    elif materialType == shared.terrainMaterialTypeIndex:
+        material = scene.m3_terrain_materials[materialIndex]
+        layout.prop(material, 'name', text="Name")
+    elif materialType == shared.volumeMaterialTypeIndex:
+        material = scene.m3_volume_materials[materialIndex]
+        layout.prop(material, 'name', text="Name")
+        layout.prop(material, 'volumeDensity', text="Volume Density")
+    elif materialType == shared.volumeNoiseMaterialTypeIndex:
+        material = scene.m3_volume_noise_materials[materialIndex]
+        layout.prop(material, 'name', text="Name")
+        layout.prop(material, 'volumeDensity', text="Volume Density")
+        layout.prop(material, 'nearPlane', text="Near Plane")
+        layout.prop(material, 'falloff', text="Falloff")
+        layout.prop(material, 'scrollRate', text="Scroll Rate")
+        layout.prop(material, 'translation', text="Translation")
+        layout.prop(material, 'scale', text="Scale")
+        layout.prop(material, 'rotation', text="Rotation")
+        layout.prop(material, 'alphaTreshhold', text="Alpha Treshhold")
+        layout.prop(material, 'drawAfterTransparency', text="Draw after transparency")
+    elif materialType == shared.creepMaterialTypeIndex:
+        material = scene.m3_creep_materials[materialIndex]
+        layout.prop(material, 'name', text="Name")
+    elif materialType == shared.stbMaterialTypeIndex:
+        material = scene.m3_stb_materials[materialIndex]
+        layout.prop(material, 'name', text="Name")
+    elif materialType == shared.lensFlareMaterialTypeIndex:
+        material = scene.m3_lens_flare_materials[materialIndex]
+        layout.prop(material, 'name', text="Name")
+    else:
+        layout.label(text=("Unsupported material type %d" % materialType))
+
 
 class MaterialPropertiesPanel(bpy.types.Panel):
     bl_idname = "OBJECT_PT_M3_material_properties"

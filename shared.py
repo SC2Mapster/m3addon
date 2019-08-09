@@ -1489,31 +1489,42 @@ def transferPhysicsShape(transferer):
     transferer.transferFloat("size2")
 
 def transferStandardMaterial(transferer):
-    transferer.transferBit("flags", "useVertexColor")
-    transferer.transferBit("flags", "useVertexAlpha")
-    transferer.transferBit("flags", "unfogged")
-    transferer.transferBit("flags", "twoSided")
-    transferer.transferBit("flags", "unshaded")
-    transferer.transferBit("flags", "noShadowsCast")
-    transferer.transferBit("flags", "noHitTest")
-    transferer.transferBit("flags", "noShadowsReceived")
-    transferer.transferBit("flags", "depthPrepass")
-    transferer.transferBit("flags", "useTerrainHDR")
-    transferer.transferBit("flags", "splatUVfix")
-    transferer.transferBit("flags", "softBlending")
-    transferer.transferBit("flags", "forParticles")
-    transferer.transferBit("flags", "transparency")
-    transferer.transferBit("flags", "disableSoft")
-    transferer.transferBit("flags", "darkNormalMapping")
-    transferer.transferBit("flags", "decalRequiredOnLowEnd")
-    transferer.transferBit("flags", "acceptSplatsOnly")
-    transferer.transferBit("flags", "emissiveRequiredOnLowEnd")
-    transferer.transferBit("flags", "acceptSplats")
-    transferer.transferBit("flags", "backgroundObject")
-    transferer.transferBit("flags", "zpFillRequiredOnLowEnd")
-    transferer.transferBit("flags", "excludeFromHighlighting")
-    transferer.transferBit("flags", "clampOutput")
-    transferer.transferBit("flags", "geometryVisible", sinceVersion=18)
+    transferer.transferMultipleBits("flags", [
+        "useVertexColor",
+        "useVertexAlpha",
+        "unfogged",
+        "twoSided",
+        "unshaded",
+        "noShadowsCast",
+        "noHitTest",
+        "noShadowsReceived",
+        "depthPrepass",
+        "useTerrainHDR",
+        "unknown0x400",
+        "simulateRoughness",
+        "perPixelForwardLighting",
+        "depthFog",
+        "transparentShadows",
+        "decalLighting",
+        "transparencyDepthEffects",
+        "transparencyLocalLights",
+        "disableSoft",
+        "darkNormalMapping",
+        "hairLayerSorting",
+        "acceptSplats",
+        "decalRequiredOnLowEnd",
+        "emissiveRequiredOnLowEnd",
+        "specularRequiredOnLowEnd",
+        "acceptSplatsOnly",
+        "backgroundObject",
+        "unknown0x8000000",
+        "zpFillRequiredOnLowEnd",
+        "excludeFromHighlighting",
+        "clampOutput",
+        "geometryVisible",
+    ])
+    # transferer.transferBit("flags", "geometryVisible", sinceVersion=18)
+
     # depthBlendFalloff needs to be transfered before useDepthBlendFalloff:
     # That way a corrupted model with useDepthBlendFalloff=true 
     # but depthBlendFalloff==0.0 will be fixed: 

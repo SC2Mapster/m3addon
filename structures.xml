@@ -1519,21 +1519,26 @@
                     <bit mask="0x20" name="noShadowsCast" />
                     <bit mask="0x40" name="noHitTest"/>
                     <bit mask="0x80" name="noShadowsReceived"/>
-                    <bit mask="0x100" name="depthPrepass" />
+                    <bit mask="0x100" name="depthPrepass" /> <!-- Z Fill Pass -->
                     <bit mask="0x200" name="useTerrainHDR" />
-                    <bit mask="0x800" name="splatUVfix"/>
-                    <bit mask="0x1000" name="softBlending"/>
-                    <bit mask="0x4000" name="forParticles"/> <!-- maybe -->
-                    <bit mask="0x10000" name="transparency" />
+                    <bit mask="0x400" name="unknown0x400" />
+                    <bit mask="0x800" name="simulateRoughness"/> <!-- formerly: splatUVfix -->
+                    <bit mask="0x1000" name="perPixelForwardLighting"/> <!-- formerly: softBlending -->
+                    <bit mask="0x2000" name="depthFog"/>
+                    <bit mask="0x4000" name="transparentShadows"/> <!-- formerly: forParticles -->
+                    <bit mask="0x8000" name="decalLighting" />
+                    <bit mask="0x10000" name="transparencyDepthEffects" /> <!-- formerly: transparency -->
+                    <bit mask="0x20000" name="transparencyLocalLights" />
                     <bit mask="0x40000" name="disableSoft" />
                     <bit mask="0x80000" name="darkNormalMapping" /> <!-- actually doubleLambert -->
                     <bit mask="0x100000" name="hairLayerSorting" />
+                    <bit mask="0x200000" name="acceptSplats" />
                     <bit mask="0x400000" name="decalRequiredOnLowEnd" />
-                    <bit mask="0x200000" name="acceptSplatsOnly" /> <!-- requires acceptSplats-->
                     <bit mask="0x800000" name="emissiveRequiredOnLowEnd" />
                     <bit mask="0x1000000" name="specularRequiredOnLowEnd" />
-                    <bit mask="0x2000000" name="acceptSplats" />
+                    <bit mask="0x2000000" name="acceptSplatsOnly" />
                     <bit mask="0x4000000" name="backgroundObject" />
+                    <bit mask="0x8000000" name="unknown0x8000000" />
                     <bit mask="0x10000000" name="zpFillRequiredOnLowEnd" />
                     <bit mask="0x20000000" name="excludeFromHighlighting" />
                     <bit mask="0x40000000" name="clampOutput" />

@@ -2653,6 +2653,13 @@ class BlenderToM3DataTransferer:
         booleanValue = getattr(self.blenderObject, bitName)
         self.m3Object.setNamedBit(m3FieldName, bitName, booleanValue)
 
+    def transferMultipleBits(self, m3FieldName, bNameList=None):
+        field = self.m3Object.structureDescription.nameToFieldMap[m3FieldName]
+        if bNameList is None:
+            bNameList = [x for x in field.bitMaskMap]
+        for bitName in bNameList:
+            self.transferBit(m3FieldName, bitName)
+
     def transfer16Bits(self, fieldName):
         vector = getattr(self.blenderObject, fieldName)
         integerValue = 0
