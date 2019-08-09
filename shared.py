@@ -405,20 +405,35 @@ def convertM3UVSourceValueToUVLayerName(mesh, uvSource):
 def createImageObjetForM3MaterialLayer(blenderM3Layer, directoryList):
     if blenderM3Layer == None:
         return None
-    
-    if (blenderM3Layer.imagePath == "") or (blenderM3Layer.imagePath == None):
-        print ("no image path")
-        return None
-    searchedImagePaths = []
-    for directoryPath in directoryList:
-        absoluteImagePath = path.join(directoryPath, blenderM3Layer.imagePath)
-        searchedImagePaths.append(absoluteImagePath)
-        image = image_utils.load_image(absoluteImagePath)
-        if image != None:
-            return image
 
-    print("Failed to load a texture. The following paths have been searched: %s" % searchedImagePaths)
-    return None
+    if (blenderM3Layer.imagePath == "") or (blenderM3Layer.imagePath == None):
+        return None
+
+    imagePath = blenderM3Layer.imagePath
+    blenderImage: bpy.types.Image = None
+
+    if path.isabs(imagePath):
+        if path.isfile(imagePath):
+            blenderImage = image_utils.load_image(imagePath, check_existing=True)
+        else:
+            imagePath = path.basename(imagePath)
+    
+    if not blenderImage:
+        targetList = []
+        for x in directoryList:
+            targetList.append(path.join(x, path.basename(imagePath)))
+            targetList.append(path.join(x, imagePath))
+        
+        for x in targetList:
+            if path.isfile(x):
+                blenderImage = image_utils.load_image(x, check_existing=True)
+                break
+
+        if not blenderImage:
+            print("Failed to load a texture %s. The following paths have been tested: %s" % (imagePath, targetList))
+            blenderImage = image_utils.load_image(imagePath, place_holder=True, check_existing=True)
+
+    return blenderImage
 
 
 def getStandardMaterialOrNull(scene, mesh):  
@@ -626,10 +641,10 @@ def createCyclesMaterialForMeshObject(scene, meshObject):
 
     specularTextureNode = createTextureNodeForM3MaterialLayer(mesh, tree, specularLayer, directoryList)   
 
+    glossyShaderNode.inputs["Roughness"].default_value = 0.2
     if specularTextureNode != None:
         glossyShaderNode = tree.nodes.new("ShaderNodeBsdfGlossy")
         glossyShaderNode.distribution = "BECKMANN"
-        glossyShaderNode.inputs["Roughness"].default_value = 0.2
         if normalMapNode != None:
             tree.links.new(normalMapNode.outputs["Normal"], glossyShaderNode.inputs["Normal"])
         tree.links.new(specularTextureNode.outputs["Color"], glossyShaderNode.inputs["Color"])
@@ -639,6 +654,8 @@ def createCyclesMaterialForMeshObject(scene, meshObject):
         tree.links.new(finalShaderOutputSocket, mixShaderNode.inputs[1])
         tree.links.new(glossyShaderNode.outputs["BSDF"], mixShaderNode.inputs[2])
         finalShaderOutputSocket = mixShaderNode.outputs["Shader"]
+    else:
+        glossyShaderNode.inputs["Specular"].default_value = 0.1
 
     emissiveLayer = standardMaterial.layers[getLayerNameFromFieldName("emissiveLayer")]
     emissiveTextureNode = createTextureNodeForM3MaterialLayer(mesh, tree, emissiveLayer, directoryList) 
