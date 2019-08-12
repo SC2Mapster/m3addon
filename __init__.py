@@ -1637,7 +1637,7 @@ class M3BoneVisiblityOptions(bpy.types.PropertyGroup):
 
 class M3ExportOptions(bpy.types.PropertyGroup):
     path : bpy.props.StringProperty(name="path", default="ExportedModel.m3", options=set())
-    testPatch20Format : bpy.props.BoolProperty(default=False, options=set())
+    testPatch20Format : bpy.props.BoolProperty(default=True, options=set())
     animationExportAmount : bpy.props.EnumProperty(default=shared.exportAmountAllAnimations, items=animationExportAmount, options=set())
 
 class M3ImportOptions(bpy.types.PropertyGroup):
@@ -1732,7 +1732,7 @@ class ExportPanel(bpy.types.Panel):
 
         layout.prop(scene.m3_export_options, "path", text="")
         layout.operator("m3.quick_export", text="Export As M3")
-        layout.prop(scene.m3_export_options, "testPatch20Format", text="Use new experimental format")
+        layout.prop(scene.m3_export_options, "testPatch20Format", text="Export models in v26 of m3 format")
         layout.prop(scene.m3_export_options, "animationExportAmount", text="Export")
 
 
