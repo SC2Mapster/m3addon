@@ -1575,7 +1575,8 @@ class Exporter:
             if boneIndex == None:
                 boneIndex = self.addBoneWithRestPosAndReturnIndex(model, boneName, realBone=False)
             m3Projection = self.createInstanceOf("PROJ")
-            m3Projection.bone = boneIndex
+            m3Projection.boneIndex = boneIndex
+            
             animPathPrefix = "m3_projections[%s]." % projectionIndex
             transferer = BlenderToM3DataTransferer(exporter=self, m3Object=m3Projection, blenderObject=projection, animPathPrefix=animPathPrefix, rootObject=self.scene)
             shared.transferProjection(transferer)
@@ -1587,14 +1588,11 @@ class Exporter:
             m3Projection.boxFrontYOffset = self.createNullFloatAnimationReference(initValue=(- projection.height / 2.0), nullValue=0.0)
             m3Projection.boxBackYOffset = self.createNullFloatAnimationReference(initValue=(projection.height / 2.0), nullValue=0.0)
 
-
             m3Projection.unknownf1f7110b = self.createNullFloatAnimationReference(initValue=0.0, nullValue=0.0)
             m3Projection.unknown2035f500 = self.createNullFloatAnimationReference(initValue=0.0, nullValue=0.0)
             m3Projection.unknown80d8189b = self.createNullFloatAnimationReference(initValue=0.0, nullValue=0.0)
             m3Projection.unknown58ae2b94 = self.createNullVector3AnimationReference(x=0.0, y=0.0, z=0.0, initIsNullValue=False, interpolationType=1)
-            m3Projection.active = self.createNullFlagAnimationReference(1)
 
-            
             materialReferenceIndex = self.materialNameToNewReferenceIndexMap.get(projection.materialName)
             if materialReferenceIndex == None:
                 raise Exception("The projection %s uses '%s' as material, but no m3 material with that name exist!" % (projection.name, projection.materialName))
@@ -2434,6 +2432,11 @@ class BlenderToM3DataTransferer:
         def toUInt16Value(value):
             return min((1<<16)-1,  max(0, round(value)))
         self.transferAnimatableSingleFloatOrInt(fieldName, animRefClass="UInt16AnimationReference", animRefFlags=0, animDataClass="SDU6", convertMethod=toUInt16Value)
+
+    def transferAnimatableUInt32(self, fieldName):
+        def toUInt32Value(value):
+            return min((1<<32)-1,  max(0, round(value)))
+        self.transferAnimatableSingleFloatOrInt(fieldName, animRefClass="UInt32AnimationReference", animRefFlags=0, animDataClass="SDU6", convertMethod=toUInt32Value)
 
     def transferAnimatableBooleanBasedOnSDFG(self, fieldName):
         def convertTo1Or0(value):

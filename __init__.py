@@ -33,27 +33,40 @@ bl_info = {
 
 if "bpy" in locals():
     import imp
-    if "m3import" in locals():
-            imp.reload(m3import)
-            
-    if "m3export" in locals():
-            imp.reload(m3export)
-            
-    if "shared" in locals():
-        imp.reload(shared)
+    localModules = [
+        ["cm", "projection"],
+        ["cm"],
+        ["ui", "projection"],
+        ["ui"],
+        ["im", "material"],
+        ["im"],
+        ["m3import"],
+        ["m3export"],
+        ["shared"],
+    ]
+    for plist in localModules:
+        try:
+            print("Reloading '%s'" % '.'.join(plist))
+            submod = dict(locals())[plist.pop(0)]
+            while submod:
+                imp.reload(submod)
+                if not len(plist):
+                    break
+                currName = plist.pop(0)
+                submod = submod.__dict__[currName]
+        except KeyError as e:
+            print("Failed to reload %s" % e)
 
-    if "im" in locals():
-        imp.reload(im)
-        imp.reload(im.material)
-
-from . import shared
 import bpy
-
 from bpy.props import StringProperty
 import bpy.types as bt
 from bpy_extras.io_utils import ExportHelper, ImportHelper
 import mathutils
 import math
+from . import shared
+from . import cm
+from . import ui
+
 
 def boneNameSet():
     boneNames = set()
@@ -249,12 +262,6 @@ def handleLightTypeOrBoneSuffixChange(self, context):
         selectOrCreateBoneForLight(scene, light)
 
 
-def handleProjectionSizeChange(self, context):
-    projection = self
-    scene = context.scene
-    if projection.updateBlenderBone:
-        selectOrCreateBoneForProjection(scene, projection)
-
 def handleLightSizeChange(self, context):
     scene = context.scene
     light = self
@@ -266,25 +273,6 @@ def handleWarpRadiusChange(self, context):
     warp = self
     if warp.updateBlenderBone:
         selectOrCreateBoneForWarp(scene, warp)
-
-def handleProjectionTypeOrBoneSuffixChange(self, context):
-    scene = context.scene
-    projection = self
-    
-    projection.name = projection.boneSuffix
-    
-    currentBoneName = projection.boneName
-    calculatedBoneName = shared.boneNameForProjection(projection)
-
-    if projection.updateBlenderBone:
-        if currentBoneName != calculatedBoneName:
-            bone, armatureObject = shared.findBoneWithArmatureObject(scene, currentBoneName)
-            if bone != None:
-                bone.name = calculatedBoneName
-                projection.boneName = bone.name
-            else:
-                projection.boneName = calculatedBoneName
-        selectOrCreateBoneForProjection(scene, projection)
 
 
 def handleWarpBoneSuffixChange(self, context):
@@ -359,9 +347,6 @@ def handleMaterialNameChange(self, context):
                 mesh.m3_material_name = materialName
 
 
-def handleMaterialLayerFieldNameChange(self, context):
-    self.name = layerFieldNameToNameMap.get(fieldName, fieldName)
-    
 def handleAttachmentVolumeTypeChange(self, context):
     handleAttachmentPointTypeOrBoneSuffixChange(self, context)
     if self.volumeType in ["0", "1", "2"]:
@@ -701,12 +686,6 @@ def handleBillboardBehaviorIndexChanged(self, context):
     billboardBehavior = scene.m3_billboard_behaviors[scene.m3_billboard_behavior_index]
     selectBoneIfItExists(scene, billboardBehavior.name)
     
-def handleProjectionIndexChanged(self, context):
-    scene = context.scene
-    if scene.m3_projection_index == -1:
-        return
-    projection = scene.m3_projections[scene.m3_projection_index]
-    selectOrCreateBoneForProjection(scene, projection)
     
 def handleWarpIndexChanged(self, context):
     scene = context.scene
@@ -768,11 +747,6 @@ def selectOrCreateBoneForLight(scene, light):
     bone, poseBone = selectOrCreateBone(scene, boneName)
     shared.updateBoneShapeOfLight(light, bone, poseBone)
 
-def selectOrCreateBoneForProjection(scene, projection):
-    scene.m3_bone_visiblity_options.showProjections = True
-    boneName = projection.boneName
-    bone, poseBone = selectOrCreateBone(scene, boneName)
-    shared.updateBoneShapeOfProjection(projection, bone, poseBone)
 
 def selectOrCreateBoneForWarp(scene, projection):
     scene.m3_bone_visiblity_options.showWarps = True
@@ -805,113 +779,13 @@ def selectOrCreateBoneForShapeObject(scene, shapeObject):
     bone, poseBone = selectOrCreateBone(scene, boneName)
     shared.updateBoneShapeOfShapeObject(shapeObject, bone, poseBone)
 
-def selectBone(scene, boneName):
-    bone, armature = shared.findBoneWithArmatureObject(scene, boneName)
-    if bone == None or armature == None:
-        return
-    
-    if bpy.ops.object.mode_set.poll():
-        bpy.ops.object.mode_set(mode='OBJECT')
-    if bpy.ops.object.select_all.poll():
-        bpy.ops.object.select_all(action='DESELECT')
-    
-    armature.select_set(True)
-    scene.view_layers[0].objects.active = armature
-    
-    if bpy.ops.object.mode_set.poll():
-        bpy.ops.object.mode_set(mode='POSE')
-    
-    for b in armature.data.bones:
-        b.select_set(False)
-    
-    bone.select_set(True)
-    
-def removeBone(scene, boneName):
-    "removes the given bone if it exists"
-    bone, armatureObject = shared.findBoneWithArmatureObject(scene, boneName)
-    if bone == None or armatureObject == None:
-        return
-    
-    if bpy.ops.object.mode_set.poll():
-        bpy.ops.object.mode_set(mode='OBJECT')
-    if bpy.ops.object.select_all.poll():
-        bpy.ops.object.select_all(action='DESELECT')
-    
-    armatureObject.select_set(True)
-    scene.view_layers[0].objects.active = armatureObject
-    
-    if bpy.ops.object.mode_set.poll():
-        bpy.ops.object.mode_set(mode='EDIT')
-    
-    armature = armatureObject.data
-    edit_bone = armature.edit_bones[boneName]
-    armature.edit_bones.remove(edit_bone)
-    
-    if bpy.ops.object.mode_set.poll():
-        bpy.ops.object.mode_set(mode='POSE')
-    
 
-def selectOrCreateBone(scene, boneName):
-    "Returns the bone and it's pose variant"
-    if bpy.ops.object.mode_set.poll():
-        bpy.ops.object.mode_set(mode='OBJECT')
-    if bpy.ops.object.select_all.poll():
-        bpy.ops.object.select_all(action='DESELECT')
-    bone, armatureObject = shared.findBoneWithArmatureObject(scene, boneName)
-    boneExists = bone != None
-    if boneExists:
-        armature = armatureObject.data
-        armatureObject.select_set(True)
-        scene.view_layers[0].objects.active = armatureObject
-    else:
-        armatureObject = shared.findArmatureObjectForNewBone(scene)
-        if armatureObject == None:
-            armature = bpy.data.armatures.new(name="Armature")
-            armatureObject = bpy.data.objects.new("Armature", armature)
-            scene.collection.objects.link(armatureObject)
-        else:
-            armature = armatureObject.data
-        armatureObject.select_set(True)
-        scene.view_layers[0].objects.active = armatureObject
-        bpy.ops.object.mode_set(mode='EDIT')
-        editBone = armature.edit_bones.new(name = boneName)
-        editBone.head = (0, 0, 0)
-        editBone.tail = (1, 0, 0)
+selectBone = shared.selectBone
+removeBone = shared.removeBone
+selectOrCreateBone = shared.selectOrCreateBone
+selectBoneIfItExists = shared.selectBoneIfItExists
 
-    if bpy.ops.object.mode_set.poll():
-        bpy.ops.object.mode_set(mode='POSE')
-        
-    for boneOfArmature in armature.bones:
-        isBoneToSelect = boneOfArmature.name == boneName
-        boneOfArmature.select_head = isBoneToSelect
-        boneOfArmature.select_tail = isBoneToSelect
-        boneOfArmature.select = isBoneToSelect
-    armature.bones.active = bone
-        
-    scene.view_layers[0].objects.active = armatureObject
-    armatureObject.select_set(True)
-    for currentBone in armature.bones:
-        currentBone.select = currentBone.name == boneName
-    poseBone = armatureObject.pose.bones[boneName]
-    bone = armatureObject.data.bones[boneName]
-    return (bone, poseBone)
 
-def selectBoneIfItExists(scene, boneName):
-    if bpy.ops.object.mode_set.poll():
-        bpy.ops.object.mode_set(mode='OBJECT')
-    if bpy.ops.object.select_all.poll():
-        bpy.ops.object.select_all(action='DESELECT')
-    bone, armatureObject = shared.findBoneWithArmatureObject(scene, boneName)
-    armature = armatureObject.data
-    armatureObject.select_set(True)
-    scene.view_layers[0].objects.active = armatureObject
-    if bpy.ops.object.mode_set.poll():
-        bpy.ops.object.mode_set(mode='POSE')
-    scene.view_layers[0].objects.active = armatureObject
-    armatureObject.select_set(True)
-    for currentBone in armature.bones:
-        currentBone.select = currentBone.name == boneName
-    
 def determineLayerNames(defaultSetting):
     from . import m3
     settingToStructureNameMap = {
@@ -1075,11 +949,6 @@ ribbonTypeList = [("0", "Planar Billboarded", "Planar Billboarded"),
                   ("2", "Cylinder", "Cylinder"),
                   ("3", "Star Shaped", "Star Shaped")
                  ]
-                 
-projectionTypeList = [(shared.projectionTypeOrthonormal, "Orthonormal", "makes the Projector behave like a box. It will be the same width no matter how close the projector is to the target surface."), 
-                  (shared.projectionTypePerspective, "Perspective", "makes the Projector behave like a camera. The closer the projector is to the surface, the smaller the effect will be.")
-                 ]
-
 
 forceTypeList = [("0", "Directional", "The particles get accelerated into one direction"), 
                     ("1", "Radial", "Particles get accelerated ayway from the force source"),
@@ -1780,28 +1649,6 @@ class M3ImportOptions(bpy.types.PropertyGroup):
     recalculateRestPositionBones : bpy.props.BoolProperty(default=False, options=set())
     teamColor : bpy.props.FloatVectorProperty(default=(1.0, 0.0, 0.0), min = 0.0, max = 1.0, name="team color", size=3, subtype="COLOR", options=set(), description="Team color place holder used for generated blender materials")
     contentToImport : bpy.props.EnumProperty(default="EVERYTHING", items=contentToImportList, options=set())
-
-
-class M3Projection(bpy.types.PropertyGroup):
-    # name attribute seems to be needed for template_list but is not actually in the m3 file
-    # The name gets calculated like this: name = boneSuffix (type)
-    name : bpy.props.StringProperty(options=set())
-    updateBlenderBone : bpy.props.BoolProperty(default=True, options=set())
-    boneSuffix : bpy.props.StringProperty(options=set(), update=handleProjectionTypeOrBoneSuffixChange, default="Projection")
-    boneName : bpy.props.StringProperty(options=set())
-    materialName : bpy.props.StringProperty(options=set())
-    projectionType : bpy.props.EnumProperty(default=shared.projectionTypeOrthonormal, items=projectionTypeList, options=set(), update=handleProjectionTypeOrBoneSuffixChange)
-    fieldOfView : bpy.props.FloatProperty(default=45.0, name="FOV", options={"ANIMATABLE"}, description="represents the angle (in degrees) that defines the vertical bounds of the projector")
-    aspectRatio : bpy.props.FloatProperty(default=1.0, name="Aspect Ratio", options={"ANIMATABLE"})
-    near : bpy.props.FloatProperty(default=0.5, name="Near", options={"ANIMATABLE"})
-    far : bpy.props.FloatProperty(default=10.0, name="Far", options={"ANIMATABLE"})
-    depth : bpy.props.FloatProperty(default=10.0, name="Depth", options=set(), update=handleProjectionSizeChange)
-    width : bpy.props.FloatProperty(default=10.0, name="Width", options=set(), update=handleProjectionSizeChange)
-    height : bpy.props.FloatProperty(default=10.0, name="Height", options=set(), update=handleProjectionSizeChange)
-    alphaOverTimeStart : bpy.props.FloatProperty(default=0.0, name="Alpha over time start", options=set() )
-    alphaOverTimeMid : bpy.props.FloatProperty(default=1.0, name="Alpha over time mid", options=set() )
-    alphaOverTimeEnd : bpy.props.FloatProperty(default=0.0, name="Alpha over time end", options=set() )
-    
 
 
 class M3Warp(bpy.types.PropertyGroup):
@@ -3073,65 +2920,6 @@ class BillboardBehaviorPanel(bpy.types.Panel):
             layout.prop(billboardBehavior, 'name', text="Bone Name")
             layout.prop(billboardBehavior, "billboardType", text="Billboard Type")
 
-class ProjectionPanel(bpy.types.Panel):
-    bl_idname = "OBJECT_PT_M3_projections"
-    bl_label = "M3 Projections"
-    bl_space_type = 'PROPERTIES'
-    bl_region_type = 'WINDOW'
-    bl_context = "scene"
-    bl_options = {'DEFAULT_CLOSED'}
-
-    def draw(self, context):
-        layout = self.layout
-        scene = context.scene
-        row = layout.row()
-        col = row.column()
-        col.template_list("UI_UL_list", "m3_projections", scene, "m3_projections", scene, "m3_projection_index", rows=2)
-
-        col = row.column(align=True)
-        col.operator("m3.projections_add", icon='ZOOM_IN', text="")
-        col.operator("m3.projections_remove", icon='ZOOM_OUT', text="")
-        currentIndex = scene.m3_projection_index
-        if currentIndex >= 0 and currentIndex < len(scene.m3_projections):
-            projection = scene.m3_projections[currentIndex]
-            layout.separator()
-            layout.prop(projection, 'boneSuffix', text="Name")
-            layout.prop(projection, "projectionType", text="Type")
-            layout.prop_search(projection, 'materialName', scene, 'm3_material_references', text="Material", icon='NONE')
-            split = layout.split()
-            col = split.column()
-            col.label(text = "Orthonormal")
-            col.prop(projection, 'depth', text="Depth")
-            col.prop(projection, 'width', text="Width")
-            col.prop(projection, 'height', text="Height")
-            col.active = (projection.projectionType == shared.projectionTypeOrthonormal)
-            split = layout.split()
-            col = split.column()
-            col.label(text = "Perspective")
-            col.prop(projection, 'fieldOfView', text="FOV")
-            col.prop(projection, 'aspectRatio', text="Aspect Ratio")
-            col.prop(projection, 'near', text="Near")
-            col.prop(projection, 'far', text="Far")
-            col.active = (projection.projectionType == shared.projectionTypePerspective)
-            split = layout.split()
-            col = split.column()
-            col.label(text="Alpha Over Time:")
-            split = layout.split()
-            col = split.column()
-            sub = col.column(align=True)
-            sub.label(text="Start:")
-            sub.prop(projection, 'alphaOverTimeStart', text="Start")
-            col = split.column()
-            sub = col.column(align=True)
-            sub.label(text="Middle:")
-            sub.prop(projection, 'alphaOverTimeMid', text="Middle")
-            col = split.column()
-            sub = col.column(align=True)
-            sub.label(text="End:")
-            sub.prop(projection, 'alphaOverTimeEnd', text="End")
-            split = layout.split()
-            col = split.column()
-    
 
 class WarpPanel(bpy.types.Panel):
     bl_idname = "OBJECT_PT_M3_warps"
@@ -4346,51 +4134,6 @@ class M3_BILLBOARD_BEHAVIORS_OT_remove(bpy.types.Operator):
             scene.m3_billboard_behavior_index -= 1
         return{'FINISHED'}
 
-class M3_PROJECTIONS_OT_add(bpy.types.Operator):
-    bl_idname      = 'm3.projections_add'
-    bl_label       = "Add Projection"
-    bl_description = "Adds a projection for the export to the m3 model format"
-
-    def invoke(self, context, event):
-        scene = context.scene
-        projection = scene.m3_projections.add()
-        projection.updateBlenderBone = False
-        projection.boneSuffix = self.findUnusedName(scene)
-        projection.boneName = shared.boneNameForProjection(projection)
-        handleProjectionTypeOrBoneSuffixChange(projection, context)
-        projection.updateBlenderBone = True
-        
-        # The following selection causes a new bone to be created:
-        scene.m3_projection_index = len(scene.m3_projections)-1
-        
-        return{'FINISHED'}
-
-    def findUnusedName(self, scene):
-        usedNames = set()
-        for projection in scene.m3_projections:
-            usedNames.add(projection.boneSuffix)
-        unusedName = None
-        counter = 1
-        while unusedName == None:
-            suggestedName = "%02d" % counter
-            if not suggestedName in usedNames:
-                unusedName = suggestedName
-            counter += 1
-        return unusedName 
-        
-class M3_PROJECTIONS_OT_remove(bpy.types.Operator):
-    bl_idname      = 'm3.projections_remove'
-    bl_label       = "Remove M3 Projection"
-    bl_description = "Removes the active M3 projection"
-    
-    def invoke(self, context, event):
-        scene = context.scene
-        if scene.m3_projection_index >= 0:
-            projection = scene.m3_projections[scene.m3_projection_index]
-            removeBone(scene, projection.boneName)
-            scene.m3_projections.remove(scene.m3_projection_index)
-            scene.m3_projection_index-= 1
-        return{'FINISHED'}
         
         
 class M3_WARPS_OT_add(bpy.types.Operator):
@@ -4787,7 +4530,7 @@ classes = (
     M3RigidBody,
     M3Light,
     M3BillboardBehavior,
-    M3Projection,
+    cm.M3GroupProjection,
     M3Warp,
     M3AttachmentPoint,
     M3ExportOptions,
@@ -4819,7 +4562,7 @@ classes = (
     VisbilityTestPanel,
     LightPanel,
     BillboardBehaviorPanel,
-    ProjectionPanel,
+    ui.ProjectionPanel,
     WarpPanel,
     ParticleSystemCopiesPanel,
     AttachmentPointsPanel,
@@ -4860,8 +4603,8 @@ classes = (
     M3_LIGHTS_OT_remove,
     M3_BILLBOARD_BEHAVIORS_OT_add,
     M3_BILLBOARD_BEHAVIORS_OT_remove,
-    M3_PROJECTIONS_OT_add,
-    M3_PROJECTIONS_OT_remove,
+    ui.M3_PROJECTIONS_OT_add,
+    ui.M3_PROJECTIONS_OT_remove,
     M3_WARPS_OT_add,
     M3_WARPS_OT_remove,
     M3_ATTACHMENT_POINTS_OT_add,
@@ -4910,8 +4653,8 @@ def register():
     bpy.types.Scene.m3_light_index = bpy.props.IntProperty(options=set(), update=handleLightIndexChanged)
     bpy.types.Scene.m3_billboard_behaviors = bpy.props.CollectionProperty(type=M3BillboardBehavior)
     bpy.types.Scene.m3_billboard_behavior_index = bpy.props.IntProperty(options=set(), update=handleBillboardBehaviorIndexChanged)
-    bpy.types.Scene.m3_projections = bpy.props.CollectionProperty(type=M3Projection)
-    bpy.types.Scene.m3_projection_index = bpy.props.IntProperty(options=set(), update=handleProjectionIndexChanged)
+    bpy.types.Scene.m3_projections = bpy.props.CollectionProperty(type=cm.M3GroupProjection)
+    bpy.types.Scene.m3_projection_index = bpy.props.IntProperty(options=set(), update=cm.handleProjectionIndexChanged)
     bpy.types.Scene.m3_warps = bpy.props.CollectionProperty(type=M3Warp)
     bpy.types.Scene.m3_warp_index = bpy.props.IntProperty(options=set(), update=handleWarpIndexChanged)
     bpy.types.Scene.m3_attachment_points = bpy.props.CollectionProperty(type=M3AttachmentPoint)

@@ -56,9 +56,6 @@ attachmentVolumeCapsule = "2"
 lightTypePoint = "1"
 lightTypeSpot = "2"
 
-projectionTypeOrthonormal = "1"
-projectionTypePerspective = "2"
-
 colorChannelSettingRGB="0"
 colorChannelSettingRGBA="1"
 colorChannelSettingA="2"
@@ -85,7 +82,6 @@ star2ForcePrefix = "Star2Force"
 # the prefix for all attachment point names (for volume attachment point names too)
 attachmentPointPrefix = "Ref_" 
 attachmentVolumePrefix = "Vol_"
-projectionPrefix = "Star2 projector"
 warpPrefix = "SC2VertexWarp"
 animObjectIdModel = "MODEL"
 animObjectIdArmature = "ARMATURE"
@@ -187,8 +183,6 @@ def boneNameForLight(light):
     else:
         return toValidBoneName(lightPrefix + boneSuffix)
         
-def boneNameForProjection(projection):    
-    return projectionPrefix + projection.boneSuffix
 
 def boneNameForWarp(warp):    
     return warpPrefix + warp.boneSuffix
@@ -232,6 +226,117 @@ def locRotScaleMatrix(location, rotation, scale):
     result.col[2] *= scale.z
     result.translation = location
     return result
+
+
+def selectBone(scene, boneName):
+    bone, armature = findBoneWithArmatureObject(scene, boneName)
+    if bone is None or armature is None:
+        return
+
+    if bpy.ops.object.mode_set.poll():
+        bpy.ops.object.mode_set(mode='OBJECT')
+    if bpy.ops.object.select_all.poll():
+        bpy.ops.object.select_all(action='DESELECT')
+
+    armature.select_set(True)
+    scene.view_layers[0].objects.active = armature
+
+    if bpy.ops.object.mode_set.poll():
+        bpy.ops.object.mode_set(mode='POSE')
+
+    for b in armature.data.bones:
+        b.select_set(False)
+
+    bone.select_set(True)
+
+
+def removeBone(scene, boneName):
+    "removes the given bone if it exists"
+    bone, armatureObject = findBoneWithArmatureObject(scene, boneName)
+    if bone is None or armatureObject is None:
+        return
+
+    if bpy.ops.object.mode_set.poll():
+        bpy.ops.object.mode_set(mode='OBJECT')
+    if bpy.ops.object.select_all.poll():
+        bpy.ops.object.select_all(action='DESELECT')
+
+    armatureObject.select_set(True)
+    scene.view_layers[0].objects.active = armatureObject
+
+    if bpy.ops.object.mode_set.poll():
+        bpy.ops.object.mode_set(mode='EDIT')
+
+    armature = armatureObject.data
+    edit_bone = armature.edit_bones[boneName]
+    armature.edit_bones.remove(edit_bone)
+
+    if bpy.ops.object.mode_set.poll():
+        bpy.ops.object.mode_set(mode='POSE')
+
+
+def selectOrCreateBone(scene, boneName):
+    "Returns the bone and it's pose variant"
+    if bpy.ops.object.mode_set.poll():
+        bpy.ops.object.mode_set(mode='OBJECT')
+    if bpy.ops.object.select_all.poll():
+        bpy.ops.object.select_all(action='DESELECT')
+    bone, armatureObject = findBoneWithArmatureObject(scene, boneName)
+    boneExists = bone is not None
+    if boneExists:
+        armature = armatureObject.data
+        armatureObject.select_set(True)
+        scene.view_layers[0].objects.active = armatureObject
+    else:
+        armatureObject = findArmatureObjectForNewBone(scene)
+        if armatureObject is None:
+            armature = bpy.data.armatures.new(name="Armature")
+            armatureObject = bpy.data.objects.new("Armature", armature)
+            scene.collection.objects.link(armatureObject)
+        else:
+            armature = armatureObject.data
+        armatureObject.select_set(True)
+        scene.view_layers[0].objects.active = armatureObject
+        bpy.ops.object.mode_set(mode='EDIT')
+        editBone = armature.edit_bones.new(name=boneName)
+        editBone.head = (0, 0, 0)
+        editBone.tail = (1, 0, 0)
+
+    if bpy.ops.object.mode_set.poll():
+        bpy.ops.object.mode_set(mode='POSE')
+
+    for boneOfArmature in armature.bones:
+        isBoneToSelect = boneOfArmature.name == boneName
+        boneOfArmature.select_head = isBoneToSelect
+        boneOfArmature.select_tail = isBoneToSelect
+        boneOfArmature.select = isBoneToSelect
+    armature.bones.active = bone
+
+    scene.view_layers[0].objects.active = armatureObject
+    armatureObject.select_set(True)
+    for currentBone in armature.bones:
+        currentBone.select = currentBone.name == boneName
+    poseBone = armatureObject.pose.bones[boneName]
+    bone = armatureObject.data.bones[boneName]
+    return (bone, poseBone)
+
+
+def selectBoneIfItExists(scene, boneName):
+    if bpy.ops.object.mode_set.poll():
+        bpy.ops.object.mode_set(mode='OBJECT')
+    if bpy.ops.object.select_all.poll():
+        bpy.ops.object.select_all(action='DESELECT')
+    bone, armatureObject = findBoneWithArmatureObject(scene, boneName)
+    armature = armatureObject.data
+    armatureObject.select_set(True)
+    scene.view_layers[0].objects.active = armatureObject
+    if bpy.ops.object.mode_set.poll():
+        bpy.ops.object.mode_set(mode='POSE')
+    scene.view_layers[0].objects.active = armatureObject
+    armatureObject.select_set(True)
+    for currentBone in armature.bones:
+        currentBone.select = currentBone.name == boneName
+
 
 class UniqueNameFinder:
     
@@ -1001,24 +1106,12 @@ def updateBoneShapeOfLight(light, bone, poseBone):
     meshName = boneName + 'Mesh'
     updateBoneShape(bone, poseBone, meshName, untransformedPositions, faces)
 
-def updateBoneShapeOfProjection(projection, bone, poseBone):
-    projectionType = projection.projectionType
-    
-    if projectionType == projectionTypeOrthonormal:
-        untransformedPositions, faces = createMeshDataForCuboid(projection.width, projection.height, projection.depth)
-    else:
-        # TODO create correct mesh for perspective projection
-        untransformedPositions, faces = createMeshDataForSphere(1.0)
-
-    boneName = boneNameForProjection(projection)
-    meshName = boneName + 'Mesh'
-    updateBoneShape(bone, poseBone, meshName, untransformedPositions, faces)
 
 def updateBoneShapeOfWarp(warp, bone, poseBone):
     radius = warp.radius
     untransformedPositions, faces = createMeshDataForSphere(radius)
 
-    boneName = boneNameForProjection(warp)
+    boneName = boneNameForWarp(warp)
     meshName = boneName + 'Mesh'
     updateBoneShape(bone, poseBone, meshName, untransformedPositions, faces)
 
@@ -1453,6 +1546,18 @@ def transferProjection(transferer):
     transferer.transferFloat("alphaOverTimeStart")
     transferer.transferFloat("alphaOverTimeMid")
     transferer.transferFloat("alphaOverTimeEnd")
+    transferer.transferFloat("splatLifeTimeAttack")
+    transferer.transferFloat("splatLifeTimeAttackTo")
+    transferer.transferFloat("splatLifeTimeHold")
+    transferer.transferFloat("splatLifeTimeHoldTo")
+    transferer.transferFloat("splatLifeTimeDecay")
+    transferer.transferFloat("splatLifeTimeDecayTo")
+    transferer.transferFloat("attenuationPlaneDistance")
+    transferer.transferAnimatableUInt32("active")
+    transferer.transferEnum("splatLayer")
+    transferer.transferInt("lodReduce")
+    transferer.transferInt("lodCut")
+    transferer.transferMultipleBits("flags")
 
 
 def transferWarp(transferer):

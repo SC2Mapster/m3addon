@@ -2096,26 +2096,30 @@
             <field name="boxRightXOffset" type="FloatAnimationReference" />
             <field name="boxFrontYOffset" type="FloatAnimationReference" />
             <field name="boxBackYOffset" type="FloatAnimationReference" />
-            <field name="unknownca4e8e36" type="uint32" />
+            <field name="unknownca4e8e36" default-value="0" type="uint32" />
             <field name="alphaOverTimeStart" type="float" />
             <field name="alphaOverTimeMid" type="float" />
             <field name="alphaOverTimeEnd" type="float" />
             <field name="splatLifeTimeAttack" type="float" />
-            <field name="splatLifeTimeAttack2" type="float" />
+            <field name="splatLifeTimeAttackTo" type="float" />
             <field name="splatLifeTimeHold" type="float" />
-            <field name="splatLifeTimeHold2" type="float" />
+            <field name="splatLifeTimeHoldTo" type="float" />
             <field name="splatLifeTimeDecay" type="float" />
-            <field name="splatLifeTimeDecay2" type="float" />
+            <field name="splatLifeTimeDecayTo" type="float" />
             <field name="attenuationPlaneDistance" type="float" />
-            <field name="active" type="UInt8AnimationReference" />
-            <field name="unknown7c53fb7b" type="uint32" />
-            <field name="splatLayer" type="uint16" since-version="5" />
-            <field name="unknowncbb79159" type="uint16" default-value="0xFFFF" since-version="5" />
-            <field name="lodReduce" type="uint16" since-version="5" />
-            <field name="unknownf0dfd391" type="uint16" default-value="0" since-version="5" />
-            <field name="lodCut" type="uint16" since-version="5" />
-            <field name="unknowndf285472" size="8" default-value="0x00000000" since-version="5" />
-            <field name="unknowna0283820" size="18" till-version="4" />
+            <field name="active" type="UInt32AnimationReference" />
+            <field name="splatLayer" type="uint32" since-version="4" />
+            <field name="lodReduce" type="uint32" since-version="4" />
+            <field name="lodCut" type="uint32" since-version="4" />
+            <field name="flags" type="uint32" default-value="0" since-version="4">
+                <bits>
+                    <bit mask="0x1" name="staticPosition" />
+                    <bit mask="0x2" name="unknownFlag0x2" />
+                    <bit mask="0x4" name="unknownFlag0x4" />
+                    <bit mask="0x8" name="unknownFlag0x8" />
+                </bits>
+            </field>
+            <!-- <field name="unknowna0283820" size="18" till-version="4" /> -->
         </fields>
     </structure>
     
