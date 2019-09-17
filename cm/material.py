@@ -31,6 +31,7 @@ blenderMaterialsFieldNames = {
     shared.stbMaterialTypeIndex: "m3_stb_materials",
     # TODO: reflection material
     shared.lensFlareMaterialTypeIndex: "m3_lens_flare_materials",
+    shared.bufferMaterialTypeIndex: "m3_buffer_materials",
 }
 
 uvSourceList = [

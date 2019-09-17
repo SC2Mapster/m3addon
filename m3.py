@@ -157,7 +157,7 @@ class M3StructureDescription:
     def createInstances(self, buffer, count, checkExpectedValue=True):
         if self.isPrimitive:
             if self.structureName == "CHAR":
-                return buffer[:count-1].decode("ASCII")
+                return buffer[:count-1].decode("ASCII", "replace")
             elif self.structureName == "U8__":
                 return bytearray(buffer[:count])
             else:
@@ -1173,7 +1173,7 @@ def checkThatAllSectionsGotReferenced(sections):
                     positionInSection = sectionToCheck.rawBytes.find(bytesToSearch)
                     if positionInSection != -1:
                         flagBytes = sectionToCheck.rawBytes[positionInSection+8:positionInSection+12]
-                        flagsAsHex = byteDataToHex(flagBytes)
+                        flagsAsHex = ''.join(["%02x" % x for x in flagBytes])
                         stderr.write("  -> Found maybe a reference at offset %d in a section of type %sV%s with flag %s\n" % (positionInSection, sectionToCheck.indexEntry.tag,sectionToCheck.indexEntry.version, flagsAsHex))
                         sectionToCheck.structureDescription.dumpOffsets()
 
