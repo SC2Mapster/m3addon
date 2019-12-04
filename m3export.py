@@ -655,7 +655,7 @@ class Exporter:
             self.scene.collection.objects.unlink(meshObjectCopy)
             mesh = meshObjectCopy.data
             meshObject = meshObjectCopy
-            mesh.update(calc_loop_triangles=True)
+            mesh.update()
             
             materialReferenceIndex = self.materialNameToNewReferenceIndexMap.get(mesh.m3_material_name)
             if materialReferenceIndex == None:

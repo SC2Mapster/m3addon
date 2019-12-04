@@ -3653,7 +3653,7 @@ class M3_PARTICLE_SYSTEMS_OT_create_spawn_points_from_mesh(bpy.types.Operator):
             activeObject = context.active_object 
             if activeObject != None and activeObject.type == 'MESH':
                 mesh = activeObject.data
-                mesh.update(calc_loop_triangles=True)
+                mesh.update()
                 particleSystem.spawnPoints.clear()
                 for vertex in mesh.vertices:
                     spawnPoint = particleSystem.spawnPoints.add()
