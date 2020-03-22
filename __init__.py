@@ -64,6 +64,7 @@ from bpy_extras.io_utils import ExportHelper, ImportHelper
 import mathutils
 import math
 from . import shared
+from .shared import selectBone, removeBone, selectOrCreateBone, selectBoneIfItExists
 from . import cm
 from . import ui
 
@@ -778,12 +779,6 @@ def selectOrCreateBoneForShapeObject(scene, shapeObject):
         scene.m3_bone_visiblity_options.showFuzzyHitTests = True
     bone, poseBone = selectOrCreateBone(scene, boneName)
     shared.updateBoneShapeOfShapeObject(shapeObject, bone, poseBone)
-
-
-selectBone = shared.selectBone
-removeBone = shared.removeBone
-selectOrCreateBone = shared.selectOrCreateBone
-selectBoneIfItExists = shared.selectBoneIfItExists
 
 
 def determineLayerNames(defaultSetting):
