@@ -572,8 +572,6 @@ def createUVNodesFromM3LayerAndReturnSocket(mesh, tree, blenderM3Layer):
     
     if (not blenderM3Layer.textureWrapX) and (not blenderM3Layer.textureWrapY):
         mappingNode = tree.nodes.new("ShaderNodeMapping")
-        mappingNode.use_min = True
-        mappingNode.use_max = True
         mappingNode.vector_type = "POINT"
         tree.links.new(outputNode, mappingNode.inputs["Vector"])
         outputNode = mappingNode.outputs["Vector"]
