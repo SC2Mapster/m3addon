@@ -46,18 +46,18 @@ def createSingleStructureElement(xmlNode, structureDescription):
         field = structureDescription.fields[fieldIndex]
         if field.name != fieldName:
             raise Exception("XML file is incompatible: Expected field %s but found field %s" % (field.name, fieldName) )
-        
+
         fieldContent = createFieldContent(child,field)
         setattr(createdObject, field.name, fieldContent)
         fieldIndex += 1
-    
+
     missingFields = len(structureDescription.fields) - fieldIndex
     if missingFields > 0:
         raise Exception("XML file is incompatible: %d fields are missing in %s" % (missingFields, structureDescription.structureName))
-        
+
     return createdObject
-                
-intTypeStrings = set(["int32","int16","int8","uint32", "uint16", "uint8"])     
+
+intTypeStrings = set(["int32","int16","int8","uint32", "uint16", "uint8"])
 def createFieldContent(xmlNode, field):
     if isinstance(field, m3.ReferenceField):
         if field.historyOfReferencedStructures == None:
@@ -118,8 +118,8 @@ def createListElement(xmlNode, structureDescription):
         return float(stringContentOf(xmlNode))
     else:
         return createSingleStructureElement(xmlNode, structureDescription)
-      
-      
+
+
 def childElementsOf(parentName, xmlNode):
     expectedChildNames = parentName + "-element"
     for child in xmlNode.childNodes:
@@ -138,7 +138,7 @@ def createElementList(xmlNode, parentName, historyOfReferencedStructure):
     else:
         if len(xmlElements) == 0:
             return []
-        
+
         child = xmlNode.firstChild
         structVersion = int(xmlNode.getAttribute("structureVersion"))
         structName = xmlNode.getAttribute("structureName")
@@ -151,9 +151,9 @@ def createElementList(xmlNode, parentName, historyOfReferencedStructure):
     for child in xmlElements:
         o = createListElement(child, structureDescription)
         createdList.append(o)
-        
+
     return createdList
-        
+
 
 
 def convertFile(inputFilePath, outputDirectory):
@@ -171,7 +171,7 @@ def convertFile(inputFilePath, outputDirectory):
     model = createSingleStructureElement(modelElement, modelDescription)
     m3.saveAndInvalidateModel(model, outputFilePath)
 
- 
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -187,13 +187,13 @@ if __name__ == "__main__":
         if not (filePath.endswith(".m3.xml") or os.path.isdir(filePath)):
             sys.stderr.write("%s neither a directory nor does it end with '.m3.xml'\n" % filePath)
             sys.exit(2)
-            
-            
+
+
     if args.watch:
         if ((len(args.path) == 0) or os.path.isdir(filePath)):
             sys.stderr.write("Watch option is only supported for a single file")
             sys.exit(2)
-        
+
         previousModelModiticationTime = os.path.getmtime(filePath)
         convertFile(filePath, outputDirectory)
         print("Converted %s to an m3 file. Will convert it again if it changes" % filePath)
