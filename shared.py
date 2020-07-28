@@ -80,7 +80,7 @@ star2RibbonPrefix = "Star2Ribbon"
 star2ForcePrefix = "Star2Force"
 # Ref_ is the bone prefix for attachment points without volume and
 # the prefix for all attachment point names (for volume attachment point names too)
-attachmentPointPrefix = "Ref_" 
+attachmentPointPrefix = "Ref_"
 attachmentVolumePrefix = "Vol_"
 warpPrefix = "SC2VertexWarp"
 animObjectIdModel = "MODEL"
@@ -100,7 +100,7 @@ layerFieldNameToNameMap = {
     "evioLayer": "Evio",
     "evioMaskLayer": "Evio Mask",
     "alphaMaskLayer": "Alpha Mask",
-    "alphaMask2Layer": "Alpha Mask 2", 
+    "alphaMask2Layer": "Alpha Mask 2",
     "normalLayer": "Normal",
     "heightLayer": "Height",
     "colorDefiningLayer": "Color Defining Layer",
@@ -135,7 +135,7 @@ def layerFieldNamesOfM3Material(m3Material):
 
 def toValidBoneName(name):
     maxLength = 31
-    return name[:maxLength]    
+    return name[:maxLength]
 
 def boneNameForAttachmentPoint(attachmentPoint):
     if attachmentPoint.volumeType == "-1":
@@ -151,7 +151,7 @@ def attachmentPointNameFromBoneName(boneName):
         return boneName[len(attachmentVolumePrefix):]
     else:
         return boneName
-    
+
 
 def setDefaultValue(defaultAction, path, index, value):
     curve = None
@@ -166,11 +166,11 @@ def setDefaultValue(defaultAction, path, index, value):
 
 def boneNameForPartileSystem(particleSystem):
     return toValidBoneName(star2ParticlePrefix + particleSystem.name)
-    
+
 def boneNameForRibbon(ribbon):
     return toValidBoneName(star2RibbonPrefix + ribbon.boneSuffix)
 
-    
+
 def boneNameForForce(force):
     return toValidBoneName(star2ForcePrefix + force.boneSuffix)
 
@@ -182,9 +182,9 @@ def boneNameForLight(light):
         raise Exception("No prefix is known for light %s" % lightType)
     else:
         return toValidBoneName(lightPrefix + boneSuffix)
-        
 
-def boneNameForWarp(warp):    
+
+def boneNameForWarp(warp):
     return warpPrefix + warp.boneSuffix
 
 def boneNameForPartileSystemCopy(copy):
@@ -339,28 +339,28 @@ def selectBoneIfItExists(scene, boneName):
 
 
 class UniqueNameFinder:
-    
+
     def __init__(self):
         self.usedNames = set()
-    
+
     def markNamesOfCollectionAsUsed(self, collection):
         for item in collection:
             self.usedNames.add(item.name)
-            
+
     def findNameAndMarkAsUsedLike(self, wantedName):
         nameWithoutNumberSuffix = self.removeNumberSuffix(wantedName)
         namePrefix = nameWithoutNumberSuffix[:25]
         # Suffixes of sc2 animations most often start with 01
         # For other objects it doesn't hurt do it the same, and often it is even like that
-        suffixNumber = 1 
+        suffixNumber = 1
         name = wantedName
         while name in self.usedNames:
             name = "%s %02d" % (namePrefix, suffixNumber)
             suffixNumber += 1
         self.usedNames.add(name)
-        return name   
+        return name
 
-    
+
     def removeNumberSuffix(self, name):
         lastIndex = len(name) -1
         index = lastIndex
@@ -437,11 +437,11 @@ def quaternionInterpolationFunction(leftInterpolationValue, rightInterpolationVa
 def floatsAlmostEqual(floatExpected, floatActual):
     delta = abs(floatExpected - floatActual)
     return delta < 0.00001
-    
+
 def vectorsAlmostEqual(vectorExpected, vectorActual):
     diff = vectorExpected - vectorActual
     return diff.length < 0.00001
-    
+
 def quaternionsAlmostEqual(q0, q1):
     distanceSqr = sqr(q0.x-q1.x)+sqr(q0.y-q1.y)+sqr(q0.z-q1.z)+sqr(q0.w-q1.w)
     return distanceSqr < sqr(0.00001)
@@ -487,8 +487,8 @@ def findMeshObjects(scene: bpy.types.Scene) -> Iterable[bpy.types.Object]:
     for currentObject in scene.objects:
         if currentObject.type == 'MESH':
             yield currentObject
-    
-            
+
+
 def convertM3UVSourceValueToUVLayerName(mesh, uvSource):
     """ Can return None"""
     if uvSource == "0":
@@ -501,8 +501,8 @@ def convertM3UVSourceValueToUVLayerName(mesh, uvSource):
         uvLayerIndex = 3
     else:
         return None
-    
-    if uvLayerIndex < len(mesh.uv_layers): 
+
+    if uvLayerIndex < len(mesh.uv_layers):
         return mesh.uv_layers[uvLayerIndex].name
     else:
         return None
@@ -522,13 +522,13 @@ def createImageObjetForM3MaterialLayer(blenderM3Layer, directoryList):
             blenderImage = image_utils.load_image(imagePath, check_existing=True)
         else:
             imagePath = path.basename(imagePath)
-    
+
     if not blenderImage:
         targetList = []
         for x in directoryList:
             targetList.append(path.join(x, path.basename(imagePath)))
             targetList.append(path.join(x, imagePath))
-        
+
         for x in targetList:
             if path.isfile(x):
                 blenderImage = image_utils.load_image(x, check_existing=True)
@@ -541,12 +541,12 @@ def createImageObjetForM3MaterialLayer(blenderM3Layer, directoryList):
     return blenderImage
 
 
-def getStandardMaterialOrNull(scene, mesh):  
+def getStandardMaterialOrNull(scene, mesh):
     if mesh.m3_material_name == "":
         return None
     materialReference = scene.m3_material_references[mesh.m3_material_name]
     materialType = materialReference.materialType
-    materialIndex = materialReference.materialIndex 
+    materialIndex = materialReference.materialIndex
     if not materialType in [standardMaterialTypeIndex, compositeMaterialTypeIndex]:
         print ("Material generation is only supported for starard materials, but not for material %s" % m3MaterialFieldNames[materialType])
         return None
@@ -563,13 +563,13 @@ def getStandardMaterialOrNull(scene, mesh):
 def createUVNodesFromM3LayerAndReturnSocket(mesh, tree, blenderM3Layer):
     """ Returns a socket that provies UVs or None"""
     uvLayerName = convertM3UVSourceValueToUVLayerName(mesh, blenderM3Layer.uvSource)
-    if uvLayerName == None: 
+    if uvLayerName == None:
         return None
     uvAttributeNode = tree.nodes.new("ShaderNodeAttribute")
     uvAttributeNode.attribute_name = uvLayerName
-    
+
     outputNode = uvAttributeNode.outputs["Vector"]
-    
+
     if (not blenderM3Layer.textureWrapX) and (not blenderM3Layer.textureWrapY):
         mappingNode = tree.nodes.new("ShaderNodeMapping")
         mappingNode.vector_type = "POINT"
@@ -585,29 +585,29 @@ def createTextureNodeForM3MaterialLayer(mesh, tree, blenderM3Layer, directoryLis
     image = createImageObjetForM3MaterialLayer(blenderM3Layer, directoryList)
     if image == None:
         return None
-    
+
     textureNode = tree.nodes.new("ShaderNodeTexImage")
     textureNode.image = image
 
     uvSocket = createUVNodesFromM3LayerAndReturnSocket(mesh, tree, blenderM3Layer)
     if uvSocket != None:
         tree.links.new(uvSocket, textureNode.inputs["Vector"])
-    
+
     return textureNode
 
 def determineTextureDirectoryList(scene):
     textureDirectories = []
     textureDirectories.append(scene.m3_import_options.rootDirectory)
-    
+
     if path.isfile(scene.m3_import_options.path):
         modelDirectory = path.dirname(scene.m3_import_options.path)
         textureDirectories.append(modelDirectory)
     return textureDirectories
 
 def createNormalMapNode(mesh, tree, standardMaterial, directoryList):
-    
+
     normalLayer = standardMaterial.layers[getLayerNameFromFieldName("normalLayer")]
-    normalTextureNode = createTextureNodeForM3MaterialLayer(mesh, tree, normalLayer, directoryList)   
+    normalTextureNode = createTextureNodeForM3MaterialLayer(mesh, tree, normalLayer, directoryList)
     if normalTextureNode == None:
         return None
     normalTextureSeparateRGBNode = tree.nodes.new("ShaderNodeSeparateRGB")
@@ -638,7 +638,7 @@ def createNormalMapNode(mesh, tree, standardMaterial, directoryList):
     tree.links.new(normalTextureGreenMul2Node.outputs["Value"], normalTextureGreenPower2Node.inputs[0])
     tree.links.new(normalTextureGreenMul2Node.outputs["Value"], normalTextureGreenPower2Node.inputs[1])
 
-    
+
     # Bring alpha of normal texture to range [-0.5,0.5]
     normalTextureAlphaSubZeroDotFiveNode = tree.nodes.new("ShaderNodeMath")
     normalTextureAlphaSubZeroDotFiveNode.operation = "SUBTRACT"
@@ -663,7 +663,7 @@ def createNormalMapNode(mesh, tree, standardMaterial, directoryList):
     tree.links.new(normalTextureGreenPower2Node.outputs["Value"], normalTextureAddGreenAndAlphaNode.inputs[0])
     tree.links.new(normalTextureAlphaPower2Node.outputs["Value"], normalTextureAddGreenAndAlphaNode.inputs[1])
 
-    # Calculate (new blue)^2 == 1 - (new red)^2 + (new green)^2 
+    # Calculate (new blue)^2 == 1 - (new red)^2 + (new green)^2
     # == 1- ((green in range [-1,1])^2 to (alpha in range [-1,1])^2)
     normalTextureNewBluePower2Node = tree.nodes.new("ShaderNodeMath")
     normalTextureNewBluePower2Node.operation = "SUBTRACT"
@@ -676,7 +676,7 @@ def createNormalMapNode(mesh, tree, standardMaterial, directoryList):
     normalTextureNewBlueNode.operation = "POWER"
     normalTextureNewBlueNode.inputs[1].default_value = 0.5
     tree.links.new(normalTextureNewBluePower2Node.outputs["Value"], normalTextureNewBlueNode.inputs[0])
-    
+
     normalTextureConvertedNode = tree.nodes.new("ShaderNodeCombineRGB")
     tree.links.new(normalTextureNode.outputs["Alpha"], normalTextureConvertedNode.inputs["R"])
     tree.links.new(normalTextureGreenInvertNode.outputs["Value"], normalTextureConvertedNode.inputs["G"])
@@ -695,10 +695,10 @@ def createCyclesMaterialForMeshObject(scene, meshObject):
     standardMaterial = getStandardMaterialOrNull(scene, mesh)
     if standardMaterial == None:
         return
-             
+
     realMaterial = bpy.data.materials.new(standardMaterial.name)
     directoryList = determineTextureDirectoryList(scene)
-    
+
     diffuseLayer = standardMaterial.layers[getLayerNameFromFieldName("diffuseLayer")]
     specularLayer = standardMaterial.layers[getLayerNameFromFieldName("specularLayer")]
 
@@ -706,8 +706,8 @@ def createCyclesMaterialForMeshObject(scene, meshObject):
     tree = realMaterial.node_tree
     tree.links.clear()
     tree.nodes.clear()
-    
-    diffuseTextureNode = createTextureNodeForM3MaterialLayer(mesh, tree, diffuseLayer, directoryList)    
+
+    diffuseTextureNode = createTextureNodeForM3MaterialLayer(mesh, tree, diffuseLayer, directoryList)
     if diffuseTextureNode != None:
         if diffuseLayer.colorChannelSetting == colorChannelSettingRGBA:
             diffuseTeamColorMixNode = tree.nodes.new("ShaderNodeMixRGB")
@@ -723,17 +723,17 @@ def createCyclesMaterialForMeshObject(scene, meshObject):
         rgbNode = tree.nodes.new("ShaderNodeRGB")
         rgbNode.outputs[0].default_value = (0,0,0,1)
         finalDiffuseColorOutputSocket = rgbNode.outputs[0]
-        
+
     decalLayer = standardMaterial.layers[getLayerNameFromFieldName("decalLayer")]
-    decalTextureNode = createTextureNodeForM3MaterialLayer(mesh, tree, decalLayer, directoryList)   
+    decalTextureNode = createTextureNodeForM3MaterialLayer(mesh, tree, decalLayer, directoryList)
     if decalTextureNode != None:
-        decalAddingNode = tree.nodes.new("ShaderNodeMixRGB") 
+        decalAddingNode = tree.nodes.new("ShaderNodeMixRGB")
         decalAddingNode. blend_type = "SCREEN"
         tree.links.new(decalTextureNode.outputs["Alpha"], decalAddingNode.inputs["Fac"])
         tree.links.new(decalTextureNode.outputs["Color"], decalAddingNode.inputs["Color2"])
         tree.links.new(finalDiffuseColorOutputSocket, decalAddingNode.inputs["Color1"])
         finalDiffuseColorOutputSocket = decalAddingNode.outputs["Color"]
-    
+
 
     normalMapNode = createNormalMapNode(mesh, tree, standardMaterial, directoryList)
     diffuseShaderNode = tree.nodes.new("ShaderNodeBsdfDiffuse")
@@ -742,7 +742,7 @@ def createCyclesMaterialForMeshObject(scene, meshObject):
     tree.links.new(finalDiffuseColorOutputSocket, diffuseShaderNode.inputs["Color"])
     finalShaderOutputSocket = diffuseShaderNode.outputs["BSDF"]
 
-    specularTextureNode = createTextureNodeForM3MaterialLayer(mesh, tree, specularLayer, directoryList)   
+    specularTextureNode = createTextureNodeForM3MaterialLayer(mesh, tree, specularLayer, directoryList)
 
     glossyShaderNode.inputs["Roughness"].default_value = 0.2
     if specularTextureNode != None:
@@ -761,7 +761,7 @@ def createCyclesMaterialForMeshObject(scene, meshObject):
         glossyShaderNode.inputs["Specular"].default_value = 0.1
 
     emissiveLayer = standardMaterial.layers[getLayerNameFromFieldName("emissiveLayer")]
-    emissiveTextureNode = createTextureNodeForM3MaterialLayer(mesh, tree, emissiveLayer, directoryList) 
+    emissiveTextureNode = createTextureNodeForM3MaterialLayer(mesh, tree, emissiveLayer, directoryList)
     if emissiveTextureNode != None:
         emissiveShaderNode = tree.nodes.new("ShaderNodeEmission")
         emissiveShaderNode.inputs[1].default_value = 10.0 #Strength
@@ -774,7 +774,7 @@ def createCyclesMaterialForMeshObject(scene, meshObject):
         finalShaderOutputSocket = mixShaderNode.outputs["Shader"]
 
     alphaLayer = standardMaterial.layers[getLayerNameFromFieldName("alphaMaskLayer")]
-    alphaTextureNode = createTextureNodeForM3MaterialLayer(mesh, tree, alphaLayer, directoryList)   
+    alphaTextureNode = createTextureNodeForM3MaterialLayer(mesh, tree, alphaLayer, directoryList)
     if alphaTextureNode != None and alphaLayer.colorChannelSetting in [colorChannelSettingA, colorChannelSettingR, colorChannelSettingG, colorChannelSettingB]:
         transparencyShaderNode = tree.nodes.new("ShaderNodeBsdfTransparent")
 
@@ -786,7 +786,7 @@ def createCyclesMaterialForMeshObject(scene, meshObject):
         else:
             separateRGBNode = tree.nodes.new("ShaderNodeSeparateRGB")
             tree.links.new(alphaTextureNode.outputs["Color"], separateRGBNode.inputs["Image"])
-            
+
             if alphaLayer.colorChannelSetting == colorChannelSettingR:
                tree.links.new(separateRGBNode.outputs["R"], mixShaderNode.inputs["Fac"])
             elif alphaLayer.colorChannelSetting == colorChannelSettingG:
@@ -795,7 +795,7 @@ def createCyclesMaterialForMeshObject(scene, meshObject):
                tree.links.new(separateRGBNode.outputs["B"], mixShaderNode.inputs["Fac"])
             else:
                 raise Exception("alpha texture setting not handled properly earilier")
-        finalShaderOutputSocket = mixShaderNode.outputs["Shader"] 
+        finalShaderOutputSocket = mixShaderNode.outputs["Shader"]
 
     outputNode =  tree.nodes.new("ShaderNodeOutputMaterial")
     outputNode.location = (500.0, 000.0)
@@ -806,7 +806,7 @@ def createCyclesMaterialForMeshObject(scene, meshObject):
     # Remove old materials:
     while len(mesh.materials) > 0:
         mesh.materials.pop(0, update_data=True)
-        
+
     mesh.materials.append(realMaterial)
 
 def createNodeNameToInputNodesMap(tree):
@@ -856,7 +856,7 @@ def layoutInputNodesOf(tree):
                 xBasedOnNode = node.location[0] -inputNode.width -horizontalDistanceBetweenNodes
                 inputNode.location[0] = min(inputNode.location[0], xBasedOnNode)
                 namesOfNodesToCheck.add(inputNode.name)
-    
+
     xLinkCountNameTuples = list()
     for node in tree.nodes:
         linkCount = 0
@@ -866,11 +866,11 @@ def layoutInputNodesOf(tree):
         outputNodes = nodeNameToOutputNodesMap.get(node.name)
         if outputNodes != None:
             linkCount += len(outputNodes)
-            
-        
+
+
         xLinkCountNameTuples.append((node.location[0], linkCount, node.name))
     xLinkCountNameTuples.sort(reverse=True)
-    
+
     nodesWithFinalPosition = []
     for x, linkCount, name in xLinkCountNameTuples:
         node = tree.nodes[name]
@@ -882,7 +882,7 @@ def layoutInputNodesOf(tree):
             perfectY = ySum / len(outputNodes)
         else:
             perfectY = node.location[1]
-        
+
         width = node.width
         height = getHeightOfNewNode(node)
         xCollisionNodes = []
@@ -890,11 +890,11 @@ def layoutInputNodesOf(tree):
             oX = otherNode.location[0]
             oWidth = node.width
             oIsRight = (oX >= x + width)
-            oIsLeft =  (oX <= x - oWidth) 
+            oIsLeft =  (oX <= x - oWidth)
             xCollision = not (oIsRight or oIsLeft)
             if xCollision:
                 xCollisionNodes.append(otherNode)
-        
+
         yLowerThanWished = perfectY
         yHigherThanWished = perfectY
         goodYPicked = False
@@ -904,7 +904,7 @@ def layoutInputNodesOf(tree):
             else:
                 yPicked = yHigherThanWished
             goodYPicked = True
-            for otherNode in xCollisionNodes:  
+            for otherNode in xCollisionNodes:
                 oY = otherNode.location[1]
                 oHeight = getHeightOfNewNode(otherNode)
                 oIsHigher = oY >= yPicked + oHeight + verticalDistanceBetweenNodes
@@ -918,8 +918,8 @@ def layoutInputNodesOf(tree):
                         yHigherThanWished = oY + height + verticalDistanceBetweenNodes
                     break
         node.location[1] = yPicked
-        nodesWithFinalPosition.append(node)   
-    
+        nodesWithFinalPosition.append(node)
+
 
 
 def createBlenderMaterialForMeshObject(scene, meshObject):
@@ -932,7 +932,7 @@ def createBlenderMaterialForMeshObject(scene, meshObject):
 def createBlenderMaterialsFromM3Materials(scene):
     for meshObject in findMeshObjects(scene):
         createBlenderMaterialForMeshObject(scene, meshObject)
-            
+
 def composeMatrix(location, rotation, scale):
     locMatrix= mathutils.Matrix.Translation(location)
     rotationMatrix = rotation.to_matrix().to_4x4()
@@ -940,7 +940,7 @@ def composeMatrix(location, rotation, scale):
     for i in range(3):
         scaleMatrix[i][i] = scale[i]
     return locMatrix @ rotationMatrix @ scaleMatrix
-            
+
 def getLongAnimIdOf(objectId, animPath):
     if objectId == animObjectIdScene and animPath.startswith("m3_boundings"):
         return objectId + "m3_boundings"
@@ -957,7 +957,7 @@ def getRandomAnimIdNotIn(animIdSet):
 def createHiddenMeshObject(name, untransformedPositions, faces, matrix):
     mesh = bpy.data.meshes.new(name)
     meshObject = bpy.data.objects.new(name, mesh)
-    meshObject.location = (0,0,0) 
+    meshObject.location = (0,0,0)
 
     transformedPositions = []
     for v in untransformedPositions:
@@ -970,7 +970,7 @@ def createHiddenMeshObject(name, untransformedPositions, faces, matrix):
 
     # mesh.loop_triangles.add(len(faces))
     # mesh.loop_triangles.foreach_set("vertices", io_utils.unpack_face_list(faces))
-    
+
     mesh.update(calc_edges=True)
     return meshObject
 
@@ -1056,8 +1056,8 @@ def updateBoneShapeOfRibbon(ribbon, bone, poseBone):
 
     #untransformedPositions, faces = createMeshDataForSphere(0.02)
     #TODO create the correct ribbon meshes
-    
-    
+
+
     boneName = ribbon.boneName
     meshName = boneName + 'Mesh'
     updateBoneShape(bone, poseBone, meshName, untransformedPositions, faces)
@@ -1082,7 +1082,7 @@ def updateBoneShapeOfAttachmentPoint(attachmentPoint, bone, poseBone):
         #TODO create proper meshes for the 2 unknown shape types:
         print("Warning: The attachment volume %s has the unsupported type id %s" % (attachmentPoint.name, volumeType))
         untransformedPositions, faces= ([(0,0,0), (0,0,1), (0,1,1)], [(0,1,2)])
-        
+
     boneName = boneNameForAttachmentPoint(attachmentPoint)
     meshName = boneName + 'Mesh'
     updateBoneShape(bone, poseBone, meshName, untransformedPositions, faces)
@@ -1099,7 +1099,7 @@ def updateBoneShapeOfLight(light, bone, poseBone):
         untransformedPositions, faces = createMeshDataForLightCone(radius, height)
     else:
         raise Exception("Unsupported light type")
-        
+
     boneName = boneNameForLight(light)
     meshName = boneName + 'Mesh'
     updateBoneShape(bone, poseBone, meshName, untransformedPositions, faces)
@@ -1124,12 +1124,12 @@ def getRigidBodyBones(scene, rigidBody):
     if armature == None or bone == None:
         print("Warning: Could not find bone name specified in rigid body: %s" % rigidBody.name)
         return None, None
-    
+
     poseBone = armature.pose.bones[rigidBody.boneName]
     if poseBone == None:
         print("Warning: Could not find posed bone: %s" % rigidBody.boneName)
         return None, None
-    
+
     return bone, poseBone
 
 def createPhysicsShapeMeshData(shape):
@@ -1144,43 +1144,43 @@ def createPhysicsShapeMeshData(shape):
     else:
         meshObject = bpy.data.objects[shape.meshObjectName]
         mesh = meshObject.data
-        
+
         vertices = [v.co for v in mesh.vertices]
         faces = [f.vertices for f in mesh.polygons]
-    
+
     matrix = composeMatrix(shape.offset, shape.rotationEuler, shape.scale)
     vertices = [matrix @ mathutils.Vector(v) for v in vertices]
-    
+
     return vertices, faces
 
 def updateBoneShapeOfRigidBody(scene, rigidBody):
     bone, poseBone = getRigidBodyBones(scene, rigidBody)
     if bone == None or poseBone == None:
         return
-    
+
     if len(rigidBody.physicsShapes) == 0:
         removeRigidBodyBoneShape(scene, rigidBody)
         return
-    
+
     combinedVertices, combinedFaces = [], []
     for shape in rigidBody.physicsShapes:
         vertices, faces = createPhysicsShapeMeshData(shape)
         # TODO: remove this check when mesh / convex hull is implemented
         if vertices == None or faces == None:
             continue
-        
+
         faces = [[fe + len(combinedVertices) for fe in f] for f in faces]
-        
+
         combinedVertices.extend(vertices)
         combinedFaces.extend(faces)
-    
+
     updateBoneShape(bone, poseBone, "PhysicsShapeBoneMesh", combinedVertices, combinedFaces)
 
 def removeRigidBodyBoneShape(scene, rigidBody):
     bone, poseBone = getRigidBodyBones(scene, rigidBody)
     if bone == None or poseBone == None:
         return
-    
+
     poseBone.custom_shape = None
     bone.show_wire = False
 
@@ -1194,7 +1194,7 @@ def updateBoneShape(bone, poseBone, meshName, untransformedPositions, faces, mat
     scaleMatrix[1][1] = invertedBoneScale
     scaleMatrix[2][2] = invertedBoneScale
     matrix = scaleMatrix @ matrix
-    
+
     #TODO reuse existing mesh of bone if it exists
     poseBone.custom_shape = createHiddenMeshObject(meshName, untransformedPositions, faces, matrix)
     bone.show_wire = True
@@ -1216,7 +1216,7 @@ def createMeshDataForLightCone(radius, height, numberOfSideFaces = 10):
         x = math.cos(angle0)*radius
         y = math.sin(angle0)*radius
         vertices.append((x,y, -height))
-        
+
     tipVertexIndex = len(vertices)
     vertices.append((0, 0, 0))
     for i in range(numberOfSideFaces):
@@ -1248,7 +1248,7 @@ def createMeshDataForSphere(radius, numberOfSideFaces = 10, numberOfCircles = 10
             x = math.cos(angle)*circleRadius
             y = math.sin(angle)*circleRadius
             vertices.append((x, y, circleHeight))
-    
+
     bottomVertexIndex = len(vertices)
     vertices.append((0, 0,-radius))
     for i in range(numberOfSideFaces):
@@ -1257,7 +1257,7 @@ def createMeshDataForSphere(radius, numberOfSideFaces = 10, numberOfCircles = 10
         i1 = bottomVertexIndex
         i2 = nextI
         faces.append((i0, i1, i2))
-    
+
     topVertexIndex = len(vertices)
     vertices.append((0, 0,radius))
     for i in range(numberOfSideFaces):
@@ -1310,7 +1310,7 @@ def createMeshDataForCapsule(radius, height, numberOfSideFaces = 10, numberOfCir
             x = math.cos(angle)*circleRadius
             y = math.sin(angle)*circleRadius
             vertices.append((x, y, circleHeight))
-    
+
     bottomVertexIndex = len(vertices)
     vertices.append((0, 0,-halfHeight -radius))
     for i in range(numberOfSideFaces):
@@ -1319,7 +1319,7 @@ def createMeshDataForCapsule(radius, height, numberOfSideFaces = 10, numberOfCir
         i1 = bottomVertexIndex
         i2 = nextI
         faces.append((i0, i1, i2))
-    
+
     topVertexIndex = len(vertices)
     vertices.append((0, 0,halfHeight + radius))
     for i in range(numberOfSideFaces):
@@ -1365,14 +1365,14 @@ def getOrCreateTrack(animationData, trackName):
         track.name = trackName
         track.mute = True
     return track
-        
-        
+
+
 def getOrCreateDefaultActionFor(objectWithAnimationData):
     if objectWithAnimationData.animation_data == None:
         objectWithAnimationData.animation_data_create()
     animationData = objectWithAnimationData.animation_data
     defaultValuesTrack = getOrCreateTrack(animationData, "Default Values")
-    
+
     if len(defaultValuesTrack.strips) > 0:
         defaultAction = defaultValuesTrack.strips[0].action
     else:
@@ -1646,8 +1646,8 @@ def transferStandardMaterial(transferer):
     # transferer.transferBit("flags", "geometryVisible", sinceVersion=18)
 
     # depthBlendFalloff needs to be transfered before useDepthBlendFalloff:
-    # That way a corrupted model with useDepthBlendFalloff=true 
-    # but depthBlendFalloff==0.0 will be fixed: 
+    # That way a corrupted model with useDepthBlendFalloff=true
+    # but depthBlendFalloff==0.0 will be fixed:
     # When the flag gets set in the blender material it sets
     # the depthBlendFalloff to 0.2 and thus fixes the combination
     transferer.transferFloat("depthBlendFalloff")
@@ -1662,7 +1662,7 @@ def transferStandardMaterial(transferer):
     transferer.transferEnum("layerBlendType")
     transferer.transferEnum("emisBlendType")
     transferer.transferEnum("specType")
-    
+
 def transferDisplacementMaterial(transferer):
     transferer.transferAnimatableFloat("strengthFactor")
     transferer.transferInt("priority")
@@ -1746,7 +1746,7 @@ def transferAnimation(transferer):
     transferer.transferBit("flags", "notLooping")
     transferer.transferBit("flags", "alwaysGlobal")
     transferer.transferBit("flags", "globalInPreviewer")
-    
+
 def transferSTC(transferer):
     transferer.transferBoolean("runsConcurrent")
     transferer.transferInt("priority")
@@ -1764,7 +1764,7 @@ def transferCamera(transferer):
 def transferFuzzyHitTest(transferer):
     transferer.transferEnum("shape")
     transferer.transferFloat("size0")
-    transferer.transferFloat("size1") 
+    transferer.transferFloat("size1")
     transferer.transferFloat("size2")
 
 def transferLight(transferer):
@@ -1789,33 +1789,33 @@ def transferBillboardBehavior(transferer):
     transferer.transferEnum("billboardType")
 
 blenderMaterialsFieldNames = {
-    standardMaterialTypeIndex: "m3_standard_materials", 
-    displacementMaterialTypeIndex: "m3_displacement_materials", 
-    compositeMaterialTypeIndex: "m3_composite_materials", 
-    terrainMaterialTypeIndex: "m3_terrain_materials", 
-    volumeMaterialTypeIndex: "m3_volume_materials",  
+    standardMaterialTypeIndex: "m3_standard_materials",
+    displacementMaterialTypeIndex: "m3_displacement_materials",
+    compositeMaterialTypeIndex: "m3_composite_materials",
+    terrainMaterialTypeIndex: "m3_terrain_materials",
+    volumeMaterialTypeIndex: "m3_volume_materials",
     creepMaterialTypeIndex: "m3_creep_materials",
     volumeNoiseMaterialTypeIndex: "m3_volume_noise_materials",
     stbMaterialTypeIndex: "m3_stb_materials",
     lensFlareMaterialTypeIndex: "m3_lens_flare_materials"
     }
-m3MaterialFieldNames = { 
-    standardMaterialTypeIndex: "standardMaterials", 
-    displacementMaterialTypeIndex: "displacementMaterials", 
-    compositeMaterialTypeIndex: "compositeMaterials", 
-    terrainMaterialTypeIndex: "terrainMaterials", 
-    volumeMaterialTypeIndex: "volumeMaterials",  
+m3MaterialFieldNames = {
+    standardMaterialTypeIndex: "standardMaterials",
+    displacementMaterialTypeIndex: "displacementMaterials",
+    compositeMaterialTypeIndex: "compositeMaterials",
+    terrainMaterialTypeIndex: "terrainMaterials",
+    volumeMaterialTypeIndex: "volumeMaterials",
     creepMaterialTypeIndex: "creepMaterials",
     volumeNoiseMaterialTypeIndex: "volumeNoiseMaterials",
     stbMaterialTypeIndex: "splatTerrainBakeMaterials",
     lensFlareMaterialTypeIndex: "lensFlareMaterial"
     }
 materialTransferMethods = {
-        standardMaterialTypeIndex: transferStandardMaterial, 
-        displacementMaterialTypeIndex: transferDisplacementMaterial, 
-        compositeMaterialTypeIndex: transferCompositeMaterial, 
-        terrainMaterialTypeIndex: transferTerrainMaterial, 
-        volumeMaterialTypeIndex: transferVolumeMaterial,  
+        standardMaterialTypeIndex: transferStandardMaterial,
+        displacementMaterialTypeIndex: transferDisplacementMaterial,
+        compositeMaterialTypeIndex: transferCompositeMaterial,
+        terrainMaterialTypeIndex: transferTerrainMaterial,
+        volumeMaterialTypeIndex: transferVolumeMaterial,
         creepMaterialTypeIndex: transferCreepMaterial,
         volumeNoiseMaterialTypeIndex: transferVolumeNoiseMaterial,
         stbMaterialTypeIndex: transfersplatTerrainBakeMaterial,

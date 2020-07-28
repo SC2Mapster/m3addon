@@ -27,31 +27,31 @@ def recalculateTangentsOfFaces(m3VerticesToUpdate, faces):
         vertex0 = m3VerticesToUpdate[face[0]]
         vertex1 = m3VerticesToUpdate[face[1]]
         vertex2 = m3VerticesToUpdate[face[2]]
-        
+
         uv0 = uvIntToFloat(vertex0.uv0)
         uv1 = uvIntToFloat(vertex1.uv0)
         uv2 = uvIntToFloat(vertex2.uv0)
-        
+
         u0 = uv0[0]
         u1 = uv1[0]
         u2 = uv2[0]
         v0 = uv0[1]
         v1 = uv1[1]
         v2 = uv2[1]
-        
+
         deltaU1 = u1 - u0
         deltaU2 = u2 - u0
         deltaV1 = v1 - v0
         deltaV2 = v2 - v0
-        
+
         e1x = vertex1.position.x - vertex0.position.x
         e1y = vertex1.position.y - vertex0.position.y
         e1z = vertex1.position.z - vertex0.position.z
-        
+
         e2x = vertex2.position.x - vertex0.position.x
         e2y = vertex2.position.y - vertex0.position.y
         e2z = vertex2.position.z - vertex0.position.z
-        
+
         inverseFactor = (deltaU1*deltaV2 - deltaU2*deltaV1)
         if (inverseFactor < 0.00000001 and inverseFactor > -0.00000001):
             continue;
@@ -65,17 +65,17 @@ def recalculateTangentsOfFaces(m3VerticesToUpdate, faces):
         by = (- deltaU2 * e1y + deltaU1 * e2y)
         bz = (- deltaU2 * e1z + deltaU1 * e2z)
         bx, by, bz = normalize(bx, by, bz)
-        
+
         tangentBitangentTuple = ((tx, ty, tz), (bx, by, bz))
-        
+
         listV0 = faceIndexToTangentAndBitangentTupleList.get(face[0],[])
         listV0.append(tangentBitangentTuple)
         faceIndexToTangentAndBitangentTupleList[face[0]] = listV0
-        
+
         listV1 = faceIndexToTangentAndBitangentTupleList.get(face[1],[])
         listV1.append(tangentBitangentTuple)
         faceIndexToTangentAndBitangentTupleList[face[1]] = listV1
-        
+
         listV2 = faceIndexToTangentAndBitangentTupleList.get(face[2],[])
         listV2.append(tangentBitangentTuple)
         faceIndexToTangentAndBitangentTupleList[face[2]] = listV2
@@ -161,5 +161,5 @@ if __name__ == "__main__":
     parser.add_argument('inputPath',  help="A *.m3 file")
     parser.add_argument('outputPath', help="A *.m3 file")
     args = parser.parse_args()
-    
+
     convert(args.inputPath, args.outputPath)

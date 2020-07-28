@@ -33,7 +33,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
 
-    animIdModel = m3.loadModel(args.animIdFile) 
+    animIdModel = m3.loadModel(args.animIdFile)
     modelToFix = m3.loadModel(args.modelToFix)
     outputFile = args.outputFile
 
@@ -48,21 +48,21 @@ if __name__ == "__main__":
         newAnimId = boneWithAnimId.location.header.animId
         boneToFix.location.header.animId = newAnimId
         oldAnimIdToNewAnimIdMap[oldAnimId] = newAnimId
-        
+
         oldAnimId = boneToFix.rotation.header.animId
         newAnimId = boneWithAnimId.rotation.header.animId
         boneToFix.rotation.header.animId = newAnimId
         oldAnimIdToNewAnimIdMap[oldAnimId] = newAnimId
-        
+
         oldAnimId = boneToFix.scale.header.animId
         newAnimId = boneWithAnimId.scale.header.animId
         boneToFix.scale.header.animId = newAnimId
         oldAnimIdToNewAnimIdMap[oldAnimId] = newAnimId
-       
+
     def assertModelContainsOneDivisionAndMSec(model):
         if len(model.divisions) != 1 or len(model.divisions[0].msec) != 1:
             raise Exception("Model contains %d divisions and the first division has %d msec" %(en(model.divisions), len(model.divisions[0].msec)))
-    
+
     assertModelContainsOneDivisionAndMSec(modelToFix)
     assertModelContainsOneDivisionAndMSec(animIdModel)
     msecToFix = modelToFix.divisions[0].msec[0]
@@ -71,7 +71,7 @@ if __name__ == "__main__":
     newAnimId = msecWithAnimId.boundingsAnimation.header.animId
     msecToFix.boundingsAnimation.header.animId = newAnimId
     oldAnimIdToNewAnimIdMap[oldAnimId] = newAnimId
-        
+
 
     for stc in modelToFix.sequenceTransformationCollections:
         animIds = stc.animIds
@@ -79,13 +79,13 @@ if __name__ == "__main__":
             newAnimId = oldAnimIdToNewAnimIdMap.get(animIds[i])
             if newAnimId != None:
                 animIds[i] = newAnimId
-    
+
     for sts in modelToFix.sts:
         animIds = sts.animIds
         for i in range(len(animIds)):
             newAnimId = oldAnimIdToNewAnimIdMap.get(animIds[i])
             if newAnimId != None:
                 animIds[i] = newAnimId
-    
+
     m3.saveAndInvalidateModel(modelToFix, outputFile)
 
