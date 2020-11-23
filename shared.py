@@ -1579,9 +1579,9 @@ def transferForce(transferer):
     transferer.transferBit("flags", "unbounded")
 
 def transferRigidBody(transferer):
-    transferer.transferFloat("unknownAt0", tillVersion=3)
-    transferer.transferFloat("unknownAt4", tillVersion=3)
-    transferer.transferFloat("unknownAt8", tillVersion=3)
+    transferer.transferFloat("unknownAt0", tillVersion=2)
+    transferer.transferFloat("unknownAt4", tillVersion=2)
+    transferer.transferFloat("unknownAt8", tillVersion=2)
     # skip other unknown values for now
     transferer.transferBit("flags", "collidable")
     transferer.transferBit("flags", "walkable")

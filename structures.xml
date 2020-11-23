@@ -2236,6 +2236,7 @@
         <description>Physics shape data</description>
         <versions>
             <version number="1" size="132" />
+            <version number="2" size="292" />
             <version number="3" size="300" />
         </versions>
         <fields>
@@ -2267,39 +2268,40 @@
             <field till-version="1" name="planeEquations" type="SmallReference" refTo="VEC4" />
             <!-- Belongs to the previous reference and seems not be get properly initialized with 0: -->
             <field till-version="1" name="uninitializedFieldAt116" type="uint32" default-value="0" />
-            <field name="unknown66ce545e" size="24" expected-value="0x000000000000000000000000000000000000000000000000" since-version="3" />
+            <field name="unknown66ce545e" size="24" expected-value="0x000000000000000000000000000000000000000000000000" since-version="2" />
             <field name="size0" type="float" default-value="1.0" /> <!-- box x-size / capsule radius (/ cylinder radius / sphere radius?) -->
             <field name="size1" type="float" default-value="1.0" /> <!-- box y-size / capsule length (/ cylinder length?) -->
             <field name="size2" type="float" default-value="1.0" /> <!-- box z-size -->
-            <field name="unknown71459989" type="Reference" refTo="VEC3" since-version="3" />
-            <field name="unknown46c85f1e" type="Reference" refTo="VEC4" since-version="3" />
-            <field name="unknown4f8176e7" type="Reference" refTo="DMSE" since-version="3" />
-            <field name="unknown124fad04" type="Reference" refTo="U8__" since-version="3" />
-            <field name="unknownbda8f787" size="12" default-value="0x000000000000000000000000" since-version="3" />
+            <field name="unknown71459989" type="Reference" refTo="VEC3" since-version="2" />
+            <field name="unknown46c85f1e" type="Reference" refTo="VEC4" since-version="2" />
+            <field name="unknown4f8176e7" type="Reference" refTo="DMSE" since-version="2" />
+            <field name="unknown124fad04" type="Reference" refTo="U8__" since-version="2" />
+            <field name="unknownbda8f787" size="12" default-value="0x000000000000000000000000" since-version="2" />
             <!-- unknown2e655ca4 can have the value 0x80000000 too -->
-            <field name="unknown2e655ca4" size="4" since-version="3" />
+            <field name="unknown2e655ca4" size="4" since-version="2" />
             <!-- unknown7df99f73 is not a float and has strange content -->
-            <field name="unknown7df99f73" size="4" since-version="3" />
-            <field name="unknown5c04305e" size="4" default-value="0x00000000" since-version="3" />
+            <field name="unknown7df99f73" size="4" since-version="2" />
+            <field name="unknown5c04305e" size="4" default-value="0x00000000" since-version="2" />
             <!-- unknown8d41b3f8 is not a float and has strange content -->
-            <field name="unknown8d41b3f8" size="4" since-version="3" />
+            <field name="unknown8d41b3f8" size="4" since-version="2" />
             <!-- unknown56fece2 is not a float and has strange content -->
-            <field name="unknown56fece2" size="4" since-version="3" />
-            <field name="unknown6f23bce8" type="Reference" refTo="DMMN" since-version="3" />
-            <field name="unknown9836ec85" type="Reference" refTo="VEC4" since-version="3" />
-            <field name="unknownac0ac492" size="12" default-value="0x000000000000000000000000" since-version="3" />
-            <field name="unknown90e72e22" type="Reference" refTo="MT32" since-version="3" />
-            <field name="unknownd93ef965" size="12" default-value="0x000000000000000000000000" since-version="3" />
-            <field name="unknown09823b6e" size="12" default-value="0x000000000000000000000000" since-version="3" />
-            <field name="unknown2f8ad6d6" size="12" default-value="0x000000000000000000000000" since-version="3" />
-            <field name="unknown9d115fa7" size="4" since-version="3" />
+            <field name="unknown56fece2" size="4" since-version="2" />
+            <field name="unknown6f23bce8" type="Reference" refTo="DMMN" since-version="2" />
+            <field name="unknown9836ec85" type="Reference" refTo="VEC4" since-version="2" />
+            <field name="unknownac0ac492" size="12" default-value="0x000000000000000000000000" since-version="2" />
+            <field name="unknown90e72e22" type="Reference" refTo="MT32" since-version="2" />
+            <field name="unknownd93ef965" size="12" default-value="0x000000000000000000000000" since-version="2" />
+            <field name="unknown09823b6e" size="12" default-value="0x000000000000000000000000" since-version="2" />
+            <field name="unknown2f8ad6d6" size="12" default-value="0x000000000000000000000000" since-version="2" />
+            <field name="unknown9d115fa7" size="4" since-version="2" />
             <!-- unknown9aea956e is not a float and has strange content -->
-            <field name="unknown9aea956e" size="4" since-version="3" />
-            <field name="unknown17c6f44e" size="4" expected-value="0x00000000" since-version="3" />
-            <field name="unknowne444b392" size="4" since-version="3" />
-            <field name="unknown32885641" size="4" default-value="0x00000000" since-version="3" />
+            <field name="unknown9aea956e" size="4" since-version="2" />
+            <field name="unknown17c6f44e" size="4" expected-value="0x00000000" since-version="2" />
+            <field name="unknowne444b392" size="4" since-version="2" />
+            <field name="unknown32885641" size="4" default-value="0x00000000" since-version="2" />
             <!-- unknown721b9a99 is not a float and has strange content-->
-            <field name="unknown721b9a99" size="4" since-version="3" />
+            <field name="unknown721b9a99" size="4" since-version="2" />
+
             <!-- unknowna495c84b is not a float and has strange content-->
             <field name="unknowna495c84b" size="4" since-version="3" />
             <!-- unknown12e15bc4 is not a float and has strange content-->
@@ -2311,6 +2313,7 @@
         <description>Rigid Body</description>
         <versions>
             <version number="2" size="104" />
+            <version number="3" size="56" />
             <version number="4" size="80" />
         </versions>
         <fields>
@@ -2333,22 +2336,21 @@
             <field till-version="2" name="boneIndex" type="uint16" />
             <field till-version="2" name="boneIndexUnused" type="uint16" default-value="0x0" /> <!-- Matches boneLookup, but doesn't seem to be used? -->
             <field till-version="2" name="unknownAt64" size="16" default-value="0x00000000000000000000000000000000" />
+            
+            <field name="simulationType" type="uint16" default-value="1" since-version="3" />
+            <field name="boneIndex" type="uint16" since-version="3" />
+            <field name="physicalMaterial" type="uint32" default-value="0" since-version="3" />
 
-            <!-- Version 4 specific part: (please try to minimize it if possible)-->
-            <field name="unknown7ee981a1" type="uint16" expected-value="1" since-version="4" />
-            <field name="unknown9a561188" type="uint16" default-value="0" since-version="4" />
-            <field name="boneIndex" type="uint32" since-version="4" />
-            <field name="unknown6fe32955" type="float" default-value="2400.0" since-version="4" />
-            <field name="unknownf4a3152b" type="float" default-value="0.7" since-version="4" />
-            <field name="unknown1cde99d0" type="float" default-value="0.1"  since-version="4" />
-            <field name="unknown85048243" type="float" default-value="0.001"  since-version="4" />
-            <field name="unknowna5f8324d" type="float" default-value="0.001" since-version="4" />
-            <field name="unknown1b54daab" type="float" default-value="1.0"  since-version="4" />
-            <field name="unknown8de065e8" type="AnimationReferenceHeader" since-version="4" />
-            <field name="unknown568ae4f7" type="uint32" since-version="4"/>
-            <field name="unknown82406bbb" size="4" expected-value="0x00000000" since-version="4" />
-            <field name="unknownac1544c0" size="4" default-value="0xffffffff" since-version="4" />
+            <field name="density" type="float" default-value="2400.0" since-version="3" />
+            <field name="friction" type="float" default-value="0.7" since-version="3" />
+            <field name="restitution" type="float" default-value="0.1"  since-version="3" />
+            <field name="linearDamp" type="float" default-value="0.001"  since-version="3" />
+            <field name="angularDamp" type="float" default-value="0.001" since-version="3" />
+            <field name="gravityScale" type="float" default-value="1.0"  since-version="3" />
+
+            <field name="unknown8de065e8" type="UInt32AnimationReference" since-version="4" />
             <field name="unknown57796a4d" type="float" default-value="1.0" since-version="4"/>
+
             <field name="physicsShapes" type="Reference" refTo="PHSH" />
             <field name="flags" type="uint32" default-value="0x1">
                 <bits>
