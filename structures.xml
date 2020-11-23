@@ -2336,7 +2336,7 @@
             <field till-version="2" name="boneIndex" type="uint16" />
             <field till-version="2" name="boneIndexUnused" type="uint16" default-value="0x0" /> <!-- Matches boneLookup, but doesn't seem to be used? -->
             <field till-version="2" name="unknownAt64" size="16" default-value="0x00000000000000000000000000000000" />
-            
+
             <field name="simulationType" type="uint16" default-value="1" since-version="3" />
             <field name="boneIndex" type="uint16" since-version="3" />
             <field name="physicalMaterial" type="uint32" default-value="0" since-version="3" />
