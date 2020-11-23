@@ -1055,7 +1055,8 @@ matBlendModeList = [("0", "Opaque", "no description yet"),
                         ("2", 'Add', 'no description yet'),
                         ("3", 'Alpha Add', 'no description yet'),
                         ("4", 'Mod', 'no description yet'),
-                        ("5", 'Mod 2x', 'no description yet')
+                        ("5", 'Mod 2x', 'no description yet'),
+                        ("6", 'Unknown 0x06', 'no description yet'),
                         ]
 
 matLayerAndEmisBlendModeList = [("0", "Mod", "no description yet"),
