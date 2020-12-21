@@ -7,12 +7,11 @@
 ## Installation
 
 1. Download most recent version:
-    * **[Blender 2.8X](https://github.com/Talv/m3addon/archive/master.zip)**
+    * **[Blender 2.8X](https://github.com/SC2Mapster/m3addon/archive/master.zip)**
     * Older versions, no longer maintained:
-      * [Blender 2.7X](https://github.com/Talv/m3addon/archive/blender-2.7.zip)
+      * [Blender 2.7X](https://github.com/SC2Mapster/m3addon/archive/blender-2.7.zip)
 2. Install addon using one of the methods:
     * __Option A__ (automatic):
-      * Rename the downloaded zipfile to `m3addon`.
       * From Blender menu, navigate to `Edit -> Preferences`. Then `Add-ons` tab.
       * Click on the `Install` button and point it to downloaded zipfile.
     * __Option B__ (manual):
@@ -28,7 +27,7 @@
 
 ### Useful links
 
-* [Bug tracker](https://github.com/Talv/m3addon/issues): Encountered a bug? Feel free to report, but please include any relevant details. For general import/export related bugs, **provide a name of the model** - assuming it comes from either StarCraft II or Heroes of the Storm. In which case filename is enough for me as I can access the files from my local installation directory.
+* [Bug tracker](https://github.com/SC2Mapster/m3addon/issues): Encountered a bug? Feel free to report, but please include any relevant details. For general import/export related bugs, **provide a name of the model** - assuming it comes from either StarCraft II or Heroes of the Storm. In which case filename is enough for me as I can access the files from my local installation directory.
 * [SC2Mapster Discord Server](https://discord.gg/fpY4exB): Gathers small community of people familiar with this addon (channel `#artisttavern`). That's the place to go for some general guidance and support.
 
 ## Features
