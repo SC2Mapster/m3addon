@@ -274,9 +274,8 @@ class M3ToBlenderDataTransferer:
         setattr(self.blenderObject, fieldName, animationReference.initValue)
         animationHeader = animationReference.header
         animId = animationHeader.animId
-        animPath = self.animPathPrefix + fieldName
         defaultValue = animationReference.initValue
-        self.importer.animateInteger(self.objectWithAnimationData,  animPath, animId, defaultValue)
+        self.importer.animateInteger(self.objectWithAnimationData,  self.animPathPrefix,  fieldName, animId, defaultValue)
 
     def transferAnimatableInt16(self, fieldName):
         self.transferAnimatableInteger(fieldName)
@@ -1233,8 +1232,8 @@ class Importer:
 
             boneNameInBlender = self.boneNames[boneIndex]
 
-            if boneEntry.name != expectedBoneName:
-                print("Warning: The attachment bone %s did not have the name %s as expected" %(boneEntry.name, expectedBoneName))
+            #if boneEntry.name != expectedBoneName:
+            #    print("Warning: The attachment bone %s did not have the name %s as expected" %(boneEntry.name, expectedBoneName))
 
             if boneEntry.name == boneNameInBlender:
                 attachmentPoint.boneSuffix = attachmentName
@@ -1583,6 +1582,7 @@ class Importer:
                 timeValueMap[timeEntry] = valueEntry
 
             animIdToTimeValueMap[animId] = timeValueMap
+
         return animIdToTimeValueMap
 
 
@@ -1740,15 +1740,27 @@ class Importer:
             for frame, value in frameValuePairs(timeValueMap):
                 insertLinearKeyFrame(curve, frame, value)
 
-    def animateInteger(self, objectWithAnimationData, path, animId, defaultValue):
+    def animateInteger(self, objectWithAnimationData, pathPrefix, field, animId, defaultValue):
         defaultAction = shared.getOrCreateDefaultActionFor(objectWithAnimationData)
+        path = pathPrefix + field
         shared.setDefaultValue(defaultAction, path, 0, defaultValue)
-
         self.addAnimIdData(animId, objectId=shared.animObjectIdScene, animPath=path)
-        for action, timeValueMap in self.actionAndTimeValueMapPairsFor(animId):
-            curve = action.fcurves.new(path, index = 0)
-            for frame, value in frameValuePairs(timeValueMap):
-                insertConstantKeyFrame(curve, frame, value)
+        if field == "partEmit":
+            for action, timeValueMap in self.actionAndTimeValueMapPairsFor(animId):
+                curve = action.fcurves.new(path, index = 0)
+                lastIsDefault = True
+                for frame, value in frameValuePairs(timeValueMap):
+                    if value != defaultValue:
+                        if lastIsDefault == True:
+                            insertConstantKeyFrame(curve, frame - 1, 0)
+                        insertConstantKeyFrame(curve, frame, value)
+                        insertConstantKeyFrame(curve, frame + 1, 0)
+                        lastIsDefault = (value == defaultValue)
+        else:
+            for action, timeValueMap in self.actionAndTimeValueMapPairsFor(animId):
+                curve = action.fcurves.new(path, index = 0)
+                for frame, value in frameValuePairs(timeValueMap):
+                    insertConstantKeyFrame(curve, frame, value)
 
     def animateVector3(self, objectWithAnimationData, path, animId, defaultValue):
         defaultAction = shared.getOrCreateDefaultActionFor(objectWithAnimationData)
