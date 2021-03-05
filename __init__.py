@@ -1858,7 +1858,7 @@ class AnimationSequencesPanel(bpy.types.Panel):
         if animationIndex >= 0 and animationIndex < len(scene.m3_animations):
             animation = scene.m3_animations[animationIndex]
             layout.prop(animation, "name", text="Name")
-            
+
 
 class AnimationSequencesPropPanel(bpy.types.Panel):
     bl_idname = "OBJECT_PT_M3_animations_prop"
@@ -1928,39 +1928,18 @@ class AnimationSequenceTransformationCollectionsPanel(bpy.types.Panel):
                 col.operator("m3.stc_assign", text="Assign FCurves")
 
 
-def displayMaterialName(scene: bt.Scene, layout: bt.UILayout, materialReference):
-    materialType = materialReference.materialType
-    materialIndex = materialReference.materialIndex
-
-    if materialType == shared.standardMaterialTypeIndex:
-        material = scene.m3_standard_materials[materialIndex]
-        layout.prop(material, "name", text="Name")
-    elif materialType == shared.displacementMaterialTypeIndex:
-        material = scene.m3_displacement_materials[materialIndex]
-        layout.prop(material, "name", text="Name")
-    elif materialType == shared.compositeMaterialTypeIndex:
-        material = scene.m3_composite_materials[materialIndex]
-        layout.prop(material, "name", text="Name")
-    elif materialType == shared.terrainMaterialTypeIndex:
-        material = scene.m3_terrain_materials[materialIndex]
-        layout.prop(material, "name", text="Name")
-    elif materialType == shared.volumeMaterialTypeIndex:
-        material = scene.m3_volume_materials[materialIndex]
-        layout.prop(material, "name", text="Name")
-    elif materialType == shared.volumeNoiseMaterialTypeIndex:
-        material = scene.m3_volime_noise_materials[materialIndex]
-        layout.prop(material, "name", text="Name")
-    elif materialType == shared.creepMaterialTypeIndex:
-        material = scene.m3_creep_materials[materialIndex]
-        layout.prop(material, "name", text="Name")
-    elif materialType == shared.stbMaterialTypeIndex:
-        material = scene.m3_stb_materials[materialIndex]
-        layout.prop(material, "name", text="Name")
-    elif materialType == shared.lensFlareMaterialTypeIndex:
-        material = scene.m3_lens_flare_materials[materialIndex]
+def displayMaterialName(scene: bt.Scene, layout: bt.UILayout, materialReference: M3Material):
+    layout = layout.split()
+    material = shared.getMaterial(scene, materialReference.materialType, materialReference.materialIndex)
+    if material is not None:
         layout.prop(material, "name", text="Name")
     else:
-        layout.label(text=("Unsupported material type %d" % materialType))
+        layout.label(text=("Name: %s [Unsupported]" % materialReference.name))
+    try:
+        materialTypeName = shared.materialNames[materialReference.materialType]
+    except KeyError:
+        materialTypeName = 'Unknown [%s]' % materialReference.materialType
+    layout.label(text=('Type: %s' % materialTypeName))
 
 
 class MaterialReferencesPanel(bpy.types.Panel):
@@ -1976,7 +1955,7 @@ class MaterialReferencesPanel(bpy.types.Panel):
         scene = context.scene
         row = layout.row()
         col = row.column()
-        col.template_list("UI_UL_list", "m3_material_references", scene, "m3_material_references", scene, "m3_material_reference_index", rows=2)
+        col.template_list("UI_UL_list", "m3_material_references", scene, "m3_material_references", scene, "m3_material_reference_index", rows=5)
 
         col = row.column(align=True)
         col.operator("m3.materials_add", icon="ADD", text="")
@@ -1988,7 +1967,7 @@ class MaterialReferencesPanel(bpy.types.Panel):
             materialReference = scene.m3_material_references[materialIndex]
 
             displayMaterialName(scene, layout, materialReference)
-                
+
 
 class MaterialSelectionPanel(bpy.types.Panel):
     bl_idname = "OBJECT_PT_M3_material_selection"
@@ -2154,7 +2133,7 @@ class MaterialPropertiesPanel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
         scene = context.scene
-        
+
         materialIndex = scene.m3_material_reference_index
         if not(materialIndex >= 0 and materialIndex < len(scene.m3_material_references)):
             layout.label(text = "No material has been selected")
@@ -2367,7 +2346,7 @@ class ObjectMaterialLayersColorPanel(bpy.types.Panel):
         materialReference = scene.m3_material_references[materialIndex]
         materialType = materialReference.materialType
         material = shared.getMaterial(scene, materialType, materialIndex)
-        
+
         if materialIndex >= 0 and materialIndex < len(scene.m3_material_references):
             layerIndex = scene.m3_material_layer_index
             if layerIndex >= 0 and layerIndex < len(material.layers):
@@ -2474,7 +2453,7 @@ class ObjectMaterialLayersUvPanel(bpy.types.Panel):
         materialReference = scene.m3_material_references[materialIndex]
         materialType = materialReference.materialType
         material = shared.getMaterial(scene, materialType, materialIndex)
-        
+
         if materialIndex >= 0 and materialIndex < len(scene.m3_material_references):
             materialReference = scene.m3_material_references[materialIndex]
 

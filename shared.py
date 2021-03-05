@@ -27,9 +27,23 @@ import math
 from bpy_extras import io_utils
 from os import path
 from bpy_extras import image_utils
+from . import M3Material
 from . import im
 
-materialNames = ["No Material", "Standard", "Displacement", "Composite", "Terrain", "Volume", "Unknown", "Creep", "Volume Noise", "Splat Terrain Bake"]
+materialNames = [
+    "No Material",
+    "Standard",
+    "Displacement",
+    "Composite",
+    "Terrain",
+    "Volume",
+    "Unknown [6]",
+    "Creep",
+    "Volume Noise",
+    "Splat Terrain Bake",
+    "Reflection",
+    "Lens Flare",
+]
 standardMaterialTypeIndex = 1
 displacementMaterialTypeIndex = 2
 compositeMaterialTypeIndex = 3
@@ -37,8 +51,9 @@ terrainMaterialTypeIndex = 4
 volumeMaterialTypeIndex = 5
 creepMaterialTypeIndex = 7
 volumeNoiseMaterialTypeIndex = 8
-stbMaterialTypeIndex=9
-lensFlareMaterialTypeIndex=11
+stbMaterialTypeIndex = 9
+reflectionMaterialMaterialTypeIndex = 10
+lensFlareMaterialTypeIndex = 11
 
 emissionAreaTypePoint = "0"
 emissionAreaTypePlane = "1"
@@ -409,8 +424,12 @@ def setAnimationWithIndexToCurrentData(scene, animationIndex):
         assignedAction.targetName = scene.name
         assignedAction.actionName = scene.animation_data.action.name
 
-def getMaterial(scene, materialTypeIndex, materialIndex):
-    blenderFieldName = blenderMaterialsFieldNames[materialTypeIndex]
+def getMaterial(scene, materialTypeIndex, materialIndex) -> M3Material:
+    try:
+        blenderFieldName = blenderMaterialsFieldNames[materialTypeIndex]
+    except KeyError:
+        # unsupported material
+        return None
     materialsList = getattr(scene, blenderFieldName)
     return materialsList[materialIndex]
 
@@ -1797,8 +1816,10 @@ blenderMaterialsFieldNames = {
     creepMaterialTypeIndex: "m3_creep_materials",
     volumeNoiseMaterialTypeIndex: "m3_volume_noise_materials",
     stbMaterialTypeIndex: "m3_stb_materials",
-    lensFlareMaterialTypeIndex: "m3_lens_flare_materials"
-    }
+    # TODO: reflection material
+    lensFlareMaterialTypeIndex: "m3_lens_flare_materials",
+}
+
 m3MaterialFieldNames = {
     standardMaterialTypeIndex: "standardMaterials",
     displacementMaterialTypeIndex: "displacementMaterials",
@@ -1808,16 +1829,19 @@ m3MaterialFieldNames = {
     creepMaterialTypeIndex: "creepMaterials",
     volumeNoiseMaterialTypeIndex: "volumeNoiseMaterials",
     stbMaterialTypeIndex: "splatTerrainBakeMaterials",
+    # TODO: reflection material
     lensFlareMaterialTypeIndex: "lensFlareMaterial"
-    }
+}
+
 materialTransferMethods = {
-        standardMaterialTypeIndex: transferStandardMaterial,
-        displacementMaterialTypeIndex: transferDisplacementMaterial,
-        compositeMaterialTypeIndex: transferCompositeMaterial,
-        terrainMaterialTypeIndex: transferTerrainMaterial,
-        volumeMaterialTypeIndex: transferVolumeMaterial,
-        creepMaterialTypeIndex: transferCreepMaterial,
-        volumeNoiseMaterialTypeIndex: transferVolumeNoiseMaterial,
-        stbMaterialTypeIndex: transfersplatTerrainBakeMaterial,
-        lensFlareMaterialTypeIndex: transferLensFlareMaterial
-    }
+    standardMaterialTypeIndex: transferStandardMaterial,
+    displacementMaterialTypeIndex: transferDisplacementMaterial,
+    compositeMaterialTypeIndex: transferCompositeMaterial,
+    terrainMaterialTypeIndex: transferTerrainMaterial,
+    volumeMaterialTypeIndex: transferVolumeMaterial,
+    creepMaterialTypeIndex: transferCreepMaterial,
+    volumeNoiseMaterialTypeIndex: transferVolumeNoiseMaterial,
+    stbMaterialTypeIndex: transfersplatTerrainBakeMaterial,
+    # TODO: reflection material
+    lensFlareMaterialTypeIndex: transferLensFlareMaterial
+}
