@@ -8,6 +8,7 @@ __pycache__
 
 # tmp test junk
 test/
+logs/
 
 # m3xml to exe
 build/

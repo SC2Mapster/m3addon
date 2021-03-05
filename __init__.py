@@ -61,8 +61,8 @@ import bpy
 from bpy.props import StringProperty
 import bpy.types as bt
 from bpy_extras.io_utils import ExportHelper, ImportHelper
-import mathutils
 import math
+from .common import mlog
 from . import shared
 from .shared import selectBone, removeBone, selectOrCreateBone, selectBoneIfItExists
 from . import cm
@@ -571,12 +571,12 @@ def prepareDefaultValuesForNewAction(objectWithAnimationData, newAction):
         if propertyExists:
             shared.setDefaultValue(defaultAction,prop[0],prop[1], value)
         else:
-            print ("Can't find prop %s" % prop[0], prop[1])
+            mlog.debug("Can't find prop %s" % prop[0], prop[1])
             removedProperties.add(prop)
     propertiesBecomingUnanimated = oldAnimatedProperties.difference(newAnimatedProperties)
 
     if len(removedProperties) > 0:
-        print("Removing animations for %s since those properties do no longer exist" % removedProperties)
+        mlog.debug("Removing animations for %s since those properties do no longer exist" % removedProperties)
 
     removedCurves = list()
     if newAction != None:
@@ -5204,7 +5204,6 @@ class M3_OT_export(bpy.types.Operator, ExportHelper):
         maxlen= 1024, default= "")
 
     def execute(self, context):
-        print("Export", self.properties.filepath)
         scene = context.scene
         if not "m3export" in locals():
             from . import m3export
@@ -5233,7 +5232,7 @@ class M3_OT_import(bpy.types.Operator, ImportHelper):
         maxlen= 1024, default= "")
 
     def execute(self, context):
-        print("Import", self.properties.filepath)
+        mlog.debug("Import %s" % self.properties.filepath)
         scene = context.scene
         if not "m3import" in locals():
             from . import m3import
