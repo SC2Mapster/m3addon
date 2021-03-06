@@ -19,19 +19,10 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
-if "bpy" in locals():
-    import imp
-    if "m3" in locals():
-        imp.reload(m3)
-    if "shared" in locals():
-        imp.reload(shared)
-    if "calculateTangents" in locals():
-        imp.reload(calculateTangents)
-
-
 from typing import Iterator, Iterable, List, Dict
 from . import m3
 from . import shared
+from . import cm
 import bpy
 import mathutils
 import os.path
@@ -1807,7 +1798,7 @@ class Exporter:
             materialReference = self.scene.m3_material_references[oldReferenceIndex]
             materialType = materialReference.materialType
             materialIndex = materialReference.materialIndex
-            material = shared.getMaterial(scene, materialType, materialIndex)
+            material = cm.getMaterial(scene, materialType, materialIndex)
             if material == None:
                 raise Exception("The material list contains an unsupported material of type %s" % shared.materialNames[materialType])
             model.materialReferences.append(self.createMaterialReference(materialIndex, materialType))

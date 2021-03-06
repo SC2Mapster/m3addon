@@ -19,15 +19,9 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
-if "bpy" in locals():
-    import imp
-    if "m3" in locals():
-        imp.reload(m3)
-    if "shared" in locals():
-        imp.reload(shared)
-
 from . import m3
 from . import shared
+from . import cm
 import bpy
 import mathutils
 import math
@@ -759,7 +753,7 @@ class Importer:
             materialType = m3MaterialReference.materialType
             m3MaterialIndex = m3MaterialReference.materialIndex
             m3MaterialFieldName = shared.m3MaterialFieldNames[materialType]
-            blenderMaterialsFieldName = shared.blenderMaterialsFieldNames[materialType]
+            blenderMaterialsFieldName = cm.blenderMaterialsFieldNames[materialType]
             transferMethod = shared.materialTransferMethods[materialType]
 
             m3Material = getattr(self.model, m3MaterialFieldName)[m3MaterialIndex]

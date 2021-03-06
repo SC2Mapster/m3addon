@@ -17,3 +17,4 @@
 # ##### END GPL LICENSE BLOCK #####
 
 from .projection import *
+from .material import *

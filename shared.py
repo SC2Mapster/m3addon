@@ -27,7 +27,6 @@ import math
 from bpy_extras import io_utils
 from os import path
 from bpy_extras import image_utils
-from . import M3Material
 from . import im
 
 materialNames = [
@@ -424,14 +423,7 @@ def setAnimationWithIndexToCurrentData(scene, animationIndex):
         assignedAction.targetName = scene.name
         assignedAction.actionName = scene.animation_data.action.name
 
-def getMaterial(scene, materialTypeIndex, materialIndex) -> M3Material:
-    try:
-        blenderFieldName = blenderMaterialsFieldNames[materialTypeIndex]
-    except KeyError:
-        # unsupported material
-        return None
-    materialsList = getattr(scene, blenderFieldName)
-    return materialsList[materialIndex]
+
 
 def sqr(x):
     return x*x
@@ -1807,18 +1799,6 @@ def transferLight(transferer):
 def transferBillboardBehavior(transferer):
     transferer.transferEnum("billboardType")
 
-blenderMaterialsFieldNames = {
-    standardMaterialTypeIndex: "m3_standard_materials",
-    displacementMaterialTypeIndex: "m3_displacement_materials",
-    compositeMaterialTypeIndex: "m3_composite_materials",
-    terrainMaterialTypeIndex: "m3_terrain_materials",
-    volumeMaterialTypeIndex: "m3_volume_materials",
-    creepMaterialTypeIndex: "m3_creep_materials",
-    volumeNoiseMaterialTypeIndex: "m3_volume_noise_materials",
-    stbMaterialTypeIndex: "m3_stb_materials",
-    # TODO: reflection material
-    lensFlareMaterialTypeIndex: "m3_lens_flare_materials",
-}
 
 m3MaterialFieldNames = {
     standardMaterialTypeIndex: "standardMaterials",
