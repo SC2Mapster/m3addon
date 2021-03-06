@@ -1,0 +1,3 @@
+[submodule "blender_autocomplete"]
+	path = blender_autocomplete
+	url = https://github.com/Korchy/blender_autocomplete.git

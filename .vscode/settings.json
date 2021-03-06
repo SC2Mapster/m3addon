@@ -1,0 +1,39 @@
+{
+    "python.autoComplete.extraPaths": [
+        "blender_autocomplete/2.91"
+    ],
+    "python.linting.pylintArgs": [
+        "--init-hook",
+        "import sys; sys.path.append('blender_autocomplete/2.91')"
+    ],
+    // "python.analysis.logLevel": "Trace",
+    "python.languageServer": "Microsoft",
+
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": false,
+    "python.linting.flake8Enabled": true,
+    "python.linting.flake8CategorySeverity.F": "Error",
+    "python.linting.flake8CategorySeverity.E": "Warning",
+    "python.linting.flake8CategorySeverity.W": "Hint",
+    "python.linting.flake8Args": [
+        "--max-line-length=140",
+        "--ignore=E402,E261,E302",
+        // E128
+        // E123,E702,E125
+    ],
+
+    "editor.formatOnSave": false,
+    "python.formatting.provider": "autopep8",
+    "python.formatting.autopep8Args": [
+        "--max-line-length=140",
+    ],
+
+    "files.exclude": {
+        "**/build": true,
+        "**/dist": true,
+        "**/blender_autocomplete": true,
+    },
+    "search.exclude": {
+        "**/test": true,
+    },
+}

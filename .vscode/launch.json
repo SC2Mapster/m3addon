@@ -1,0 +1,44 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "inputs": [
+        {
+            "type": "promptString",
+            "id": "modelFilename",
+            "description": "filename of m3",
+            "default": "test/model.m3"
+        },
+        {
+            "type": "pickString",
+            "description": "script name",
+            "id": "scriptName",
+            "options": [
+                "m3ToXml",
+                "xmlToM3",
+            ]
+        },
+    ],
+    "configurations": [
+        {
+            "name": "Launch: M3 to XML",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/m3ToXml.py",
+            "cwd": "${workspaceFolder}",
+            "args": [
+                "${input:modelFilename}"
+            ]
+        },
+        {
+            // Attach to running Blender using:
+            // https://github.com/AlansCodeLog/blender-debugger-for-vscode
+            "name": "Attach to Blender",
+            "type": "python",
+            "request": "attach",
+            "port": 5678,
+            "host": "localhost"
+        },
+    ]
+}
