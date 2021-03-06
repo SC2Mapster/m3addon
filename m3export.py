@@ -2724,8 +2724,12 @@ class BlenderToM3DataTransferer:
 
 
 def export(scene: bpy.types.Scene, operator: bpy.types.Operator, filename):
-    tmp_anim_index = scene.m3_animation_index
     exporter = Exporter(scene, operator)
+
+    # prepare scene for export of animation (is this actually needed?)
+    shared.setAnimationWithIndexToCurrentData(scene, scene.m3_animation_index)
+    tmp_anim_index = scene.m3_animation_index
+
     try:
         exporter.export(filename)
         return {'FINISHED'}
@@ -2739,6 +2743,7 @@ def export(scene: bpy.types.Scene, operator: bpy.types.Operator, filename):
         raise
     finally:
         # restore animation selection
-        scene.m3_animation_index = tmp_anim_index
-        shared.setAnimationWithIndexToCurrentData(scene, tmp_anim_index)
+        if scene.m3_animation_index != tmp_anim_index:
+            scene.m3_animation_index = tmp_anim_index
+            shared.setAnimationWithIndexToCurrentData(scene, tmp_anim_index)
     return {'CANCELLED'}
