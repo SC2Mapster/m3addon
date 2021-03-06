@@ -1106,10 +1106,12 @@ lightTypeList = [# directional light isn"t supported yet: ("0", "Directional", "
                  ]
 
 
-animationExportAmount = [(shared.exportAmountAllAnimations, "All animations", "All animations will be exported"),
-                    (shared.exportAmountCurrentAnimation, "Current animation", "Only the current animation will be exported")
-                    # Possible future additions: CURRENT_FRAME or FIRST_FRAME
-                   ]
+animationExportAmount = [
+    (shared.exportAmountAllAnimations, "All animations", "All animations will be exported"),
+    (shared.exportAmountCurrentAnimation, "Current animation", "Only the current animation will be exported"),
+    # Possible future additions: CURRENT_FRAME or FIRST_FRAME
+    (shared.exportAmountNoAnimations, "None", "No animations at all")
+]
 
 
 class M3AnimIdData(bpy.types.PropertyGroup):
@@ -1600,10 +1602,22 @@ class M3BoneVisiblityOptions(bpy.types.PropertyGroup):
     showWarps : bpy.props.BoolProperty(default=True, options=set(), update=handleWarpVisibilityUpdate)
 
 
+class ExportM3ContainerVersion:
+    V23 = "23"
+    V26 = "26"
+    V29 = "29"
+
+
+ExportContainerM3VersionList = [
+    (ExportM3ContainerVersion.V23, "V23 (*stable*)", "Super old, but somewhat working. It was default export format till 2021."),
+    (ExportM3ContainerVersion.V26, "V26 (beta)", "Semi old, but with more features available, however it hasn't been tested thoroughly."),
+    (ExportM3ContainerVersion.V29, "V29 (alpha)", "Newest available for SC2. WIP.")
+]
+
 class M3ExportOptions(bpy.types.PropertyGroup):
     path : bpy.props.StringProperty(name="path", default="ExportedModel.m3", options=set())
-    testPatch20Format : bpy.props.BoolProperty(default=False, options=set())
-    animationExportAmount : bpy.props.EnumProperty(default=shared.exportAmountAllAnimations, items=animationExportAmount, options=set())
+    modlVersion : bpy.props.EnumProperty(name="M3 Version", default=ExportM3ContainerVersion.V26, items=ExportContainerM3VersionList, options=set())
+    animationExportAmount : bpy.props.EnumProperty(name="Animations", default=shared.exportAmountAllAnimations, items=animationExportAmount, options=set())
 
 
 class M3ImportOptions(bpy.types.PropertyGroup):
@@ -1700,8 +1714,9 @@ class ExportPanel(bpy.types.Panel):
 
         layout.prop(scene.m3_export_options, "path", text="")
         layout.operator("m3.quick_export", text="Export As M3")
-        layout.prop(scene.m3_export_options, "testPatch20Format", text="Use new experimental format")
-        layout.prop(scene.m3_export_options, "animationExportAmount", text="Export")
+
+        layout.prop(scene.m3_export_options, "modlVersion")
+        layout.prop(scene.m3_export_options, "animationExportAmount")
 
 
 class BoneVisibilityPanel(bpy.types.Panel):
@@ -5095,6 +5110,12 @@ class M3_OT_export(bpy.types.Operator, ExportHelper):
     def invoke(self, context, event):
         context.window_manager.fileselect_add(self)
         return {"RUNNING_MODAL"}
+
+    def draw(self, context):
+        layout = self.layout
+        scene = context.scene
+        layout.prop(scene.m3_export_options, "modlVersion")
+        layout.prop(scene.m3_export_options, "animationExportAmount")
 
 
 class M3_OT_import(bpy.types.Operator, ImportHelper):

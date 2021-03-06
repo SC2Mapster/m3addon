@@ -134,6 +134,7 @@ layerFieldNameToNameMap = {
 
 exportAmountAllAnimations="ALL_ANIMATIONS"
 exportAmountCurrentAnimation="CURRENT_ANIMATION"
+exportAmountNoAnimations="NO_ANIMATIONS"
 
 def getLayerNameFromFieldName(fieldName):
     name = layerFieldNameToNameMap.get(fieldName)
@@ -1652,9 +1653,8 @@ def transferStandardMaterial(transferer):
         "zpFillRequiredOnLowEnd",
         "excludeFromHighlighting",
         "clampOutput",
-        "geometryVisible",
     ])
-    # transferer.transferBit("flags", "geometryVisible", sinceVersion=18)
+    transferer.transferBit("flags", "geometryVisible", sinceVersion=17)
 
     # depthBlendFalloff needs to be transfered before useDepthBlendFalloff:
     # That way a corrupted model with useDepthBlendFalloff=true

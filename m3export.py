@@ -78,7 +78,18 @@ class Exporter:
 
     def initStructureVersionMap(self):
         self.structureVersionMap = {}
-        if self.scene.m3_export_options.testPatch20Format:
+        if self.scene.m3_export_options.modlVersion == "29":
+            self.structureVersionMap["MODL"] = 29
+            self.structureVersionMap["EVNT"] = 2
+            self.structureVersionMap["SEQS"] = 2
+            self.structureVersionMap["LAYR"] = 26
+            self.structureVersionMap["MAT_"] = 20
+            self.structureVersionMap["PAR_"] = 24
+            self.structureVersionMap["PROJ"] = 5
+            self.structureVersionMap["PHSH"] = 3
+            self.structureVersionMap["PHRB"] = 4
+            self.structureVersionMap["RIB_"] = 9
+        elif self.scene.m3_export_options.modlVersion == "26":
             self.structureVersionMap["MODL"] = 26
             self.structureVersionMap["EVNT"] = 2
             self.structureVersionMap["SEQS"] = 2
@@ -89,7 +100,7 @@ class Exporter:
             self.structureVersionMap["PHSH"] = 3
             self.structureVersionMap["PHRB"] = 4
             self.structureVersionMap["RIB_"] = 8
-        else:
+        elif self.scene.m3_export_options.modlVersion == "23":
             self.structureVersionMap["MODL"] = 23
             self.structureVersionMap["EVNT"] = 1
             self.structureVersionMap["SEQS"] = 1
@@ -100,6 +111,8 @@ class Exporter:
             self.structureVersionMap["PHSH"] = 1
             self.structureVersionMap["PHRB"] = 2
             self.structureVersionMap["RIB_"] = 6
+        else:
+            raise ExportError('Unsupported M3 container: V%s' % self.scene.m3_export_options.modlVersion)
 
         self.structureVersionMap["BONE"] = 1
         self.structureVersionMap["Vector3AnimationReference"] = 0
@@ -188,6 +201,8 @@ class Exporter:
             self.animationIndicesToExport = range(len(scene.m3_animations))
         elif animationExportAmount == shared.exportAmountCurrentAnimation:
             self.animationIndicesToExport = [scene.m3_animation_index]
+        elif animationExportAmount == shared.exportAmountNoAnimations:
+            self.animationIndicesToExport = []
         else:
             raise ExportError("Unsupported export amount option: %s" % scene.m3_export_options)
 
