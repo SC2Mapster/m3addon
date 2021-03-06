@@ -1681,6 +1681,7 @@ class Exporter:
     def initRigidBodies(self, model):
         scene = self.scene
         for rigidBodyIndex, rigidBody in enumerate(scene.m3_rigid_bodies):
+            self.operator.report({'WARNING'}, 'M3Export: Attempting to export rigid body "%s". This might corrupt the model and crash the game.' % rigidBody.boneName)
             boneName = rigidBody.boneName
             boneIndex = self.boneNameToBoneIndexMap.get(boneName)
             if boneIndex == None:

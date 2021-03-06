@@ -260,9 +260,9 @@ def selectBone(scene, boneName):
         bpy.ops.object.mode_set(mode='POSE')
 
     for b in armature.data.bones:
-        b.select_set(False)
+        b.select = False
 
-    bone.select_set(True)
+    bone.select = True
 
 
 def removeBone(scene, boneName):
@@ -342,6 +342,8 @@ def selectBoneIfItExists(scene, boneName):
     if bpy.ops.object.select_all.poll():
         bpy.ops.object.select_all(action='DESELECT')
     bone, armatureObject = findBoneWithArmatureObject(scene, boneName)
+    if bone is None:
+        return
     armature = armatureObject.data
     armatureObject.select_set(True)
     scene.view_layers[0].objects.active = armatureObject

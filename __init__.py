@@ -4242,10 +4242,10 @@ class M3_ANIMATIONS_OT_STC_select(bpy.types.Operator):
                     locLongAnimId = shared.getLongAnimIdOf(objectId, animPathPrefix + "location")
                     scaleLongAnimId = shared.getLongAnimIdOf(objectId, animPathPrefix + "scale")
                     if (rotLongAnimId in longAnimIds) or (locLongAnimId in longAnimIds) or (scaleLongAnimId in longAnimIds):
-                        bone.select_set(True)
+                        bone.select = True
                         selectObject = True
                     else:
-                        bone.select_set(False)
+                        bone.select = False
                 # Select object at the end, otherwise Blender 2.63a
                 # does not notice bone selection even if object is already selected
                 obj.select = selectObject
