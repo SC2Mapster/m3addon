@@ -21,14 +21,14 @@
 
 bl_info = {
     "name": "m3addon for M3 format: used by Blizzard's StarCraft 2 and Heroes of the Storm",
-    "author": "Florian Köberle, netherh, chaos2night, Talv",
-    "version": (0, 3, 0),
+    "author": "Florian Köberle, netherh, chaos2night, Talv, Solstice245",
+    "version": (0, 4, 0),
     "blender": (2, 80, 0),
     "location": "Properties Editor -> Scene -> M3 Panels",
     "description": "Allows to export and import models in M3 format.",
     "category": "Import-Export",
-    "wiki_url": "https://github.com/Talv/m3addon/blob/master/README.md",
-    "tracker_url": "https://github.com/Talv/m3addon/issues"
+    "doc_url": "https://github.com/SC2Mapster/m3addon/blob/master/README.md",
+    "tracker_url": "https://github.com/SC2Mapster/m3addon/issues"
 }
 
 if "bpy" in locals():

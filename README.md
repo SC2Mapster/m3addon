@@ -6,8 +6,8 @@
 
 ## Installation
 
-1. Download most recent version:
-    * **[Blender 2.8X](https://github.com/SC2Mapster/m3addon/archive/master.zip)**
+1. Download:
+    * **[Most recent version](https://github.com/SC2Mapster/m3addon/archive/master.zip)**
     * Older versions, no longer maintained:
       * [Blender 2.7X](https://github.com/SC2Mapster/m3addon/archive/blender-2.7.zip)
 2. Install addon using one of the methods:
