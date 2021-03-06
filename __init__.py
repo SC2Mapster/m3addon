@@ -5041,8 +5041,7 @@ class M3_OT_quickExport(bpy.types.Operator):
         fileName = scene.m3_export_options.path
         if not "m3export" in locals():
             from . import m3export
-        m3export.export(scene, fileName)
-        return{"FINISHED"}
+        return m3export.export(scene, self, fileName)
 
 
 class M3_OT_quickImport(bpy.types.Operator):
@@ -5091,8 +5090,7 @@ class M3_OT_export(bpy.types.Operator, ExportHelper):
             from . import m3export
 
         scene.m3_export_options.path = self.properties.filepath
-        m3export.export(scene, self.properties.filepath)
-        return {"FINISHED"}
+        return m3export.export(scene, self, self.properties.filepath)
 
     def invoke(self, context, event):
         context.window_manager.fileselect_add(self)
