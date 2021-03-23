@@ -419,12 +419,8 @@ class Importer:
         self.sequenceNameAndSTCIndexToAnimIdSet = {}
         self.armature: bpy.types.Armature = None
         self.armatureObject: bpy.types.Object = None
+        self.boneNames = None
 
-        if scene.m3_import_options.armatureObject is not None:
-            self.armatureObject = scene.m3_import_options.armatureObject
-            self.armature = self.armatureObject.data
-        else:
-            self.armature = bpy.data.armatures.new(name="Armature")
         scene.render.fps = FRAME_RATE
         self.animations = []
         self.animIdToLongAnimIdMap = {}
@@ -436,14 +432,22 @@ class Importer:
             self.createAnimations()
             self.importVisibilityTest()
 
-        if not self.armatureObject:
-            self.createArmatureObject()
-        else:
-            scene.view_layers[0].objects.active = self.armatureObject
-            self.armatureObject.select_set(True)
-
         if self.contentPreset in [cm.M3ImportContentPreset.MeshMaterialsRig, cm.M3ImportContentPreset.Everything]:
+            if scene.m3_import_options.armatureObject is not None:
+                self.armatureObject = scene.m3_import_options.armatureObject
+                self.armature = self.armatureObject.data
+            else:
+                self.armature = bpy.data.armatures.new(name="Armature")
+
+            if not self.armatureObject:
+                self.createArmatureObject()
+            else:
+                scene.view_layers[0].objects.active = self.armatureObject
+                self.armatureObject.select_set(True)
+
             self.createBones()
+        elif self.contentPreset in [cm.M3ImportContentPreset.MeshMaterialsVG]:
+            self.boneNames = [*map(lambda x: x.name, self.model.bones)]
 
         self.createMaterials()
 
@@ -460,6 +464,7 @@ class Importer:
             self.createAttachmentPoints()
             self.createProjections()
             self.createWarps()
+
         self.createMesh()
 
         if self.contentPreset == cm.M3ImportContentPreset.Everything:
@@ -1409,7 +1414,7 @@ class Importer:
                 mesh.validate()
                 mesh.update(calc_edges=True)
 
-                if self.armatureObject is not None:
+                if self.boneNames is not None:
                     vertexGroupLookup = []
                     for boneIndex in boneIndexLookup:
                         boneName = self.boneNames[boneIndex]

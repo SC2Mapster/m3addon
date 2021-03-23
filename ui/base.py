@@ -121,9 +121,9 @@ class ImportPanel(bpy.types.Panel):
         layout.prop(scene.m3_import_options, "contentPreset")
         if scene.m3_import_options.contentPreset == M3ImportContentPreset.Custom:
             ImportPanel.draw_content_import(layout.box().column(heading="Content to import"), scene)
-        layout.prop(scene.m3_import_options, "armatureObject")
+        if scene.m3_import_options.contentPreset not in [M3ImportContentPreset.MeshMaterials, M3ImportContentPreset.MeshMaterialsVG]:
+            layout.prop(scene.m3_import_options, "armatureObject")
 
-        layout.separator()
         layout.prop(scene.m3_import_options, "rootDirectory", text="Root Directory")
         layout.prop(scene.m3_import_options, "generateBlenderMaterials", text="Generate Blender Materials At Import")
         layout.prop(scene.m3_import_options, "applySmoothShading", text="Apply Smooth Shading")

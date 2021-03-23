@@ -49,6 +49,7 @@ class M3ExportOptions(bpy.types.PropertyGroup):
 class M3ImportContentPreset:
     Everything = "EVERYTHING"
     MeshMaterialsRig = "MESH_MATERIALS_RIG"
+    MeshMaterialsVG = "MESH_MATERIALS_VERTEX_GROUP"
     MeshMaterials = "MESH_MATERIALS"
     Custom = "CUSTOM"
     # CustomInteractive = "CUSTOM_INTERACTIVE"
@@ -56,8 +57,9 @@ class M3ImportContentPreset:
 
 contentImportPresetList = [
     (M3ImportContentPreset.Everything, "Everything", "Import everything included in the m3 file"),
-    (M3ImportContentPreset.MeshMaterialsRig, "Mesh, materials and rigging", "Import the mesh, materials and rigging. When using this preset you'll likely want to merge imported rig with existing armature."),
-    (M3ImportContentPreset.MeshMaterials, "Mesh with materials only", "Import the mesh with its m3 materials only"),
+    (M3ImportContentPreset.MeshMaterialsRig, "Mesh, vertex groups, rigging & materials", "Import the mesh, materials and rigging. When using this preset you'll likely want to merge imported rig with existing armature."),
+    (M3ImportContentPreset.MeshMaterialsVG, "Mesh, vertex groups & materials", "Import the mesh with vertex groups and associated materials."),
+    (M3ImportContentPreset.MeshMaterials, "Mesh with materials only", "Import just the mesh and associated materials."),
     # (M3ImportContentPreset.Custom, "Custom", "Customize what's being imported"),
 ]
 
