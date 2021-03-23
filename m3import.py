@@ -410,27 +410,44 @@ class Importer:
 
     def importM3BasedOnM3ImportOptions(self, scene: bt.Scene):
         fileName = scene.m3_import_options.path
-        contentToImport = scene.m3_import_options.contentToImport
+        self.contentPreset = scene.m3_import_options.contentPreset
         self.rootDirectory = scene.m3_import_options.rootDirectory
         if (self.rootDirectory == ""):
             self.rootDirectory = path.dirname(fileName)
         self.scene = scene
         self.model = m3.loadModel(fileName)
-        if contentToImport != "MESH_WITH_MATERIALS_ONLY":
+        self.sequenceNameAndSTCIndexToAnimIdSet = {}
+        self.armature: bpy.types.Armature = None
+        self.armatureObject: bpy.types.Object = None
+
+        if scene.m3_import_options.armatureObject is not None:
+            self.armatureObject = scene.m3_import_options.armatureObject
+            self.armature = self.armatureObject.data
+        else:
             self.armature = bpy.data.armatures.new(name="Armature")
         scene.render.fps = FRAME_RATE
         self.animations = []
         self.animIdToLongAnimIdMap = {}
-        if contentToImport != "MESH_WITH_MATERIALS_ONLY":
+
+        if self.contentPreset == cm.M3ImportContentPreset.Everything:
             # clear existing animation ids so that they can't conflict with new ones:
             self.scene.m3_animation_ids.clear()
             self.storeModelId()
             self.createAnimations()
-            self.createArmatureObject()
-            self.createBones()
             self.importVisibilityTest()
+
+        if not self.armatureObject:
+            self.createArmatureObject()
+        else:
+            scene.view_layers[0].objects.active = self.armatureObject
+            self.armatureObject.select_set(True)
+
+        if self.contentPreset in [cm.M3ImportContentPreset.MeshMaterialsRig, cm.M3ImportContentPreset.Everything]:
+            self.createBones()
+
         self.createMaterials()
-        if contentToImport != "MESH_WITH_MATERIALS_ONLY":
+
+        if self.contentPreset == cm.M3ImportContentPreset.Everything:
             self.createCameras()
             self.createFuzzyHitTests()
             self.initTightHitTest()
@@ -445,7 +462,7 @@ class Importer:
             self.createWarps()
         self.createMesh()
 
-        if contentToImport != "MESH_WITH_MATERIALS_ONLY":
+        if self.contentPreset == cm.M3ImportContentPreset.Everything:
             # init stcs of animations at last
             # when all animation properties are known
             self.initSTCsOfAnimations()
@@ -737,7 +754,7 @@ class Importer:
         scene = self.scene
         self.initMaterialReferenceIndexToNameMap()
 
-        if self.scene.m3_import_options.contentToImport == "MESH_WITH_MATERIALS_ONLY":
+        if self.contentPreset in [cm.M3ImportContentPreset.MeshMaterials, cm.M3ImportContentPreset.MeshMaterialsRig]:
             # Import only indices of materials used by meshes:
             matRefIndicesToImport = set()
             for division in self.model.divisions:
@@ -1392,8 +1409,7 @@ class Importer:
                 mesh.validate()
                 mesh.update(calc_edges=True)
 
-                shouldCreateVertexGroups = self.scene.m3_import_options.contentToImport != "MESH_WITH_MATERIALS_ONLY"
-                if shouldCreateVertexGroups:
+                if self.armatureObject is not None:
                     vertexGroupLookup = []
                     for boneIndex in boneIndexLookup:
                         boneName = self.boneNames[boneIndex]
@@ -1433,7 +1449,7 @@ class Importer:
 
                 self.setOriginToCenter(meshObject)
 
-                if self.scene.m3_import_options.contentToImport != "MESH_WITH_MATERIALS_ONLY":
+                if self.armatureObject is not None:
                     modifier = meshObject.modifiers.new('UseArmature', 'ARMATURE')
                     modifier.object = self.armatureObject
                     modifier.use_bone_envelopes = False

@@ -12,21 +12,25 @@
     "python.linting.enabled": true,
     "python.linting.pylintEnabled": false,
     "python.linting.flake8Enabled": true,
-    "python.linting.flake8CategorySeverity.F": "Error",
+    "python.linting.flake8CategorySeverity.F": "Warning",
     "python.linting.flake8CategorySeverity.E": "Warning",
     "python.linting.flake8CategorySeverity.W": "Hint",
     "python.linting.flake8Args": [
         "--max-line-length=140",
-        "--ignore=E402,E261,E302",
+        "--ignore=E402,E261,E302,E713", // pedanting stuff
+        "--extend-ignore=F722,F821", // false positive bullshit
         // E128
         // E123,E702,E125
     ],
 
-    "editor.formatOnSave": false,
     "python.formatting.provider": "autopep8",
     "python.formatting.autopep8Args": [
-        "--max-line-length=140",
+        "--max-line-length=160",
     ],
+
+    "[python]": {
+        "editor.formatOnSave": false,
+    },
 
     "files.exclude": {
         "**/build": true,

@@ -22,7 +22,7 @@
 bl_info = {
     "name": "m3addon for M3 format: used by Blizzard's StarCraft 2 and Heroes of the Storm",
     "author": "Florian Köberle, netherh, chaos2night, Talv, Solstice245",
-    "version": (0, 4, 0),
+    "version": (0, 5, 0),
     "blender": (2, 80, 0),
     "location": "Properties Editor -> Scene -> M3 Panels",
     "description": "Allows to export and import models in M3 format.",
@@ -31,43 +31,47 @@ bl_info = {
     "tracker_url": "https://github.com/SC2Mapster/m3addon/issues"
 }
 
-if "bpy" in locals():
-    import imp
-    localModules = [
-        ["cm", "projection"],
-        ["cm", "material"],
-        ["cm"],
-        ["ui", "projection"],
-        ["ui"],
-        ["im", "material"],
-        ["im"],
-        ["m3import"],
-        ["m3export"],
-        ["shared"],
-    ]
-    for plist in localModules:
-        try:
-            print("Reloading \"%s\"" % ".".join(plist))
-            submod = dict(locals())[plist.pop(0)]
-            while submod:
-                imp.reload(submod)
-                if not len(plist):
-                    break
-                currName = plist.pop(0)
-                submod = submod.__dict__[currName]
-        except KeyError as e:
-            print("Failed to reload %s" % e)
-
 import bpy
-from bpy.props import StringProperty
 import bpy.types as bt
-from bpy_extras.io_utils import ExportHelper, ImportHelper
 import math
 from .common import mlog
 from . import shared
 from .shared import selectBone, removeBone, selectOrCreateBone, selectBoneIfItExists
 from . import cm
 from . import ui
+
+
+if "bpy" in locals():
+    import imp
+    localModules = [
+        ["cm", "base"],
+        ["cm", "material"],
+        ["cm", "projection"],
+        ["cm"],
+        ["im", "material"],
+        ["im"],
+        ["ui", "base"],
+        ["ui", "projection"],
+        ["ui"],
+        ["m3"],
+        ["m3import"],
+        ["m3export"],
+        ["shared"],
+    ]
+    mlog.debug("Reloading modules....")
+    for plist in localModules:
+        try:
+            # mlog.debug("Reloading \"%s\"" % ".".join(plist))
+            submod = dict(locals())[plist.pop(0)]
+            while submod:
+                mlog.debug("Reloading \"%s\"" % submod)
+                imp.reload(submod)
+                if not len(plist):
+                    break
+                currName = plist.pop(0)
+                submod = submod.__dict__[currName]
+        except KeyError as e:
+            mlog.debug("Failed to reload %s" % e)
 
 
 def boneNameSet():
@@ -1096,22 +1100,10 @@ matSpecularTypeList = [("0", "RGB", "no description yet"),
                         ("1", "Alpha Only", "no description yet")
                         ]
 
-contentToImportList = [("EVERYTHING", "Everything", "Import everything included in the m3 file"),
-                       ("MESH_WITH_MATERIALS_ONLY", "Mesh with materials only", "Import the mesh with its m3 materials only")
-                       ]
-
 lightTypeList = [# directional light isn"t supported yet: ("0", "Directional", ""),
                  (shared.lightTypePoint, "Point", "Light are generated around a point"),
                  (shared.lightTypeSpot, "Spot", "")
                  ]
-
-
-animationExportAmount = [
-    (shared.exportAmountAllAnimations, "All animations", "All animations will be exported"),
-    (shared.exportAmountCurrentAnimation, "Current animation", "Only the current animation will be exported"),
-    # Possible future additions: CURRENT_FRAME or FIRST_FRAME
-    (shared.exportAmountNoAnimations, "None", "No animations at all")
-]
 
 
 class M3AnimIdData(bpy.types.PropertyGroup):
@@ -1602,35 +1594,6 @@ class M3BoneVisiblityOptions(bpy.types.PropertyGroup):
     showWarps : bpy.props.BoolProperty(default=True, options=set(), update=handleWarpVisibilityUpdate)
 
 
-class ExportM3ContainerVersion:
-    V23 = "23"
-    V26 = "26"
-    V29 = "29"
-
-
-ExportContainerM3VersionList = [
-    (ExportM3ContainerVersion.V23, "V23 (*stable*)", "Super old, but somewhat working. It was default export format till 2021."),
-    (ExportM3ContainerVersion.V26, "V26 (beta)", "Semi old, but with more features available, however it hasn't been tested thoroughly."),
-    (ExportM3ContainerVersion.V29, "V29 (alpha)", "Newest available for SC2. WIP.")
-]
-
-class M3ExportOptions(bpy.types.PropertyGroup):
-    path : bpy.props.StringProperty(name="path", default="ExportedModel.m3", options=set())
-    modlVersion : bpy.props.EnumProperty(name="M3 Version", default=ExportM3ContainerVersion.V26, items=ExportContainerM3VersionList, options=set())
-    animationExportAmount : bpy.props.EnumProperty(name="Animations", default=shared.exportAmountAllAnimations, items=animationExportAmount, options=set())
-
-
-class M3ImportOptions(bpy.types.PropertyGroup):
-    path : bpy.props.StringProperty(name="path", default="", options=set())
-    rootDirectory : bpy.props.StringProperty(name="rootDirectory", default="", options=set())
-    generateBlenderMaterials : bpy.props.BoolProperty(default=True, options=set())
-    applySmoothShading : bpy.props.BoolProperty(default=True, options=set())
-    markSharpEdges : bpy.props.BoolProperty(default=True, options=set())
-    recalculateRestPositionBones : bpy.props.BoolProperty(default=False, options=set())
-    teamColor : bpy.props.FloatVectorProperty(default=(1.0, 0.0, 0.0), min = 0.0, max = 1.0, name="team color", size=3, subtype="COLOR", options=set(), description="Team color place holder used for generated blender materials")
-    contentToImport : bpy.props.EnumProperty(default="EVERYTHING", items=contentToImportList, options=set())
-
-
 class M3Warp(bpy.types.PropertyGroup):
     # name attribute seems to be needed for template_list but is not actually in the m3 file
     # The name gets calculated like this: name = boneSuffix (type)
@@ -1677,46 +1640,6 @@ class M3BillboardBehavior(bpy.types.PropertyGroup):
     # name is also bone name
     name : bpy.props.StringProperty(name="name", default="", options=set())
     billboardType : bpy.props.EnumProperty(default="6", items=billboardBehaviorTypeList, options=set())
-
-
-class ImportPanel(bpy.types.Panel):
-    bl_idname = "OBJECT_PT_M3_quickImport"
-    bl_label = "M3 Import"
-    bl_space_type = "PROPERTIES"
-    bl_region_type = "WINDOW"
-    bl_context = "scene"
-
-    def draw(self, context):
-        layout = self.layout
-        scene = context.scene
-
-        layout.prop(scene.m3_import_options, "path", text="M3 File")
-        layout.prop(scene.m3_import_options, "contentToImport", text="Import ")
-        layout.operator("m3.quick_import", text="Import M3")
-        layout.prop(scene.m3_import_options, "rootDirectory", text="Root Directory")
-        layout.prop(scene.m3_import_options, "generateBlenderMaterials", text="Generate Blender Materials At Import")
-        layout.operator("m3.generate_blender_materials", text="Generate Blender Materials")
-        layout.prop(scene.m3_import_options, "applySmoothShading", text="Apply Smooth Shading")
-        layout.prop(scene.m3_import_options, "markSharpEdges", text="Mark sharp edges")
-        layout.prop(scene.m3_import_options, "teamColor", text="Team Color")
-
-
-class ExportPanel(bpy.types.Panel):
-    bl_idname = "OBJECT_PT_M3_quickExport"
-    bl_label = "M3 Quick Export"
-    bl_space_type = "PROPERTIES"
-    bl_region_type = "WINDOW"
-    bl_context = "scene"
-
-    def draw(self, context):
-        layout = self.layout
-        scene = context.scene
-
-        layout.prop(scene.m3_export_options, "path", text="")
-        layout.operator("m3.quick_export", text="Export As M3")
-
-        layout.prop(scene.m3_export_options, "modlVersion")
-        layout.prop(scene.m3_export_options, "animationExportAmount")
 
 
 class BoneVisibilityPanel(bpy.types.Panel):
@@ -5046,33 +4969,6 @@ class M3_ATTACHMENT_POINTS_OT_remove(bpy.types.Operator):
         return{"FINISHED"}
 
 
-class M3_OT_quickExport(bpy.types.Operator):
-    bl_idname      = "m3.quick_export"
-    bl_label       = "Quick Export"
-    bl_description = "Exports the model to the specified m3 path without asking further questions"
-
-    def invoke(self, context, event):
-        scene = context.scene
-        fileName = scene.m3_export_options.path
-        if not "m3export" in locals():
-            from . import m3export
-        return m3export.export(scene, self, fileName)
-
-
-class M3_OT_quickImport(bpy.types.Operator):
-    bl_idname      = "m3.quick_import"
-    bl_label       = "Quick Import"
-    bl_description = "Imports the model to the specified m3 path without asking further questions"
-
-    def invoke(self, context, event):
-        scene = context.scene
-        if not "m3import" in locals():
-            from . import m3import
-
-        m3import.importM3BasedOnM3ImportOptions(scene)
-        return{"FINISHED"}
-
-
 class M3_OT_generateBlenderMaterails(bpy.types.Operator):
     bl_idname      = "m3.generate_blender_materials"
     bl_label       = "M3 -> blender materials"
@@ -5083,67 +4979,6 @@ class M3_OT_generateBlenderMaterails(bpy.types.Operator):
 
         shared.createBlenderMaterialsFromM3Materials(scene)
         return{"FINISHED"}
-
-
-class M3_OT_export(bpy.types.Operator, ExportHelper):
-    """Export a M3 file"""
-    bl_idname = "m3.export"
-    bl_label = "Export M3 Model"
-    bl_options = {"UNDO"}
-
-    filename_ext = ".m3"
-    filter_glob : StringProperty(default="*.m3", options={"HIDDEN"})
-
-    filepath : bpy.props.StringProperty(
-        name="File Path",
-        description="Path of the file that should be created",
-        maxlen= 1024, default= "")
-
-    def execute(self, context):
-        scene = context.scene
-        if not "m3export" in locals():
-            from . import m3export
-
-        scene.m3_export_options.path = self.properties.filepath
-        return m3export.export(scene, self, self.properties.filepath)
-
-    def invoke(self, context, event):
-        context.window_manager.fileselect_add(self)
-        return {"RUNNING_MODAL"}
-
-    def draw(self, context):
-        layout = self.layout
-        scene = context.scene
-        layout.prop(scene.m3_export_options, "modlVersion")
-        layout.prop(scene.m3_export_options, "animationExportAmount")
-
-
-class M3_OT_import(bpy.types.Operator, ImportHelper):
-    """Load a M3 file"""
-    bl_idname = "m3.import"
-    bl_label = "Import M3"
-    bl_options = {"UNDO"}
-
-    filename_ext = ".m3"
-    filter_glob : StringProperty(default="*.m3;*.m3a", options={"HIDDEN"})
-
-    filepath : bpy.props.StringProperty(
-        name="File Path",
-        description="File path used for importing the simple M3 file",
-        maxlen= 1024, default= "")
-
-    def execute(self, context):
-        mlog.debug("Import %s" % self.properties.filepath)
-        scene = context.scene
-        if not "m3import" in locals():
-            from . import m3import
-        scene.m3_import_options.path = self.properties.filepath
-        m3import.importM3BasedOnM3ImportOptions(scene)
-        return {"FINISHED"}
-
-    def invoke(self, context, event):
-        context.window_manager.fileselect_add(self)
-        return {"RUNNING_MODAL"}
 
 
 class M3_OT_conertBlenderToM3NormalMap(bpy.types.Operator):
@@ -5240,11 +5075,11 @@ def menu_func_convertNormalMaps(self, context):
 
 
 def menu_func_import(self, context):
-    self.layout.operator(M3_OT_import.bl_idname, text="StarCraft 2 Model / Animation (.m3/.m3a)...")
+    self.layout.operator(ui.M3_OT_import.bl_idname, text="StarCraft 2 Model / Animation (.m3/.m3a)...")
 
 
 def menu_func_export(self, context):
-    self.layout.operator(M3_OT_export.bl_idname, text="StarCraft 2 Model (.m3)...")
+    self.layout.operator(ui.M3_OT_export.bl_idname, text="StarCraft 2 Model (.m3)...")
 
 
 classes = (
@@ -5278,14 +5113,13 @@ classes = (
     cm.M3GroupProjection,
     M3Warp,
     M3AttachmentPoint,
-    M3ExportOptions,
-    M3ImportOptions,
+    cm.M3ExportOptions,
+    cm.M3ImportContent,
+    cm.M3ImportOptions,
     M3BoneVisiblityOptions,
     M3Boundings,
     M3AnimIdData,
     M3SimpleGeometricShape,
-    ImportPanel,
-    ExportPanel,
     BoneVisibilityPanel,
     BasicMenu,
     AnimationSequencesPanel,
@@ -5388,11 +5222,13 @@ classes = (
     M3_FUZZY_HIT_TESTS_OT_add,
     M3_FUZZY_HIT_TESTS_OT_remove,
     M3_ATTACHMENT_POINTS_OT_remove,
-    M3_OT_quickExport,
-    M3_OT_quickImport,
+    ui.ImportPanel,
+    ui.M3_OT_quickImport,
+    ui.M3_OT_import,
+    ui.ExportPanel,
+    ui.M3_OT_quickExport,
+    ui.M3_OT_export,
     M3_OT_generateBlenderMaterails,
-    M3_OT_export,
-    M3_OT_import,
     M3_OT_conertBlenderToM3NormalMap,
     M3_OT_conertM3ToBlenderNormalMap,
 )
@@ -5434,8 +5270,8 @@ def register():
     bpy.types.Scene.m3_warp_index = bpy.props.IntProperty(options=set(), update=handleWarpIndexChanged)
     bpy.types.Scene.m3_attachment_points = bpy.props.CollectionProperty(type=M3AttachmentPoint)
     bpy.types.Scene.m3_attachment_point_index = bpy.props.IntProperty(options=set(), update=handleAttachmentPointIndexChanged)
-    bpy.types.Scene.m3_export_options = bpy.props.PointerProperty(type=M3ExportOptions)
-    bpy.types.Scene.m3_import_options = bpy.props.PointerProperty(type=M3ImportOptions)
+    bpy.types.Scene.m3_export_options = bpy.props.PointerProperty(type=cm.M3ExportOptions)
+    bpy.types.Scene.m3_import_options = bpy.props.PointerProperty(type=cm.M3ImportOptions)
     bpy.types.Scene.m3_bone_visiblity_options = bpy.props.PointerProperty(type=M3BoneVisiblityOptions)
     bpy.types.Scene.m3_visibility_test = bpy.props.PointerProperty(type=M3Boundings)
     bpy.types.Scene.m3_animation_ids = bpy.props.CollectionProperty(type=M3AnimIdData)

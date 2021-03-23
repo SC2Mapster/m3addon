@@ -16,4 +16,5 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
+from .base import *
 from .projection import *
