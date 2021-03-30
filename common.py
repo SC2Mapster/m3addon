@@ -4,7 +4,7 @@ import logging
 import importlib
 
 
-is_blender = importlib.util.find_spec('bpy') is not None
+#is_blender = importlib.util.find_spec('bpy') is not None
 
 
 def create_logger():
@@ -19,10 +19,10 @@ def create_logger():
     m3log.addHandler(console_handler)
 
     fname = os.path.join(os.path.dirname(__file__), 'logs', 'output.log')
-    if is_blender:
-        os.makedirs(os.path.dirname(fname), exist_ok=True)
-        file_handler = logging.FileHandler(fname, mode='w')
-        m3log.addHandler(file_handler)
+    #if is_blender:
+    #    os.makedirs(os.path.dirname(fname), exist_ok=True)
+    #    file_handler = logging.FileHandler(fname, mode='w')
+    #    m3log.addHandler(file_handler)
 
     return m3log
 

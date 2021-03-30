@@ -1469,6 +1469,8 @@ def transferParticleSystem(transferer):
     transferer.transferInt("numberOfRows")
     transferer.transferFloat("columnWidth")
     transferer.transferFloat("rowHeight")
+    transferer.transferFloat("bounce")
+    transferer.transferFloat("friction")
     transferer.transferEnum("particleType")
     transferer.transferFloat("lengthWidthRatio")
     transferer.transfer16Bits("localForceChannels")

@@ -1396,8 +1396,8 @@ class M3ParticleSystem(bpy.types.PropertyGroup):
     numberOfRows : bpy.props.IntProperty(default=0, min=0, subtype="UNSIGNED", name="rows", options=set(), description="Specifies in how many rows the image gets divided")
     columnWidth : bpy.props.FloatProperty(default=float("inf"), min=0.0, max=1.0, name="columnWidth", options=set(), description="Specifies the width of one column, relative to an image with width 1")
     rowHeight : bpy.props.FloatProperty(default=float("inf"), min=0.0, max=1.0, name="rowHeight", options=set(), description="Specifies the height of one row, relative to an image with height 1")
-    unknownFloat4 : bpy.props.FloatProperty(default=0.0, name="unknownFloat4",options=set())
-    unknownFloat5 : bpy.props.FloatProperty(default=1.0, name="unknownFloat5",options=set())
+    bounce : bpy.props.FloatProperty(default=0.0, name="bounce",options=set())
+    friction : bpy.props.FloatProperty(default=1.0, name="friction",options=set())
     unknownFloat6 : bpy.props.FloatProperty(default=1.0, name="unknownFloat6",options=set())
     unknownFloat7 : bpy.props.FloatProperty(default=1.0, name="unknownFloat7",options=set())
     particleType : bpy.props.EnumProperty(default="0", items=particleTypeList, options=set())
@@ -1971,6 +1971,10 @@ class MaterialPropertiesPanel(bpy.types.Panel):
     bl_options = {"DEFAULT_CLOSED"}
     bl_parent_id = "OBJECT_PT_M3_material_references"
 
+    @classmethod
+    def poll(cls, context):
+      return context.scene and context.scene.m3_material_reference_index >= 0
+
     def draw(self, context):
         layout = self.layout
         scene = context.scene
@@ -1991,6 +1995,10 @@ class ObjectMaterialPropertiesPanel(bpy.types.Panel):
     bl_context = "material"
     bl_options = {"DEFAULT_CLOSED"}
     bl_parent_id = "OBJECT_PT_M3_material_selection"
+
+    @classmethod
+    def poll(cls, context):
+      return context.object and context.scene.m3_material_references.get(context.object.data.m3_material_name) != None
 
     def draw(self, context):
         layout = self.layout
@@ -2020,8 +2028,6 @@ class MaterialPropertiesFlagsPanel(bpy.types.Panel):
         if materialIndex >= 0 and materialIndex < len(scene.m3_material_references):
             materialReference = scene.m3_material_references[materialIndex]
             displayMaterialPropertiesFlags(scene, layout, materialReference)
-        else:
-            layout.label(text="No properties to display")
 
 
 class ObjectMaterialPropertiesFlagsPanel(bpy.types.Panel):
@@ -2045,8 +2051,6 @@ class ObjectMaterialPropertiesFlagsPanel(bpy.types.Panel):
         materialReference = scene.m3_material_references.get(materialName)
         if materialReference != None:
             displayMaterialPropertiesFlags(scene, layout, materialReference)
-        else:
-            layout.label(text="No properties to display")
 
 
 def displayMaterialLayersUI(scene, layout, materialReference):
@@ -2073,6 +2077,10 @@ class MaterialLayersPanel(bpy.types.Panel):
     bl_options = {"DEFAULT_CLOSED"}
     bl_parent_id = "OBJECT_PT_M3_material_references"
 
+    @classmethod
+    def poll(cls, context):
+      return context.scene and context.scene.m3_material_reference_index >= 0
+
     def draw(self, context):
         layout = self.layout
         scene = context.scene
@@ -2093,6 +2101,10 @@ class ObjectMaterialLayersPanel(bpy.types.Panel):
     bl_context = "material"
     bl_options = {"DEFAULT_CLOSED"}
     bl_parent_id = "OBJECT_PT_M3_material_selection"
+
+    @classmethod
+    def poll(cls, context):
+      return context.object and context.scene.m3_material_references.get(context.object.data.m3_material_name) != None
 
     def draw(self, context):
         layout = self.layout
@@ -2346,6 +2358,10 @@ class MaterialLayersFresnelPanel(bpy.types.Panel):
     bl_options = {"DEFAULT_CLOSED"}
     bl_parent_id = "OBJECT_PT_M3_material_layers"
 
+    @classmethod
+    def poll(cls, context):
+      return context.scene and context.scene.m3_material_reference_index >= 0
+
     def draw(self, context):
         layout = self.layout
         scene = context.scene
@@ -2532,6 +2548,10 @@ class ParticleSystemCopiesPanel(bpy.types.Panel):
     bl_options = {"DEFAULT_CLOSED"}
     bl_parent_id = "OBJECT_PT_M3_particles"
 
+    @classmethod
+    def poll(cls, context):
+        return context.scene and context.scene.m3_particle_system_index >= 0
+
     def draw(self, context):
         layout = self.layout
         scene = context.scene
@@ -2565,6 +2585,10 @@ class ParticleSystemsPropPanel(bpy.types.Panel):
     bl_content = "scene"
     bl_options = {"DEFAULT_CLOSED"}
     bl_parent_id = "OBJECT_PT_M3_particles"
+
+    @classmethod
+    def poll(cls, context):
+        return context.scene and context.scene.m3_particle_system_index >= 0
 
     def draw(self, context):
         layout = self.layout
@@ -2615,8 +2639,6 @@ class ParticleSystemsPropPanel(bpy.types.Panel):
             sub.active = particle_system.trailingParticlesName != ""
             sub.prop(particle_system, "trailingParticlesChance", text="Chance to trail")
             sub.prop(particle_system, "trailingParticlesRate", text="Tailing  Rate")
-            layout.prop(particle_system, "unknownFloat4", text="Unknown Float 4")
-            layout.prop(particle_system, "unknownFloat5", text="Unknown Float 5")
             layout.prop(particle_system, "unknownFloat6", text="Unknown Float 6")
             layout.prop(particle_system, "unknownFloat7", text="Unknown Float 7")
 
@@ -2629,6 +2651,10 @@ class ParticleSystemsAreaPanel(bpy.types.Panel):
     bl_content = "scene"
     bl_options = {"DEFAULT_CLOSED"}
     bl_parent_id = "OBJECT_PT_M3_particles"
+
+    @classmethod
+    def poll(cls, context):
+        return context.scene and context.scene.m3_particle_system_index >= 0
 
     def draw(self, context):
         layout = self.layout
@@ -2689,6 +2715,10 @@ class ParticleSystemsMovementPanel(bpy.types.Panel):
     bl_options = {"DEFAULT_CLOSED"}
     bl_parent_id = "OBJECT_PT_M3_particles"
 
+    @classmethod
+    def poll(cls, context):
+        return context.scene and context.scene.m3_particle_system_index >= 0
+
     def draw(self, context):
         layout = self.layout
         scene = context.scene
@@ -2732,6 +2762,8 @@ class ParticleSystemsMovementPanel(bpy.types.Panel):
             sub.prop(particle_system, "noiseFrequency", text="Frequency")
             sub.prop(particle_system, "noiseCohesion", text="Cohesion")
             sub.prop(particle_system, "noiseEdge", text="Edge")
+            layout.prop(particle_system, "bounce", text="Bounce")
+            layout.prop(particle_system, "friction", text="Friction")
             layout.prop(particle_system, "zAcceleration", text="Z-Acceleration")
             layout.prop(particle_system, "slowdown", text="Slowdown")
             layout.prop(particle_system, "localForceChannels", text="Local Force Channels")
@@ -2746,6 +2778,10 @@ class ParticleSystemsColorPanel(bpy.types.Panel):
     bl_content = "scene"
     bl_options = {"DEFAULT_CLOSED"}
     bl_parent_id = "OBJECT_PT_M3_particles"
+
+    @classmethod
+    def poll(cls, context):
+        return context.scene and context.scene.m3_particle_system_index >= 0
 
     def draw(self, context):
         layout = self.layout
@@ -2794,6 +2830,10 @@ class ParticleSystemsSizePanel(bpy.types.Panel):
     bl_options = {"DEFAULT_CLOSED"}
     bl_parent_id = "OBJECT_PT_M3_particles"
 
+    @classmethod
+    def poll(cls, context):
+        return context.scene and context.scene.m3_particle_system_index >= 0
+
     def draw(self, context):
         layout = self.layout
         scene = context.scene
@@ -2839,6 +2879,10 @@ class ParticleSystemsRotationPanel(bpy.types.Panel):
     bl_options = {"DEFAULT_CLOSED"}
     bl_parent_id = "OBJECT_PT_M3_particles"
 
+    @classmethod
+    def poll(cls, context):
+        return context.scene and context.scene.m3_particle_system_index >= 0
+
     def draw(self, context):
         layout = self.layout
         scene = context.scene
@@ -2883,6 +2927,10 @@ class ParticleSystemsImageAnimPanel(bpy.types.Panel):
     bl_content = "scene"
     bl_options = {"DEFAULT_CLOSED"}
     bl_parent_id = "OBJECT_PT_M3_particles"
+
+    @classmethod
+    def poll(cls, context):
+        return context.scene and context.scene.m3_particle_system_index >= 0
 
     def draw(self, context):
         layout = self.layout
@@ -2930,6 +2978,10 @@ class ParticleSystemsFlagsPanel(bpy.types.Panel):
     bl_content = "scene"
     bl_options = {"DEFAULT_CLOSED"}
     bl_parent_id = "OBJECT_PT_M3_particles"
+
+    @classmethod
+    def poll(cls, context):
+        return context.scene and context.scene.m3_particle_system_index >= 0
 
     def draw(self, context):
         layout = self.layout
@@ -3006,6 +3058,10 @@ class RibbonPropertiesPanel(bpy.types.Panel):
     bl_options = {"DEFAULT_CLOSED"}
     bl_parent_id = "OBJECT_PT_M3_ribbons"
 
+    @classmethod
+    def poll(cls, context):
+        return context.scene and context.scene.m3_ribbon_index >= 0
+
     def draw(self, context):
         layout = self.layout
         scene = context.scene
@@ -3034,6 +3090,10 @@ class RibbonColorPanel(bpy.types.Panel):
     bl_options = {"DEFAULT_CLOSED"}
     bl_parent_id = "OBJECT_PT_M3_ribbons"
 
+    @classmethod
+    def poll(cls, context):
+        return context.scene and context.scene.m3_ribbon_index >= 0
+
     def draw(self, context):
         layout = self.layout
         scene = context.scene
@@ -3055,6 +3115,11 @@ class RibbonRadiusPanel(bpy.types.Panel):
     bl_context = "scene"
     bl_options = {"DEFAULT_CLOSED"}
     bl_parent_id = "OBJECT_PT_M3_ribbons"
+
+    @classmethod
+    def poll(cls, context):
+        print(context.scene.m3_ribbon_index)
+        return context.scene and context.scene.m3_ribbon_index >= 0
 
     def draw(self, context):
         layout = self.layout
@@ -3086,6 +3151,10 @@ class RibbonLengthPanel(bpy.types.Panel):
     bl_options = {"DEFAULT_CLOSED"}
     bl_parent_id = "OBJECT_PT_M3_ribbons"
 
+    @classmethod
+    def poll(cls, context):
+        return context.scene and context.scene.m3_ribbon_index >= 0
+
     def draw(self, context):
         layout = self.layout
         scene = context.scene
@@ -3113,6 +3182,10 @@ class RibbonNoisePanel(bpy.types.Panel):
     bl_context = "scene"
     bl_options = {"DEFAULT_CLOSED"}
     bl_parent_id = "OBJECT_PT_M3_ribbons"
+
+    @classmethod
+    def poll(cls, context):
+        return context.scene and context.scene.m3_ribbon_index >= 0
 
     def draw(self, context):
         layout = self.layout
@@ -3158,6 +3231,10 @@ class RibbonFlagsPanel(bpy.types.Panel):
     bl_options = {"DEFAULT_CLOSED"}
     bl_parent_id = "OBJECT_PT_M3_ribbons"
 
+    @classmethod
+    def poll(cls, context):
+        return context.scene and context.scene.m3_ribbon_index >= 0
+
     def draw(self, context):
         layout = self.layout
         scene = context.scene
@@ -3193,6 +3270,10 @@ class RibbonEndPointsPanel(bpy.types.Panel):
     bl_context = "scene"
     bl_options = {"DEFAULT_CLOSED"}
     bl_parent_id = "OBJECT_PT_M3_ribbons"
+
+    @classmethod
+    def poll(cls, context):
+        return context.scene and context.scene.m3_ribbon_index >= 0
 
     def draw(self, context):
         layout = self.layout
@@ -3299,6 +3380,10 @@ class RigidBodyPropertiesPanel(bpy.types.Panel):
     bl_options = {"DEFAULT_CLOSED"}
     bl_parent_id = "OBJECT_PT_M3_rigid_bodies"
 
+    @classmethod
+    def poll(cls, context):
+        return context.scene and context.scene.m3_rigid_body_index >= 0
+
     def draw(self, context):
         layout = self.layout
         scene = context.scene
@@ -3324,6 +3409,10 @@ class RigidBodyForcesPanel(bpy.types.Panel):
     bl_context = "scene"
     bl_options = {"DEFAULT_CLOSED"}
     bl_parent_id = "OBJECT_PT_M3_rigid_bodies"
+
+    @classmethod
+    def poll(cls, context):
+        return context.scene and context.scene.m3_rigid_body_index >= 0
 
     def draw(self, context):
         layout = self.layout
@@ -3362,6 +3451,10 @@ class RigidBodyFlagsPanel(bpy.types.Panel):
     bl_options = {"DEFAULT_CLOSED"}
     bl_parent_id = "OBJECT_PT_M3_rigid_bodies"
 
+    @classmethod
+    def poll(cls, context):
+        return context.scene and context.scene.m3_rigid_body_index >= 0
+
     def draw(self, context):
         layout = self.layout
         scene = context.scene
@@ -3395,6 +3488,10 @@ class PhysicsShapePanel(bpy.types.Panel):
     bl_context = "scene"
     bl_options = {"DEFAULT_CLOSED"}
     bl_parent_id = "OBJECT_PT_M3_rigid_bodies"
+
+    @classmethod
+    def poll(cls, context):
+        return context.scene and context.scene.m3_rigid_body_index >= 0
 
     def draw(self, context):
         layout = self.layout
@@ -3498,6 +3595,10 @@ class LightSpecularPanel(bpy.types.Panel):
     bl_options = {"DEFAULT_CLOSED"}
     bl_parent_id = "OBJECT_PT_M3_lights"
 
+    @classmethod
+    def poll(cls, context):
+        return context.scene and context.scene.m3_light_index >= 0
+
     def draw_header(self, context):
         layout = self.layout
         scene = context.scene
@@ -3531,6 +3632,10 @@ class LightAttenuationPanel(bpy.types.Panel):
     bl_options = {"DEFAULT_CLOSED"}
     bl_parent_id = "OBJECT_PT_M3_lights"
 
+    @classmethod
+    def poll(cls, context):
+        return context.scene and context.scene.m3_light_index >= 0
+
     def draw(self, context):
         layout = self.layout
         scene = context.scene
@@ -3557,6 +3662,10 @@ class LightFlagsPanel(bpy.types.Panel):
     bl_context = "scene"
     bl_options = {"DEFAULT_CLOSED"}
     bl_parent_id = "OBJECT_PT_M3_lights"
+
+    @classmethod
+    def poll(cls, context):
+        return context.scene and context.scene.m3_light_index >= 0
 
     def draw(self, context):
         layout = self.layout
@@ -5156,6 +5265,7 @@ classes = (
     RibbonEndPointsPanel,
     RibbonPropertiesPanel,
     RibbonColorPanel,
+    RibbonLengthPanel,
     RibbonRadiusPanel,
     RibbonNoisePanel,
     RibbonFlagsPanel,
