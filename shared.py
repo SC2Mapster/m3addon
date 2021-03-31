@@ -1412,6 +1412,7 @@ def transferParticleSystem(transferer):
     transferer.transferAnimatableFloat("lifespan2")
     transferer.transferBoolean("randomizeWithLifespan2", tillVersion=12)
     transferer.transferBit("additionalFlags", "randomizeWithLifespan2", sinceVersion=13)
+    transferer.transferFloat("killSphere")
     transferer.transferFloat("zAcceleration")
     transferer.transferFloat("sizeAnimationMiddle")
     transferer.transferFloat("colorAnimationMiddle")
@@ -1436,7 +1437,7 @@ def transferParticleSystem(transferer):
     transferer.transferAnimatableColor("initialColor1")
     transferer.transferAnimatableColor("middleColor1")
     transferer.transferAnimatableColor("finalColor1")
-    transferer.transferFloat("slowdown")
+    transferer.transferFloat("drag")
     transferer.transferFloat("mass")
     transferer.transferFloat("mass2")
     transferer.transferBit("additionalFlags", "randomizeWithMass2", sinceVersion=21)
@@ -1502,6 +1503,9 @@ def transferParticleSystem(transferer):
     transferer.transferBit("flags", "useLocalTime")
     transferer.transferBit("flags", "simulateOnInit")
     transferer.transferBit("flags", "copy")
+    transferer.transferFloat("windMultiplier")
+    transferer.transferEnum("lodReduction")
+    transferer.transferEnum("lodCutoff")
 
 def transferParticleSystemCopy(transferer):
     transferer.transferAnimatableFloat("emissionRate")

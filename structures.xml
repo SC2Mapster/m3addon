@@ -1859,7 +1859,7 @@
             <field name="lifespan1" type="FloatAnimationReference" />
             <field name="lifespan2" type="FloatAnimationReference" />
             <field till-version="12" name="randomizeWithLifespan2" type="uint32" />
-            <field name="unknowndeb2bc5d" type="float" default-value="0.0" />
+            <field name="killSphere" type="float" default-value="0.0" />
             <field name="unknownf21cc980" size="8" expected-value="0x0000000000000000" />
             <field name="zAcceleration" type="float" />
             <field name="sizeAnimationMiddle" type="float" default-value="0.5" />
@@ -1875,7 +1875,7 @@
             <field name="initialColor1" type="ColorAnimationReference" />
             <field name="middleColor1" type="ColorAnimationReference" />
             <field name="finalColor1" type="ColorAnimationReference" />
-            <field name="slowdown" type="float" />
+            <field name="drag" type="float" />
             <field name="mass" type="float" default-value="0.001" /> <!-- was unknownFloat2a -->
             <field name="mass2" type="float" default-value="1.0"/> <!-- was unknownFloat2b -->
             <field name="unknownFloat2c" type="float" default-value="1.0"/>
@@ -2038,11 +2038,9 @@
             <field name="unknown686e5943" type="Vector3AnimationReferenceV0" since-version="17" />
             <field name="unknown18a90564" type="Vector2AnimationReferenceV0" since-version="17" /> <!-- with init=(1.0, 1.0) and null=(1.0, 1.0)-->
             <field name="spawnPoints" type="Reference" refTo="SVC3" />
-            <field name="unknown105fd76d" type="float" default-value="0.0"/>
-            <!--unknown5156cf07 Observed values: 2 and 0 -->
-            <field name="unknown5156cf07" type="uint32" default-value="2"/>
-            <!-- unknown92dba6ab Observed values: 0 and 1 -->
-            <field name="unknown92dba6ab" type="uint32" default-value="1"/>
+            <field name="windMultiplier" type="float" default-value="0.0"/>
+            <field name="lodReduction" type="uint32" default-value="2"/>
+            <field name="lodCutoff" type="uint32" default-value="1"/> 
             <field name="unknown21ca0cea" type="AnimationReferenceHeader" />
             <field name="initOfUnknown21ca0cea" size="4" expected-value="0x00000000" />
             <field name="nullOfUnknown21ca0cea" size="4" expected-value="0x00000000" />

@@ -1027,6 +1027,12 @@ particleEmissionTypeList = [("0", "Constant", "Emitted particles fly towards a c
                         ("3", "Random", "Picks an entirely arbitrary orientation."),
                         ("4", "Mesh Normal", "when using a Mesh Emitter Shape, uses the normal of the face being emitted from as the direction vector.")]
 
+particleLodList = [("0", "None", "LOD has no effect"),
+                   ("1", "Low", "LOD cutoff or reduction takes effect if graphics are Low"),
+                   ("2", "Medium", "LOD cutoff or reduction takes effect if graphics are Medium"),
+                   ("3", "High", "LOD cutoff or reduction takes effect if graphics are High"),
+                   ("4", "Ultra", "LOD cutoff or reduction takes effect if graphics are Ultra")]
+
 particleAnimationSmoothTypeList = [
     ("0", "Linear", "Linear transitions without usage of hold time"),
     ("1", "Smooth", "Smooth transitions without usage of hold time"),
@@ -1346,6 +1352,7 @@ class M3ParticleSystem(bpy.types.PropertyGroup):
     lifespan1 : bpy.props.FloatProperty(default=0.5, name="lifespan1", options={"ANIMATABLE"},  description="Specfies how long it takes before the particles start to decay")
     lifespan2 : bpy.props.FloatProperty(default=5.0, name="lifespan2", options={"ANIMATABLE"}, description="If random lifespans are enabled this specifies the other end of the range for random lifespan values")
     randomizeWithLifespan2 : bpy.props.BoolProperty(default=True, name="randomizeWithLifespan2", options=set(), description="Specifies if particles should have random lifespans")
+    killSphere : bpy.props.FloatProperty(default=True, name="System Limit Radius", min=0.0, options=set(), description="For non-zero values, any particle which goes outside the specified radius from the system is destroyed")
     zAcceleration : bpy.props.FloatProperty(default=0.0, name="z acceleration",options=set(), description="Negative gravity which does not get influenced by the emission vector")
     sizeAnimationMiddle : bpy.props.FloatProperty(default=0.5, min=0.0, max=1.0, subtype="FACTOR", name="sizeAnimationMiddle", options=set(), description="Percentage of lifetime when the scale animation reaches reaches its middle value")
     colorAnimationMiddle : bpy.props.FloatProperty(default=0.5, min=0.0, max=1.0, subtype="FACTOR", name="colorAnimationMiddle", options=set(), description="Percentage of lifetime when the color animation (without alpha) reaches reaches its middle value")
@@ -1363,9 +1370,9 @@ class M3ParticleSystem(bpy.types.PropertyGroup):
     initialColor1 : bpy.props.FloatVectorProperty(default=(1.0, 1.0, 1.0, 1.0), min = 0.0, max = 1.0, name="initial color 1", size=4, subtype="COLOR", options={"ANIMATABLE"}, description="Color of the particle when it gets emitted")
     middleColor1 : bpy.props.FloatVectorProperty(default=(1.0, 1.0, 1.0, 1.0), min = 0.0, max = 1.0, name="unknown color 1", size=4, subtype="COLOR", options={"ANIMATABLE"})
     finalColor1 : bpy.props.FloatVectorProperty(default=(1.0, 1.0, 1.0, 0.5), min = 0.0, max = 1.0, name="final color 1", size=4, subtype="COLOR", options={"ANIMATABLE"}, description="The color the particle will have when it vanishes")
-    slowdown : bpy.props.FloatProperty(default=1.0, min=0.0, name="slowdown" ,options=set(), description="The amounth of speed reduction in the particles lifetime")
-    mass : bpy.props.FloatProperty(default=0.001, name="mass",options=set())
-    mass2 : bpy.props.FloatProperty(default=1.0, name="mass2",options=set())
+    drag : bpy.props.FloatProperty(default=1.0, min=0.0, name="drag" ,options=set(), description="The amounth of speed reduction while the particle is falling, multiplied by the particle's velocity")
+    mass : bpy.props.FloatProperty(default=0.001, name="mass",options=set(), description="Mass determines the effects of drag and the influence of Forces")
+    mass2 : bpy.props.FloatProperty(default=1.0, name="mass2",options=set(), description="Mass determines the effects of drag and the influence of Forces")
     randomizeWithMass2 : bpy.props.BoolProperty(options=set(),default=True, description="Specifies if the second mass value should be used to generate random mass values")
     unknownFloat2c : bpy.props.FloatProperty(default=2.0, name="unknownFloat2c",options=set())
     trailingEnabled : bpy.props.BoolProperty(default=True, options=set(), description="If trailing is enabled then particles don't follow the particle emitter")
@@ -1396,8 +1403,8 @@ class M3ParticleSystem(bpy.types.PropertyGroup):
     numberOfRows : bpy.props.IntProperty(default=0, min=0, subtype="UNSIGNED", name="rows", options=set(), description="Specifies in how many rows the image gets divided")
     columnWidth : bpy.props.FloatProperty(default=float("inf"), min=0.0, max=1.0, name="columnWidth", options=set(), description="Specifies the width of one column, relative to an image with width 1")
     rowHeight : bpy.props.FloatProperty(default=float("inf"), min=0.0, max=1.0, name="rowHeight", options=set(), description="Specifies the height of one row, relative to an image with height 1")
-    bounce : bpy.props.FloatProperty(default=0.0, name="bounce", options=set(), min=0.0, max=1.0, description="Specifies the amount of velocity preserved when recoiling from a collision. 1.0 is elastic and 0.0 is sticky.")
-    friction : bpy.props.FloatProperty(default=1.0, name="friction", options=set(), min=0.0, max=1.0, description="Specifies the amount of velocity preserved when striking a collision surface. 1.0 is slippery and 0.0 is stuck.")
+    bounce : bpy.props.FloatProperty(default=0.0, name="bounce", subtype="FACTOR", options=set(), min=0.0, max=1.0, description="Specifies the amount of velocity preserved when recoiling from a collision. 1.0 is elastic and 0.0 is sticky.")
+    friction : bpy.props.FloatProperty(default=1.0, name="friction", subtype="FACTOR", options=set(), min=0.0, max=1.0, description="Specifies the amount of velocity preserved when striking a collision surface. 1.0 is slippery and 0.0 is stuck.")
     unknownFloat6 : bpy.props.FloatProperty(default=1.0, name="unknownFloat6",options=set())
     unknownFloat7 : bpy.props.FloatProperty(default=1.0, name="unknownFloat7",options=set())
     particleType : bpy.props.EnumProperty(default="0", items=particleTypeList, options=set())
@@ -1434,6 +1441,9 @@ class M3ParticleSystem(bpy.types.PropertyGroup):
     useLocalTime : bpy.props.BoolProperty(options=set())
     simulateOnInit : bpy.props.BoolProperty(options=set())
     copy : bpy.props.BoolProperty(options=set())
+    windMultiplier : bpy.props.FloatProperty(default=0.0, name="windMultiplier",options=set())
+    lodReduction : bpy.props.EnumProperty(default="0", items=particleLodList, options=set())
+    lodCutoff : bpy.props.EnumProperty(default="0", items=particleLodList, options=set())
 
 
 class M3RibbonEndPoint(bpy.types.PropertyGroup):
@@ -1755,27 +1765,25 @@ class AnimationSequenceTransformationCollectionsPanel(bpy.types.Panel):
         scene = context.scene
         row = layout.row()
         col = row.column()
-        animationIndex = scene.m3_animation_index
-        if animationIndex >= 0 and animationIndex < len(scene.m3_animations):
-            animation = scene.m3_animations[animationIndex]
+        animation = scene.m3_animations[scene.m3_animation_index]
 
-            col.template_list("UI_UL_list", "m3_stcs", animation, "transformationCollections", animation, "transformationCollectionIndex", rows=2)
+        col.template_list("UI_UL_list", "m3_stcs", animation, "transformationCollections", animation, "transformationCollectionIndex", rows=2)
 
-            col = row.column(align=True)
-            col.operator("m3.stc_add", icon="ADD", text="")
-            col.operator("m3.stc_remove", icon="REMOVE", text="")
-            index = animation.transformationCollectionIndex
-            if index >= 0 and index < len(animation.transformationCollections):
-                transformationCollection = animation.transformationCollections[index]
-                layout.separator()
-                layout.prop(transformationCollection, "name", text="Name")
-                layout.prop(transformationCollection, "runsConcurrent", text="Runs Concurrent")
-                layout.prop(transformationCollection, "priority", text="Priority")
-                row = layout.row()
-                col = row.column()
-                col.operator("m3.stc_select", text="Select FCurves")
-                col = row.column()
-                col.operator("m3.stc_assign", text="Assign FCurves")
+        col = row.column(align=True)
+        col.operator("m3.stc_add", icon="ADD", text="")
+        col.operator("m3.stc_remove", icon="REMOVE", text="")
+        index = animation.transformationCollectionIndex
+        if index >= 0 and index < len(animation.transformationCollections):
+            transformationCollection = animation.transformationCollections[index]
+            layout.separator()
+            layout.prop(transformationCollection, "name", text="Name")
+            layout.prop(transformationCollection, "runsConcurrent", text="Runs Concurrent")
+            layout.prop(transformationCollection, "priority", text="Priority")
+            row = layout.row()
+            col = row.column()
+            col.operator("m3.stc_select", text="Select FCurves")
+            col = row.column()
+            col.operator("m3.stc_assign", text="Assign FCurves")
 
 
 def displayMaterialName(scene: bt.Scene, layout: bt.UILayout, materialReference: cm.M3Material):
@@ -1803,9 +1811,15 @@ class MaterialReferencesPanel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
         scene = context.scene
+
+        rows = 3
+
+        if len(scene.m3_material_references) > 3:
+            rows = 5
+
         row = layout.row()
         col = row.column()
-        col.template_list("UI_UL_list", "m3_material_references", scene, "m3_material_references", scene, "m3_material_reference_index", rows=5)
+        col.template_list("UI_UL_list", "m3_material_references", scene, "m3_material_references", scene, "m3_material_reference_index", rows=rows)
 
         col = row.column(align=True)
         col.operator("m3.materials_add", icon="ADD", text="")
@@ -1834,19 +1848,13 @@ class MaterialSelectionPanel(bpy.types.Panel):
     def draw(self, context):
         scene = context.scene
         layout = self.layout
-        meshObject = context.object
-        mesh = meshObject.data
+        mesh = context.object.data
         row = layout.row()
 
         row.prop_search(mesh, "m3_material_name", scene, "m3_material_references", text="M3 Material", icon="NONE")
         row.operator("m3.create_material_for_mesh", icon="ADD", text="")
 
-        meshObject = context.object
-        if meshObject == None:
-            return
-        mesh = meshObject.data
-        materialName = mesh.m3_material_name
-        materialReference = scene.m3_material_references.get(materialName)
+        materialReference = scene.m3_material_references.get(mesh.m3_material_name)
         if materialReference != None:
             displayMaterialName(scene, layout, materialReference)
 
@@ -1978,17 +1986,13 @@ class MaterialPropertiesPanel(bpy.types.Panel):
 
     @classmethod
     def poll(cls, context):
-      return context.scene and context.scene.m3_material_reference_index >= 0
+        return context.scene and context.scene.m3_material_reference_index >= 0
 
     def draw(self, context):
-        layout = self.layout
         scene = context.scene
+        materialReference = scene.m3_material_references[scene.m3_material_reference_index]
 
-        materialIndex = scene.m3_material_reference_index
-        if not(materialIndex >= 0 and materialIndex < len(scene.m3_material_references)):
-            layout.label(text = "No material has been selected")
-            return
-        materialReference = scene.m3_material_references[materialIndex]
+        layout = self.layout
         displayMaterialPropertiesUI(scene, layout, materialReference)
 
 
@@ -2003,17 +2007,13 @@ class ObjectMaterialPropertiesPanel(bpy.types.Panel):
 
     @classmethod
     def poll(cls, context):
-      return context.object and context.scene.m3_material_references.get(context.object.data.m3_material_name) != None
+        return context.object and context.scene.m3_material_references.get(context.object.data.m3_material_name) != None
 
     def draw(self, context):
-        layout = self.layout
         scene = context.scene
-        meshObject = context.object
-        mesh = meshObject.data
-        materialName = mesh.m3_material_name
-        materialReference = scene.m3_material_references.get(materialName)
-        if materialReference != None:
-            displayMaterialPropertiesUI(scene, layout, materialReference)
+
+        layout = self.layout
+        displayMaterialPropertiesUI(scene, layout, context.scene.m3_material_references.get(context.object.data.m3_material_name))
 
 
 class MaterialPropertiesFlagsPanel(bpy.types.Panel):
@@ -2087,14 +2087,10 @@ class MaterialLayersPanel(bpy.types.Panel):
       return context.scene and context.scene.m3_material_reference_index >= 0
 
     def draw(self, context):
-        layout = self.layout
         scene = context.scene
-
-        materialIndex = scene.m3_material_reference_index
-        if not(materialIndex >= 0 and materialIndex < len(scene.m3_material_references)):
-            layout.label(text = "No material has been selected")
-            return
-        materialReference = scene.m3_material_references[materialIndex]
+        materialReference = scene.m3_material_references[scene.m3_material_reference_index]
+        
+        layout = self.layout
         displayMaterialLayersUI(scene, layout, materialReference)
 
 
@@ -2112,17 +2108,10 @@ class ObjectMaterialLayersPanel(bpy.types.Panel):
       return context.object and context.scene.m3_material_references.get(context.object.data.m3_material_name) != None
 
     def draw(self, context):
-        layout = self.layout
         scene = context.scene
 
-        meshObject = context.object
-        if meshObject == None:
-            return
-        mesh = meshObject.data
-        materialName = mesh.m3_material_name
-        materialReference = scene.m3_material_references.get(materialName)
-        if materialReference != None:
-            displayMaterialLayersUI(scene, layout, materialReference)
+        layout = self.layout
+        displayMaterialLayersUI(scene, layout, scene.m3_material_references.get(context.object.data.m3_material_name))
 
 
 def displayMaterialLayersColor(scene, layout, materialReference):
@@ -2533,13 +2522,12 @@ class ParticleSystemsPanel(bpy.types.Panel):
         currentIndex = scene.m3_particle_system_index
         if currentIndex >= 0 and currentIndex < len(scene.m3_particle_systems):
             particle_system = scene.m3_particle_systems[currentIndex]
-            layout.separator()
             layout.prop(particle_system, "name",text="Name")
-
-            split = layout.split()
-            col = split.column()
-            col.prop(particle_system, "emissionRate", text="Particles Per Second")
-            col.prop(particle_system, "partEmit", text="Particles Per Frame")
+            row = layout.row()
+            col = row.column()
+            sub = col.column(align=True)
+            sub.prop(particle_system, "emissionRate", text="Particles Per Second")
+            sub.prop(particle_system, "partEmit", text="Particles Per Frame")
 
 
 class ParticleSystemCopiesPanel(bpy.types.Panel):
@@ -2574,10 +2562,12 @@ class ParticleSystemCopiesPanel(bpy.types.Panel):
         col.operator("m3.particle_system_copies_remove", icon="REMOVE", text="")
         if copyIndex >= 0 and copyIndex < len(particle_system.copies):
             copy = particle_system.copies[copyIndex]
-            layout.separator()
             layout.prop(copy, "name",text="Name")
-            layout.prop(copy, "emissionRate", text="Particles Per Second")
-            layout.prop(copy, "partEmit", text="Particles Per Frame")
+            row = layout.row()
+            col = row.column()
+            sub = col.column(align=True)
+            sub.prop(copy, "emissionRate", text="Particles Per Second")
+            sub.prop(copy, "partEmit", text="Particles Per Frame")
 
 
 class ParticleSystemsPropPanel(bpy.types.Panel):
@@ -2598,52 +2588,50 @@ class ParticleSystemsPropPanel(bpy.types.Panel):
         scene = context.scene
         row = layout.row()
         col = row.column()
-
-        particleSystemIndex = scene.m3_particle_system_index
-        if not (particleSystemIndex >= 0 and particleSystemIndex < len(scene.m3_particle_systems)):
-            layout.label(text = "No particle system has been selected")
-            return
-        if particleSystemIndex >= 0 and particleSystemIndex < len(scene.m3_particle_systems):
-            particle_system = scene.m3_particle_systems[particleSystemIndex]
-            layout.prop_search(particle_system, "materialName", scene, "m3_material_references", text="Material", icon="NONE")
-            layout.prop(particle_system, "particleType", text="Particle Type")
-            layout.prop(particle_system, "maxParticles", text="Particle Maximum")
-            split = layout.split()
-            col = split.column()
-            sub = col.column(align=True)
-            sub.active = particle_system.particleType in ["1", "6"]
-            sub.prop(particle_system, "lengthWidthRatio", text="Length/Width Ratio")
-            particle_system = scene.m3_particle_systems[particleSystemIndex]
-            split = layout.split()
-            col = split.column()
-            col.label(text="Lifespan:")
-            sub = col.column(align=True)
-            sub.prop(particle_system, "lifespan1", text="")
-            col = split.column()
-            col.prop(particle_system, "randomizeWithLifespan2", text="Randomize With:")
-            sub = col.column(align=True)
-            sub.active = particle_system.randomizeWithLifespan2
-            sub.prop(particle_system, "lifespan2", text="")
-            split = layout.split()
-            col = split.column()
-            col.label(text="Mass:")
-            sub = col.column(align=True)
-            sub.prop(particle_system, "mass", text="")
-            col = split.column()
-            col.prop(particle_system, "randomizeWithMass2", text="Randomize With:")
-            sub = col.column(align=True)
-            sub.active = particle_system.randomizeWithMass2
-            sub.prop(particle_system, "mass2", text="")
-            layout.prop(particle_system, "unknownFloat2c", text="Unknown f2c")
-            split = layout.split()
-            col = split.column()
-            col.prop_search(particle_system, "trailingParticlesName", scene, "m3_particle_systems", text="Trailing Particles", icon="NONE")
-            sub = col.column(align=True)
-            sub.active = particle_system.trailingParticlesName != ""
-            sub.prop(particle_system, "trailingParticlesChance", text="Chance to trail")
-            sub.prop(particle_system, "trailingParticlesRate", text="Tailing  Rate")
-            layout.prop(particle_system, "unknownFloat6", text="Unknown Float 6")
-            layout.prop(particle_system, "unknownFloat7", text="Unknown Float 7")
+        particle_system = scene.m3_particle_systems[scene.m3_particle_system_index]
+        layout.prop_search(particle_system, "materialName", scene, "m3_material_references", text="Material", icon="NONE")
+        layout.prop(particle_system, "particleType", text="Particle Type")
+        split = layout.split()
+        col = split.column()
+        sub = col.column(align=True)
+        sub.prop(particle_system, "lodReduction", text="LOD Reduction")
+        sub.prop(particle_system, "lodCutoff", text="LOD Cutoff")
+        layout.prop(particle_system, "maxParticles", text="Particle Maximum")
+        split = layout.split()
+        col = split.column()
+        sub = col.column(align=True)
+        sub.active = particle_system.particleType in ["1", "6"]
+        sub.prop(particle_system, "lengthWidthRatio", text="Length/Width Ratio")
+        split = layout.split()
+        col = split.column()
+        col.label(text="Lifespan:")
+        sub = col.column(align=True)
+        sub.prop(particle_system, "lifespan1", text="")
+        col = split.column()
+        col.prop(particle_system, "randomizeWithLifespan2", text="Randomize With:")
+        sub = col.column(align=True)
+        sub.active = particle_system.randomizeWithLifespan2
+        sub.prop(particle_system, "lifespan2", text="")
+        split = layout.split()
+        col = split.column()
+        col.label(text="Mass:")
+        sub = col.column(align=True)
+        sub.prop(particle_system, "mass", text="")
+        col = split.column()
+        col.prop(particle_system, "randomizeWithMass2", text="Randomize With:")
+        sub = col.column(align=True)
+        sub.active = particle_system.randomizeWithMass2
+        sub.prop(particle_system, "mass2", text="")
+        split = layout.split()
+        col = split.column()
+        col.prop_search(particle_system, "trailingParticlesName", scene, "m3_particle_systems", text="Trailing Particles", icon="NONE")
+        sub = col.column(align=True)
+        sub.active = particle_system.trailingParticlesName != ""
+        sub.prop(particle_system, "trailingParticlesChance", text="Chance to trail")
+        sub.prop(particle_system, "trailingParticlesRate", text="Tailing  Rate")
+        #layout.prop(particle_system, "unknownFloat2c", text="Unknown f2c")
+        #layout.prop(particle_system, "unknownFloat6", text="Unknown Float 6")
+        #layout.prop(particle_system, "unknownFloat7", text="Unknown Float 7")
 
 
 class ParticleSystemsAreaPanel(bpy.types.Panel):
@@ -2660,53 +2648,48 @@ class ParticleSystemsAreaPanel(bpy.types.Panel):
         return context.scene and context.scene.m3_particle_system_index >= 0
 
     def draw(self, context):
-        layout = self.layout
         scene = context.scene
+        particle_system = scene.m3_particle_systems[scene.m3_particle_system_index]
+        layout = self.layout
         row = layout.row()
         col = row.column()
-
-        particleSystemIndex = scene.m3_particle_system_index
-        if not (particleSystemIndex >= 0 and particleSystemIndex < len(scene.m3_particle_systems)):
-            layout.label(text = "No particle system has been selected")
-            return
-        if particleSystemIndex >= 0 and particleSystemIndex < len(scene.m3_particle_systems):
-            particle_system = scene.m3_particle_systems[particleSystemIndex]
-            split = layout.split()
-            col = split.column()
-            col.row().label(text = "Emis. Area:")
-            subcol = col.row().column(align=True)
-            subcol.prop(particle_system, "emissionAreaType", text="")
-            sub = subcol.row()
-            sub.active = particle_system.emissionAreaType in emissionAreaTypesWithLength
-            sub.prop(particle_system, "emissionAreaSize", index=0, text="Length")
-            sub =  subcol.row()
-            sub.active = particle_system.emissionAreaType in emissionAreaTypesWithWidth
-            sub.prop(particle_system, "emissionAreaSize", index=1, text="Width")
-            sub = subcol.row()
-            sub.active = particle_system.emissionAreaType in emissionAreaTypesWithHeight
-            sub.prop(particle_system, "emissionAreaSize", index=2, text="Height")
-            sub = subcol.row()
-            sub.active = particle_system.emissionAreaType in emissionAreaTypesWithRadius
-            sub.prop(particle_system, "emissionAreaRadius",text="Radius")
-            col.row().prop(particle_system, "cutoutEmissionArea", text="Cutout Emission Area:")
-            subcol = col.row().column(align=True)
-            sub = subcol.row()
-            sub.active = particle_system.cutoutEmissionArea and particle_system.emissionAreaType in emissionAreaTypesWithLength
-            sub.prop(particle_system, "emissionAreaCutoutSize", index=0, text="Length")
-            sub =  subcol.row()
-            sub.active = particle_system.cutoutEmissionArea and particle_system.emissionAreaType in emissionAreaTypesWithWidth
-            sub.prop(particle_system, "emissionAreaCutoutSize", index=1, text="Width")
-            sub = subcol.row()
-            sub.active = particle_system.cutoutEmissionArea and particle_system.emissionAreaType == shared.emissionAreaTypeCuboid
-            # property has no effect on cylinder cutout
-            sub.prop(particle_system, "emissionAreaCutoutSize", index=2, text="Height")
-            sub = subcol.row()
-            sub.active = particle_system.cutoutEmissionArea and particle_system.emissionAreaType in emissionAreaTypesWithRadius
-            sub.prop(particle_system, "emissionAreaCutoutRadius",text="Radius")
-            subcol = col.row().column(align=True)
-            subcol.active = particle_system.emissionAreaType == shared.emissionAreaTypeMesh
-            # FIXME Add button to set mesh
-            col.operator("m3.create_spawn_points_from_mesh", text="Spawn Points From Mesh")
+        layout.prop(particle_system, "killSphere", text="System Limit Radius")
+        split = layout.split()
+        col = split.column()
+        col.row().label(text = "Emis. Area:")
+        subcol = col.row().column(align=True)
+        subcol.prop(particle_system, "emissionAreaType", text="")
+        sub = subcol.row()
+        sub.active = particle_system.emissionAreaType in emissionAreaTypesWithLength
+        sub.prop(particle_system, "emissionAreaSize", index=0, text="Length")
+        sub =  subcol.row()
+        sub.active = particle_system.emissionAreaType in emissionAreaTypesWithWidth
+        sub.prop(particle_system, "emissionAreaSize", index=1, text="Width")
+        sub = subcol.row()
+        sub.active = particle_system.emissionAreaType in emissionAreaTypesWithHeight
+        sub.prop(particle_system, "emissionAreaSize", index=2, text="Height")
+        sub = subcol.row()
+        sub.active = particle_system.emissionAreaType in emissionAreaTypesWithRadius
+        sub.prop(particle_system, "emissionAreaRadius",text="Radius")
+        col.row().prop(particle_system, "cutoutEmissionArea", text="Cutout Emission Area:")
+        subcol = col.row().column(align=True)
+        sub = subcol.row()
+        sub.active = particle_system.cutoutEmissionArea and particle_system.emissionAreaType in emissionAreaTypesWithLength
+        sub.prop(particle_system, "emissionAreaCutoutSize", index=0, text="Length")
+        sub =  subcol.row()
+        sub.active = particle_system.cutoutEmissionArea and particle_system.emissionAreaType in emissionAreaTypesWithWidth
+        sub.prop(particle_system, "emissionAreaCutoutSize", index=1, text="Width")
+        sub = subcol.row()
+        sub.active = particle_system.cutoutEmissionArea and particle_system.emissionAreaType == shared.emissionAreaTypeCuboid
+        # property has no effect on cylinder cutout
+        sub.prop(particle_system, "emissionAreaCutoutSize", index=2, text="Height")
+        sub = subcol.row()
+        sub.active = particle_system.cutoutEmissionArea and particle_system.emissionAreaType in emissionAreaTypesWithRadius
+        sub.prop(particle_system, "emissionAreaCutoutRadius",text="Radius")
+        subcol = col.row().column(align=True)
+        subcol.active = particle_system.emissionAreaType == shared.emissionAreaTypeMesh
+        # FIXME Add button to set mesh
+        col.operator("m3.create_spawn_points_from_mesh", text="Spawn Points From Mesh")
 
 
 class ParticleSystemsMovementPanel(bpy.types.Panel):
@@ -2723,54 +2706,49 @@ class ParticleSystemsMovementPanel(bpy.types.Panel):
         return context.scene and context.scene.m3_particle_system_index >= 0
 
     def draw(self, context):
-        layout = self.layout
         scene = context.scene
-
-        particleSystemIndex = scene.m3_particle_system_index
-        if not (particleSystemIndex >= 0 and particleSystemIndex < len(scene.m3_particle_systems)):
-            layout.label(text = "No particle system has been selected")
-            return
-        if particleSystemIndex >= 0 and particleSystemIndex < len(scene.m3_particle_systems):
-            particle_system = scene.m3_particle_systems[particleSystemIndex]
-            split = layout.split()
-            col = split.column()
-            col.label(text="Emis. Speed.:")
-            sub = col.column(align=True)
-            sub.prop(particle_system, "emissionSpeed1", text="")
-            col = split.column()
-            col.prop(particle_system, "randomizeWithEmissionSpeed2", text="Randomize With:")
-            sub = col.column(align=True)
-            sub.active = particle_system.randomizeWithEmissionSpeed2
-            sub.prop(particle_system, "emissionSpeed2", text="")
-            split = layout.split()
-            col = split.column()
-            layout.prop(particle_system, "emissionType", text="Emission Type")
-            split = layout.split()
-            split.active = particle_system.emissionType != "1"
-            col = split.column()
-            sub = col.column(align=True)
-            sub.label(text="Angle:")
-            sub.prop(particle_system, "emissionAngleX", text="X")
-            sub.prop(particle_system, "emissionAngleY", text="Y")
-            col = split.column()
-            sub = col.column(align=True)
-            sub.label(text="Spread:")
-            sub.prop(particle_system, "emissionSpreadX", text="X")
-            sub.prop(particle_system, "emissionSpreadY", text="Y")
-            split = layout.split()
-            col = split.column()
-            col.label(text = "Noise:")
-            sub = col.column(align=True)
-            sub.prop(particle_system, "noiseAmplitude", text="Amplitude")
-            sub.prop(particle_system, "noiseFrequency", text="Frequency")
-            sub.prop(particle_system, "noiseCohesion", text="Cohesion")
-            sub.prop(particle_system, "noiseEdge", text="Edge")
-            layout.prop(particle_system, "bounce", text="Bounce")
-            layout.prop(particle_system, "friction", text="Friction")
-            layout.prop(particle_system, "zAcceleration", text="Z-Acceleration")
-            layout.prop(particle_system, "slowdown", text="Slowdown")
-            layout.prop(particle_system, "localForceChannels", text="Local Force Channels")
-            layout.prop(particle_system, "worldForceChannels", text="World Force Channels")
+        particle_system = context.scene.m3_particle_systems[scene.m3_particle_system_index]
+        layout = self.layout
+        split = layout.split()
+        col = split.column()
+        col.label(text="Emis. Speed.:")
+        sub = col.column(align=True)
+        sub.prop(particle_system, "emissionSpeed1", text="")
+        col = split.column()
+        col.prop(particle_system, "randomizeWithEmissionSpeed2", text="Randomize With:")
+        sub = col.column(align=True)
+        sub.active = particle_system.randomizeWithEmissionSpeed2
+        sub.prop(particle_system, "emissionSpeed2", text="")
+        split = layout.split()
+        col = split.column()
+        layout.prop(particle_system, "emissionType", text="Emission Type")
+        split = layout.split()
+        split.active = particle_system.emissionType != "1"
+        col = split.column()
+        sub = col.column(align=True)
+        sub.label(text="Angle:")
+        sub.prop(particle_system, "emissionAngleX", text="X")
+        sub.prop(particle_system, "emissionAngleY", text="Y")
+        col = split.column()
+        sub = col.column(align=True)
+        sub.label(text="Spread:")
+        sub.prop(particle_system, "emissionSpreadX", text="X")
+        sub.prop(particle_system, "emissionSpreadY", text="Y")
+        split = layout.split()
+        col = split.column()
+        col.label(text = "Noise:")
+        sub = col.column(align=True)
+        sub.prop(particle_system, "noiseAmplitude", text="Amplitude")
+        sub.prop(particle_system, "noiseFrequency", text="Frequency")
+        sub.prop(particle_system, "noiseCohesion", text="Cohesion")
+        sub.prop(particle_system, "noiseEdge", text="Edge")
+        layout.prop(particle_system, "bounce", text="Bounce")
+        layout.prop(particle_system, "friction", text="Friction")
+        layout.prop(particle_system, "drag", text="Drag")
+        layout.prop(particle_system, "zAcceleration", text="Z-Acceleration")
+        layout.prop(particle_system, "windMultiplier", text="Wind Multiplier")
+        layout.prop(particle_system, "localForceChannels", text="Local Force Channels")
+        layout.prop(particle_system, "worldForceChannels", text="World Force Channels")
 
 
 class ParticleSystemsColorPanel(bpy.types.Panel):
@@ -2791,37 +2769,31 @@ class ParticleSystemsColorPanel(bpy.types.Panel):
         scene = context.scene
         row = layout.row()
         col = row.column()
-
-        particleSystemIndex = scene.m3_particle_system_index
-        if not (particleSystemIndex >= 0 and particleSystemIndex < len(scene.m3_particle_systems)):
-            layout.label(text = "No particle system has been selected")
-            return
-        if particleSystemIndex >= 0 and particleSystemIndex < len(scene.m3_particle_systems):
-            particle_system = scene.m3_particle_systems[particleSystemIndex]
-            split = layout.split()
-            col = split.column()
-            col.label(text="Color:")
-            sub = col.column(align=True)
-            sub.prop(particle_system, "initialColor1", text="Initial")
-            sub.prop(particle_system, "middleColor1", text="Middle")
-            sub.prop(particle_system, "finalColor1", text="Final")
-            col = split.column()
-            col.prop(particle_system, "randomizeWithColor2", text="Randomize With:")
-            sub = col.column(align=True)
-            sub.active = particle_system.randomizeWithColor2
-            sub.prop(particle_system, "initialColor2", text="Initial")
-            sub.prop(particle_system, "middleColor2", text="Middle")
-            sub.prop(particle_system, "finalColor2", text="Final")
-            layout.prop(particle_system, "colorAnimationMiddle", text="Color Middle")
-            layout.prop(particle_system, "alphaAnimationMiddle", text="Alpha Middle")
-            split = layout.split()
-            col = split.column()
-            col.label(text="Color & Alpha Smooth Type:")
-            col.prop(particle_system, "colorSmoothingType", text="")
-            sub = col.column(align=True)
-            sub.active = particle_system.colorSmoothingType in ["3", "4"]
-            sub.prop(particle_system, "colorHoldTime", text="Color Hold Time")
-            sub.prop(particle_system, "alphaHoldTime", text="Alpha Hold Time")
+        particle_system = scene.m3_particle_systems[scene.m3_particle_system_index]
+        split = layout.split()
+        col = split.column()
+        col.label(text="Color:")
+        sub = col.column(align=True)
+        sub.prop(particle_system, "initialColor1", text="Initial")
+        sub.prop(particle_system, "middleColor1", text="Middle")
+        sub.prop(particle_system, "finalColor1", text="Final")
+        col = split.column()
+        col.prop(particle_system, "randomizeWithColor2", text="Randomize With:")
+        sub = col.column(align=True)
+        sub.active = particle_system.randomizeWithColor2
+        sub.prop(particle_system, "initialColor2", text="Initial")
+        sub.prop(particle_system, "middleColor2", text="Middle")
+        sub.prop(particle_system, "finalColor2", text="Final")
+        layout.prop(particle_system, "colorAnimationMiddle", text="Color Middle")
+        layout.prop(particle_system, "alphaAnimationMiddle", text="Alpha Middle")
+        split = layout.split()
+        col = split.column()
+        col.label(text="Color & Alpha Smooth Type:")
+        col.prop(particle_system, "colorSmoothingType", text="")
+        sub = col.column(align=True)
+        sub.active = particle_system.colorSmoothingType in ["3", "4"]
+        sub.prop(particle_system, "colorHoldTime", text="Color Hold Time")
+        sub.prop(particle_system, "alphaHoldTime", text="Alpha Hold Time")
 
 
 class ParticleSystemsSizePanel(bpy.types.Panel):
@@ -2842,35 +2814,29 @@ class ParticleSystemsSizePanel(bpy.types.Panel):
         scene = context.scene
         row = layout.row()
         col = row.column()
-
-        particleSystemIndex = scene.m3_particle_system_index
-        if not (particleSystemIndex >= 0 and particleSystemIndex < len(scene.m3_particle_systems)):
-            layout.label(text = "No particle system has been selected")
-            return
-        if particleSystemIndex >= 0 and particleSystemIndex < len(scene.m3_particle_systems):
-            particle_system = scene.m3_particle_systems[particleSystemIndex]
-            split = layout.split()
-            col = split.column()
-            sub = col.column(align=True)
-            sub.label(text="Size (Particle):")
-            sub.prop(particle_system, "particleSizes1", index=0, text="Initial")
-            sub.prop(particle_system, "particleSizes1", index=1, text="Middle")
-            sub.prop(particle_system, "particleSizes1", index=2, text="Final")
-            col = split.column()
-            col.prop(particle_system, "randomizeWithParticleSizes2", text="Randomize With:")
-            sub = col.column(align=True)
-            sub.active = particle_system.randomizeWithParticleSizes2
-            sub.prop(particle_system, "particleSizes2", index=0, text="Initial")
-            sub.prop(particle_system, "particleSizes2", index=1, text="Middle")
-            sub.prop(particle_system, "particleSizes2", index=2, text="Final")
-            layout.prop(particle_system, "sizeAnimationMiddle", text="Size Middle")
-            split = layout.split()
-            col = split.column()
-            col.label(text="Size Smooth Type:")
-            col.prop(particle_system, "sizeSmoothingType", text="")
-            sub = col.column(align=True)
-            sub.active = particle_system.sizeSmoothingType in ["3", "4"]
-            sub.prop(particle_system, "sizeHoldTime", text="Hold Time")
+        particle_system = scene.m3_particle_systems[scene.m3_particle_system_index]
+        split = layout.split()
+        col = split.column()
+        sub = col.column(align=True)
+        sub.label(text="Size (Particle):")
+        sub.prop(particle_system, "particleSizes1", index=0, text="Initial")
+        sub.prop(particle_system, "particleSizes1", index=1, text="Middle")
+        sub.prop(particle_system, "particleSizes1", index=2, text="Final")
+        col = split.column()
+        col.prop(particle_system, "randomizeWithParticleSizes2", text="Randomize With:")
+        sub = col.column(align=True)
+        sub.active = particle_system.randomizeWithParticleSizes2
+        sub.prop(particle_system, "particleSizes2", index=0, text="Initial")
+        sub.prop(particle_system, "particleSizes2", index=1, text="Middle")
+        sub.prop(particle_system, "particleSizes2", index=2, text="Final")
+        layout.prop(particle_system, "sizeAnimationMiddle", text="Size Middle")
+        split = layout.split()
+        col = split.column()
+        col.label(text="Size Smooth Type:")
+        col.prop(particle_system, "sizeSmoothingType", text="")
+        sub = col.column(align=True)
+        sub.active = particle_system.sizeSmoothingType in ["3", "4"]
+        sub.prop(particle_system, "sizeHoldTime", text="Hold Time")
 
 
 class ParticleSystemsRotationPanel(bpy.types.Panel):
@@ -2891,35 +2857,29 @@ class ParticleSystemsRotationPanel(bpy.types.Panel):
         scene = context.scene
         row = layout.row()
         col = row.column()
-
-        particleSystemIndex = scene.m3_particle_system_index
-        if not (particleSystemIndex >= 0 and particleSystemIndex < len(scene.m3_particle_systems)):
-            layout.label(text = "No particle system has been selected")
-            return
-        if particleSystemIndex >= 0 and particleSystemIndex < len(scene.m3_particle_systems):
-            particle_system = scene.m3_particle_systems[particleSystemIndex]
-            split = layout.split()
-            col = split.column()
-            sub = col.column(align=True)
-            sub.label(text="Rotation (Particle):")
-            sub.prop(particle_system, "rotationValues1", index=0, text="Initial")
-            sub.prop(particle_system, "rotationValues1", index=1, text="Middle")
-            sub.prop(particle_system, "rotationValues1", index=2, text="Final")
-            col = split.column()
-            col.prop(particle_system, "randomizeWithRotationValues2", text="Randomize With:")
-            sub = col.column(align=True)
-            sub.active = particle_system.randomizeWithRotationValues2
-            sub.prop(particle_system, "rotationValues2", index=0, text="Initial")
-            sub.prop(particle_system, "rotationValues2", index=1, text="Middle")
-            sub.prop(particle_system, "rotationValues2", index=2, text="Final")
-            layout.prop(particle_system, "rotationAnimationMiddle", text="Rotation Middle")
-            split = layout.split()
-            col = split.column()
-            col.label(text="Rotation Smooth Type:")
-            col.prop(particle_system, "rotationSmoothingType", text="")
-            sub = col.column(align=True)
-            sub.active = particle_system.rotationSmoothingType in ["3", "4"]
-            sub.prop(particle_system, "rotationHoldTime", text="Hold Time")
+        particle_system = scene.m3_particle_systems[scene.m3_particle_system_index]
+        split = layout.split()
+        col = split.column()
+        sub = col.column(align=True)
+        sub.label(text="Rotation (Particle):")
+        sub.prop(particle_system, "rotationValues1", index=0, text="Initial")
+        sub.prop(particle_system, "rotationValues1", index=1, text="Middle")
+        sub.prop(particle_system, "rotationValues1", index=2, text="Final")
+        col = split.column()
+        col.prop(particle_system, "randomizeWithRotationValues2", text="Randomize With:")
+        sub = col.column(align=True)
+        sub.active = particle_system.randomizeWithRotationValues2
+        sub.prop(particle_system, "rotationValues2", index=0, text="Initial")
+        sub.prop(particle_system, "rotationValues2", index=1, text="Middle")
+        sub.prop(particle_system, "rotationValues2", index=2, text="Final")
+        layout.prop(particle_system, "rotationAnimationMiddle", text="Rotation Middle")
+        split = layout.split()
+        col = split.column()
+        col.label(text="Rotation Smooth Type:")
+        col.prop(particle_system, "rotationSmoothingType", text="")
+        sub = col.column(align=True)
+        sub.active = particle_system.rotationSmoothingType in ["3", "4"]
+        sub.prop(particle_system, "rotationHoldTime", text="Hold Time")
 
 
 class ParticleSystemsImageAnimPanel(bpy.types.Panel):
@@ -2940,37 +2900,30 @@ class ParticleSystemsImageAnimPanel(bpy.types.Panel):
         scene = context.scene
         row = layout.row()
         col = row.column()
-
-        particleSystemIndex = scene.m3_particle_system_index
-        if not (particleSystemIndex >= 0 and particleSystemIndex < len(scene.m3_particle_systems)):
-            layout.label(text = "No particle system has been selected")
-            return
-        if particleSystemIndex >= 0 and particleSystemIndex < len(scene.m3_particle_systems):
-            particle_system = scene.m3_particle_systems[particleSystemIndex]
-            split = layout.split()
-            row = split.row()
-            sub = row.column(align=True)
-            sub.label(text="Column:")
-            sub.prop(particle_system, "numberOfColumns", text="Count")
-            sub.prop(particle_system, "columnWidth", text="Width")
-            row = split.row()
-            sub = row.column(align=True)
-            sub.label(text="Row:")
-            sub.prop(particle_system, "numberOfRows", text="Count")
-            sub.prop(particle_system, "rowHeight", text="Height")
-            split = layout.split()
-            col = split.column()
-            sub = col.column(align=True)
-            sub.label(text="Phase 1 Image Index:")
-            sub.prop(particle_system, "phase1StartImageIndex", text="Inital")
-            sub.prop(particle_system, "phase1EndImageIndex", text="Final")
-            split = layout.split()
-            col = split.column()
-            sub = col.column(align=True)
-            sub.label(text="Phase 2 Image Index:")
-            sub.prop(particle_system, "phase2StartImageIndex", text="Inital")
-            sub.prop(particle_system, "phase2EndImageIndex", text="Final")
-            layout.prop(particle_system, "relativePhase1Length", text="Relative Phase 1 Length")
+        particle_system = scene.m3_particle_systems[scene.m3_particle_system_index]
+        split = layout.split()
+        row = split.row()
+        sub = row.column(align=True)
+        sub.label(text="Column:")
+        sub.prop(particle_system, "numberOfColumns", text="Count")
+        sub.prop(particle_system, "columnWidth", text="Width")
+        row = split.row()
+        sub = row.column(align=True)
+        sub.label(text="Row:")
+        sub.prop(particle_system, "numberOfRows", text="Count")
+        sub.prop(particle_system, "rowHeight", text="Height")
+        split = layout.split()
+        row = split.row()
+        sub = row.column(align=True)
+        sub.label(text="Phase 1 Image Index:")
+        sub.prop(particle_system, "phase1StartImageIndex", text="Inital")
+        sub.prop(particle_system, "phase1EndImageIndex", text="Final")
+        row = split.row()
+        sub = row.column(align=True)
+        sub.label(text="Phase 2 Image Index:")
+        sub.prop(particle_system, "phase2StartImageIndex", text="Inital")
+        sub.prop(particle_system, "phase2EndImageIndex", text="Final")
+        layout.prop(particle_system, "relativePhase1Length", text="Relative Phase 1 Length")
 
 
 class ParticleSystemsFlagsPanel(bpy.types.Panel):
@@ -2991,40 +2944,34 @@ class ParticleSystemsFlagsPanel(bpy.types.Panel):
         scene = context.scene
         row = layout.row()
         col = row.column()
-
-        particleSystemIndex = scene.m3_particle_system_index
-        if not (particleSystemIndex >= 0 and particleSystemIndex < len(scene.m3_particle_systems)):
-            layout.label(text = "No particle system has been selected")
-            return
-        if particleSystemIndex >= 0 and particleSystemIndex < len(scene.m3_particle_systems):
-            particle_system = scene.m3_particle_systems[particleSystemIndex]
-            split = layout.split()
-            row = split.row()
-            col = row.column()
-            col.prop(particle_system, "trailingEnabled", text="Trailing")
-            col.prop(particle_system, "sort", text="Sort")
-            col.prop(particle_system, "collideTerrain", text="Collide Terrain")
-            col.prop(particle_system, "collideObjects", text="Collide Objects")
-            col.prop(particle_system, "spawnOnBounce", text="Spawn On Bounce")
-            col.prop(particle_system, "inheritEmissionParams", text="Inherit Emission Params")
-            col.prop(particle_system, "inheritParentVel", text="Inherit Parent Vel")
-            col.prop(particle_system, "sortByZHeight", text="Sort By Z Height")
-            col.prop(particle_system, "reverseIteration", text="Reverse Iteration")
-            col.prop(particle_system, "litParts", text="Lit Parts")
-            col.prop(particle_system, "randFlipBookStart", text="Rand Flip Book Start")
-            row = split.row()
-            col = row.column()
-            col.prop(particle_system, "multiplyByGravity", text="Multiply By Gravity")
-            col.prop(particle_system, "clampTailParts", text="Clamp Tail Parts")
-            col.prop(particle_system, "spawnTrailingParts", text="Spawn Trailing Parts")
-            col.prop(particle_system, "fixLengthTailParts", text="Fix Length Tail Parts")
-            col.prop(particle_system, "useVertexAlpha", text="Use Vertex Alpha")
-            col.prop(particle_system, "modelParts", text="Model Parts")
-            col.prop(particle_system, "swapYZonModelParts", text="Swap Y Z On Model Parts")
-            col.prop(particle_system, "scaleTimeByParent", text="Scale Time By Parent")
-            col.prop(particle_system, "useLocalTime", text="Use Local Time")
-            col.prop(particle_system, "simulateOnInit", text="Simulate On Init")
-            col.prop(particle_system, "copy", text="Copy")
+        particle_system = scene.m3_particle_systems[scene.m3_particle_system_index]
+        split = layout.split()
+        row = split.row()
+        col = row.column()
+        col.prop(particle_system, "trailingEnabled", text="Trailing")
+        col.prop(particle_system, "sort", text="Sort")
+        col.prop(particle_system, "collideTerrain", text="Collide Terrain")
+        col.prop(particle_system, "collideObjects", text="Collide Objects")
+        col.prop(particle_system, "spawnOnBounce", text="Spawn On Bounce")
+        col.prop(particle_system, "inheritEmissionParams", text="Inherit Emission Params")
+        col.prop(particle_system, "inheritParentVel", text="Inherit Parent Vel")
+        col.prop(particle_system, "sortByZHeight", text="Sort By Z Height")
+        col.prop(particle_system, "reverseIteration", text="Reverse Iteration")
+        col.prop(particle_system, "litParts", text="Lit Parts")
+        col.prop(particle_system, "randFlipBookStart", text="Rand Flip Book Start")
+        row = split.row()
+        col = row.column()
+        col.prop(particle_system, "multiplyByGravity", text="Multiply By Gravity")
+        col.prop(particle_system, "clampTailParts", text="Clamp Tail Parts")
+        col.prop(particle_system, "spawnTrailingParts", text="Spawn Trailing Parts")
+        col.prop(particle_system, "fixLengthTailParts", text="Fix Length Tail Parts")
+        col.prop(particle_system, "useVertexAlpha", text="Use Vertex Alpha")
+        col.prop(particle_system, "modelParts", text="Model Parts")
+        col.prop(particle_system, "swapYZonModelParts", text="Swap Y Z On Model Parts")
+        col.prop(particle_system, "scaleTimeByParent", text="Scale Time By Parent")
+        col.prop(particle_system, "useLocalTime", text="Use Local Time")
+        col.prop(particle_system, "simulateOnInit", text="Simulate On Init")
+        col.prop(particle_system, "copy", text="Copy")
 
 
 class RibbonsPanel(bpy.types.Panel):
@@ -3133,9 +3080,12 @@ class RibbonRadiusPanel(bpy.types.Panel):
             return
         ribbon = scene.m3_ribbons[ribbonIndex]
         layout.label(text="Radius Scale")
-        layout.prop(ribbon, "radiusScale", index=0, text="Start")
-        layout.prop(ribbon, "radiusScale", index=1, text="Middle")
-        layout.prop(ribbon, "radiusScale", index=2, text="End")
+        split = layout.split()
+        col = split.column()
+        sub = col.column(align=True)
+        sub.prop(ribbon, "radiusScale", index=0, text="Start")
+        sub.prop(ribbon, "radiusScale", index=1, text="Middle")
+        sub.prop(ribbon, "radiusScale", index=2, text="End")
         split = layout.split()
         col = split.column()
         col.prop(ribbon, "radiusVariationBool", text="Radius Variation:")
@@ -3161,11 +3111,8 @@ class RibbonLengthPanel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
         scene = context.scene
+        ribbon = scene.m3_ribbons[scene.m3_ribbon_index]
 
-        ribbonIndex = scene.m3_ribbon_index
-        if ribbonIndex < 0 or ribbonIndex >= len(scene.m3_ribbons):
-            return
-        ribbon = scene.m3_ribbons[ribbonIndex]
         layout.prop(ribbon, "ribbonLength",text="Length")
         layout.prop(ribbon, "waveLength",text="Wave Length")
         split = layout.split()
@@ -3193,11 +3140,7 @@ class RibbonNoisePanel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
         scene = context.scene
-
-        ribbonIndex = scene.m3_ribbon_index
-        if ribbonIndex < 0 or ribbonIndex >= len(scene.m3_ribbons):
-            return
-        ribbon = scene.m3_ribbons[ribbonIndex]
+        ribbon = scene.m3_ribbons[scene.m3_ribbon_index]
 
         split = layout.split()
         col = split.column()
@@ -3241,11 +3184,8 @@ class RibbonFlagsPanel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
         scene = context.scene
+        ribbon = scene.m3_ribbons[scene.m3_ribbon_index]
 
-        ribbonIndex = scene.m3_ribbon_index
-        if ribbonIndex < 0 or ribbonIndex >= len(scene.m3_ribbons):
-            return
-        ribbon = scene.m3_ribbons[ribbonIndex]
         split = layout.split()
         row = split.row()
         col = row.column()
@@ -3282,11 +3222,7 @@ class RibbonEndPointsPanel(bpy.types.Panel):
         layout = self.layout
         scene = context.scene
 
-        ribbonIndex = scene.m3_ribbon_index
-        if ribbonIndex < 0 or ribbonIndex >= len(scene.m3_ribbons):
-            return
-
-        ribbon = scene.m3_ribbons[ribbonIndex]
+        ribbon = scene.m3_ribbons[scene.m3_ribbon_index]
 
         row = layout.row()
         col = row.column()
@@ -3388,16 +3324,12 @@ class RigidBodyPropertiesPanel(bpy.types.Panel):
         return context.scene and context.scene.m3_rigid_body_index >= 0
 
     def draw(self, context):
-        layout = self.layout
         scene = context.scene
+        rigid_body = scene.m3_rigid_bodies[scene.m3_rigid_body_index]
+
+        layout = self.layout
         row = layout.row()
         col = row.column()
-
-        currentIndex = scene.m3_rigid_body_index
-        if not 0 <= currentIndex < len(scene.m3_rigid_bodies):
-            layout.label(text = "No rigid body has been selected")
-            return
-        rigid_body = scene.m3_rigid_bodies[currentIndex]
         layout.prop(rigid_body, "priority", text="Priority")
         layout.prop(rigid_body, "unknownAt0")
         layout.prop(rigid_body, "unknownAt4")
@@ -3418,16 +3350,10 @@ class RigidBodyForcesPanel(bpy.types.Panel):
         return context.scene and context.scene.m3_rigid_body_index >= 0
 
     def draw(self, context):
-        layout = self.layout
         scene = context.scene
-        row = layout.row()
-        col = row.column()
+        rigid_body = scene.m3_rigid_bodies[scene.m3_rigid_body_index]
 
-        currentIndex = scene.m3_rigid_body_index
-        if not 0 <= currentIndex < len(scene.m3_rigid_bodies):
-            layout.label(text = "No rigid body has been selected")
-            return
-        rigid_body = scene.m3_rigid_bodies[currentIndex]
+        layout = self.layout
         layout.prop(rigid_body, "localForces", text="Local Forces")
         layout.label(text="World Forces:")
         split = layout.split()
@@ -3459,16 +3385,10 @@ class RigidBodyFlagsPanel(bpy.types.Panel):
         return context.scene and context.scene.m3_rigid_body_index >= 0
 
     def draw(self, context):
-        layout = self.layout
         scene = context.scene
-        row = layout.row()
-        col = row.column()
+        rigid_body = scene.m3_rigid_bodies[scene.m3_rigid_body_index]
 
-        currentIndex = scene.m3_rigid_body_index
-        if not 0 <= currentIndex < len(scene.m3_rigid_bodies):
-            layout.label(text = "No rigid body has been selected")
-            return
-        rigid_body = scene.m3_rigid_bodies[currentIndex]
+        layout = self.layout
         split = layout.split()
         row = split.row()
         col = row.column()
@@ -3497,17 +3417,12 @@ class PhysicsShapePanel(bpy.types.Panel):
         return context.scene and context.scene.m3_rigid_body_index >= 0
 
     def draw(self, context):
-        layout = self.layout
         scene = context.scene
+        rigid_body = scene.m3_rigid_bodies[scene.m3_rigid_body_index]
+
+        layout = self.layout
         row = layout.row()
         col = row.column()
-
-        currentIndex = scene.m3_rigid_body_index
-        if not 0 <= currentIndex < len(scene.m3_rigid_bodies):
-            layout.label(text = "No rigid body has been selected")
-            return
-        rigid_body = scene.m3_rigid_bodies[currentIndex]
-
         col.template_list("UI_UL_list", "m3_physics_sahpes", rigid_body, "physicsShapes", rigid_body, "physicsShapeIndex", rows=2)
         col = row.column(align=True)
         col.operator("m3.physics_shapes_add", icon="ADD", text="")
@@ -3612,18 +3527,16 @@ class LightSpecularPanel(bpy.types.Panel):
             layout.prop(light, "specular", text="Use Specular")
 
     def draw(self, context):
-        layout = self.layout
         scene = context.scene
+        light = scene.m3_lights[scene.m3_light_index]
 
-        currentIndex = scene.m3_light_index
-        if currentIndex >= 0 and currentIndex < len(scene.m3_lights):
-            light = scene.m3_lights[currentIndex]
-            split = layout.split()
-            col = split.column()
-            sub = col.column(align=True)
-            sub.active = light.specular
-            sub.prop(light, "specColor", text="")
-            sub.prop(light, "specIntensity", text="Specular Intensity")
+        layout = self.layout
+        split = layout.split()
+        col = split.column()
+        sub = col.column(align=True)
+        sub.active = light.specular
+        sub.prop(light, "specColor", text="")
+        sub.prop(light, "specIntensity", text="Specular Intensity")
 
 
 class LightAttenuationPanel(bpy.types.Panel):
@@ -3640,21 +3553,19 @@ class LightAttenuationPanel(bpy.types.Panel):
         return context.scene and context.scene.m3_light_index >= 0
 
     def draw(self, context):
-        layout = self.layout
         scene = context.scene
+        light = scene.m3_lights[scene.m3_light_index]
 
-        currentIndex = scene.m3_light_index
-        if currentIndex >= 0 and currentIndex < len(scene.m3_lights):
-            light = scene.m3_lights[currentIndex]
-            split = layout.split()
-            col = split.column()
-            sub = col.row(align=True)
-            sub.prop(light, "attenuationNear", text="Near")
-            sub.prop(light, "attenuationFar", text="Far")
-            layout.prop(light, "unknownAt148", text="unknownAt148")
-            layout.prop(light, "hotSpot", text="Hot Spot")
-            layout.prop(light, "falloff", text="Fall Off")
-            layout.prop(light, "unknownAt12", text="unknownAt12")
+        layout = self.layout
+        split = layout.split()
+        col = split.column()
+        sub = col.row(align=True)
+        sub.prop(light, "attenuationNear", text="Near")
+        sub.prop(light, "attenuationFar", text="Far")
+        layout.prop(light, "unknownAt148", text="unknownAt148")
+        layout.prop(light, "hotSpot", text="Hot Spot")
+        layout.prop(light, "falloff", text="Fall Off")
+        layout.prop(light, "unknownAt12", text="unknownAt12")
 
 
 class LightFlagsPanel(bpy.types.Panel):
@@ -3671,16 +3582,14 @@ class LightFlagsPanel(bpy.types.Panel):
         return context.scene and context.scene.m3_light_index >= 0
 
     def draw(self, context):
-        layout = self.layout
         scene = context.scene
+        light = scene.m3_lights[scene.m3_light_index]
 
-        currentIndex = scene.m3_light_index
-        if currentIndex >= 0 and currentIndex < len(scene.m3_lights):
-            light = scene.m3_lights[currentIndex]
-            layout.prop(light, "shadowCast", text="Shadow Cast")
-            layout.prop(light, "unknownFlag0x04", text="Unknown Flag 0x04")
-            layout.prop(light, "turnOn", text="Turn On")
-            layout.prop(light, "unknownAt8", text="unknownAt8")
+        layout = self.layout
+        layout.prop(light, "shadowCast", text="Shadow Cast")
+        layout.prop(light, "unknownFlag0x04", text="Unknown Flag 0x04")
+        layout.prop(light, "turnOn", text="Turn On")
+        layout.prop(light, "unknownAt8", text="unknownAt8")
 
 
 class BillboardBehaviorPanel(bpy.types.Panel):
@@ -4270,9 +4179,8 @@ class M3_ANIMATIONS_OT_STC_select(bpy.types.Operator):
                 armature = obj.data
                 selectObject = False
                 for bone in armature.bones:
-                    animPathPrefix = "pose.bones["" + bone.name + ""]."
+                    animPathPrefix = 'pose.bones["{name}"].'.format(name=bone.name)
                     objectId = shared.animObjectIdArmature
-                    boneLongAnimIds = set()
                     rotLongAnimId = shared.getLongAnimIdOf(objectId, animPathPrefix + "rotation_quaternion")
                     locLongAnimId = shared.getLongAnimIdOf(objectId, animPathPrefix + "location")
                     scaleLongAnimId = shared.getLongAnimIdOf(objectId, animPathPrefix + "scale")
@@ -4281,9 +4189,8 @@ class M3_ANIMATIONS_OT_STC_select(bpy.types.Operator):
                         selectObject = True
                     else:
                         bone.select = False
-                # Select object at the end, otherwise Blender 2.63a
-                # does not notice bone selection even if object is already selected
-                obj.select = selectObject
+
+                obj.select_set(selectObject)
                 if obj.animation_data != None:
                     action = obj.animation_data.action
                     if action != None:
