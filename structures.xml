@@ -1919,8 +1919,8 @@
             <field name="numberOfRows" type="uint16" />
             <field name="columnWidth" type="float" default-value="inf" />
             <field name="rowHeight" type="float" default-value="inf" />
-            <field name="unknownFloat4" type="float" default-value="0.0" />
-            <field name="unknownFloat5" type="float" default-value="1.0"/>
+            <field name="bounce" type="float" default-value="0.0" />
+            <field name="friction" type="float" default-value="1.0"/>
             <field name="unknown9" type="int32" default-value="-1" />
             <field name="unknown700df5cf" size="20"/>
             <!-- particleType:

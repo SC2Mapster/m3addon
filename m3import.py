@@ -1763,20 +1763,16 @@ class Importer:
         if field == "partEmit":
             for action, timeValueMap in self.actionAndTimeValueMapPairsFor(animId):
                 curve = action.fcurves.new(path, index = 0)
-                lastIsDefault = True
                 for frame, value in frameValuePairs(timeValueMap):
-                    if value != defaultValue:
-                        if lastIsDefault == True:
-                            insertConstantKeyFrame(curve, frame - 1, 0)
-                        insertConstantKeyFrame(curve, frame, value)
+                    insertConstantKeyFrame(curve, frame, value)
+                    if value != 0:
                         insertConstantKeyFrame(curve, frame + 1, 0)
-                        lastIsDefault = (value == defaultValue)
         else:
             for action, timeValueMap in self.actionAndTimeValueMapPairsFor(animId):
                 curve = action.fcurves.new(path, index = 0)
                 for frame, value in frameValuePairs(timeValueMap):
                     insertConstantKeyFrame(curve, frame, value)
-
+					
     def animateVector3(self, objectWithAnimationData, path, animId, defaultValue):
         defaultAction = shared.getOrCreateDefaultActionFor(objectWithAnimationData)
         shared.setDefaultValue(defaultAction, path, 0, defaultValue.x)
