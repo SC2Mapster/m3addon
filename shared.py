@@ -29,6 +29,12 @@ from os import path
 from bpy_extras import image_utils
 from . import im
 
+lodEnum = [("0", "None", "LOD has no effect"),
+           ("1", "Low", "LOD cutoff or reduction takes effect if graphics are Low"),
+           ("2", "Medium", "LOD cutoff or reduction takes effect if graphics are Medium"),
+           ("3", "High", "LOD cutoff or reduction takes effect if graphics are High"),
+           ("4", "Ultra", "LOD cutoff or reduction takes effect if graphics are Ultra")]
+
 materialNames = [
     "No Material",
     "Standard",
