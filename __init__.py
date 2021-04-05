@@ -524,6 +524,12 @@ def handleAnimationChange(targetObject, oldAnimation, newAnimation):
 def handleAnimationSequenceIndexChange(self, context):
     scene = self
     newIndex = scene.m3_animation_index
+
+    if newIndex is -1 and len(scene.m3_animations) > 0:
+        print()
+        scene.m3_animation_index = 0
+        return
+
     oldIndex = scene.m3_animation_old_index
     #shared.setAnimationWithIndexToCurrentData(scene, oldIndex)
     if (newIndex >= 0) and (newIndex < len(scene.m3_animations)):
@@ -4450,9 +4456,9 @@ class M3_ANIMATIONS_OT_remove(bpy.types.Operator):
 
             scene.m3_animations.remove(scene.m3_animation_index)
 
-            if scene.m3_animation_index is not 0 or len(scene.m3_animations) is 0:
-                scene.m3_animation_old_index = -1
-                scene.m3_animation_index -= 1
+            # In the case index < 0, the handle function resolves it
+            scene.m3_animation_old_index = -1
+            scene.m3_animation_index -= 1
 
         return{"FINISHED"}
 
@@ -4469,10 +4475,10 @@ class M3_ANIMATIONS_OT_move(bpy.types.Operator):
         scene = context.scene
         ii = scene.m3_animation_index
 
-        if (ii < len(scene.m3_animations) - self.shift and ii >= -self.shift):
+        if (ii < len(scene.m3_animations) - self.shift):
             scene.m3_animations.move(ii, ii + self.shift)
             scene.m3_animation_index += self.shift
-
+        
         return{"FINISHED"}
 
 

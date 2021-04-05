@@ -653,7 +653,7 @@ class Exporter:
                 else:
                     print("The mesh %s has has a color layer called %s. Only color layers with the names 'color' and 'alpha' can be exported" % (meshObjectToCheck.name, vertexColorLayerName))
 
-        model.setNamedBit("vFlags", "hasVertexColors", exportVertexRGBA);
+        model.setNamedBit("vFlags", "hasVertexColors", exportVertexRGBA)
 
         m3VertexStructureDefinition= m3.structures["VertexFormat" + hex(model.vFlags)].getVersion(0)
 
@@ -674,7 +674,6 @@ class Exporter:
             bpy.ops.object.duplicate()
             meshObjectCopy = self.scene.view_layers[0].objects.active
             bpy.ops.object.modifier_apply (modifier='EdgeSplit')
-            self.scene.collection.objects.unlink(meshObjectCopy)
             mesh = meshObjectCopy.data
             meshObject = meshObjectCopy
             mesh.update()
@@ -726,9 +725,6 @@ class Exporter:
                 if length == 0:
                     return 0.0, 0.0, 0.0
                 return (x / length, y / length, z / length)
-
-            def uvIntToFloat(m3UVCoordinate):
-                return (m3UVCoordinate.x / 2048.0, 1 - m3UVCoordinate.y / 2048.0)
 
             for tri in mesh.loop_triangles:
                 assert(len(tri.vertices) == 3)
@@ -932,8 +928,9 @@ class Exporter:
                 raise ExportError("The mesh %s uses '%s' as material, but no m3 material with that name exist!" % (mesh.name, mesh.m3_material_name))
             m3Object.materialReferenceIndex = materialReferenceIndex
 
-
             division.objects.append(m3Object)
+
+            bpy.ops.object.delete()
 
 
         numberOfBonesToCheckForSkin = 0
@@ -1513,12 +1510,12 @@ class Exporter:
             transferer = BlenderToM3DataTransferer(exporter=self, m3Object=m3ParticleSystem, blenderObject=particleSystem, animPathPrefix=animPathPrefix, rootObject=self.scene)
             shared.transferParticleSystem(transferer)
             m3ParticleSystem.indexPlusHighestIndex = len(scene.m3_particle_systems) -1 + particleSystemIndex
-            m3ParticleSystem.setNamedBit("flags", "smoothSize", particleSystem.sizeSmoothingType == "1");
-            m3ParticleSystem.setNamedBit("flags", "smoothColor", particleSystem.colorSmoothingType == "1");
-            m3ParticleSystem.setNamedBit("flags", "smoothRotation", particleSystem.rotationSmoothingType == "1");
-            m3ParticleSystem.setNamedBit("flags", "bezSmoothSize", particleSystem.sizeSmoothingType in ["2", "4"]);
-            m3ParticleSystem.setNamedBit("flags", "bezSmoothColor", particleSystem.colorSmoothingType in ["2", "4"]);
-            m3ParticleSystem.setNamedBit("flags", "bezSmoothRotation", particleSystem.rotationSmoothingType in ["2", "4"]);
+            m3ParticleSystem.setNamedBit("flags", "smoothSize", particleSystem.sizeSmoothingType == "1")
+            m3ParticleSystem.setNamedBit("flags", "smoothColor", particleSystem.colorSmoothingType == "1")
+            m3ParticleSystem.setNamedBit("flags", "smoothRotation", particleSystem.rotationSmoothingType == "1")
+            m3ParticleSystem.setNamedBit("flags", "bezSmoothSize", particleSystem.sizeSmoothingType in ["2", "4"])
+            m3ParticleSystem.setNamedBit("flags", "bezSmoothColor", particleSystem.colorSmoothingType in ["2", "4"])
+            m3ParticleSystem.setNamedBit("flags", "bezSmoothRotation", particleSystem.rotationSmoothingType in ["2", "4"])
             m3ParticleSystem.unknowne0bd54c8 = self.createNullFloatAnimationReference(initValue=0.0, nullValue=0.0)
             m3ParticleSystem.unknowna2d44d80 = self.createNullFloatAnimationReference(initValue=0.0, nullValue=0.0)
             m3ParticleSystem.unknownf8e2b3d0 = self.createNullFloatAnimationReference(initValue=0.0, nullValue=0.0)
