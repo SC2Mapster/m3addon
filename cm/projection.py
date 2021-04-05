@@ -160,15 +160,15 @@ class M3GroupProjection(bpy.types.PropertyGroup):
         name='Height',
     )
     alphaOverTimeStart: bpy.props.FloatProperty(
-        default=0.0, min=0.0, max=1.0, options=set(),
+        default=0.0, min=0.0, max=1.0, options=set(), subtype="FACTOR",
         name='Alpha over time start',
     )
     alphaOverTimeMid: bpy.props.FloatProperty(
-        default=1.0, min=0.0, max=1.0, options=set(),
+        default=1.0, min=0.0, max=1.0, options=set(), subtype="FACTOR",
         name='Alpha over time mid',
     )
     alphaOverTimeEnd: bpy.props.FloatProperty(
-        default=0.0, min=0.0, max=1.0, options=set(),
+        default=0.0, min=0.0, max=1.0, options=set(), subtype="FACTOR",
         name='Alpha over time end',
     )
     splatLifeTimeAttack: bpy.props.FloatProperty(
@@ -197,7 +197,7 @@ class M3GroupProjection(bpy.types.PropertyGroup):
     )
     attenuationPlaneDistance: bpy.props.FloatProperty(
         default=1.0, min=0.0, options=set(),
-        name='Attenuation plane',
+        name='Attenuation Plane:',
         description=f'''\
 Makes it so that the splat will fade out as the surface gets further from the projection source. \
 When off, the projector will be at full opacity across its entire length. \
@@ -229,16 +229,18 @@ The descriptions for the values below show them in order, where the first entry 
 and the last entry is below all others.\
 ''',
     )
-    lodCut: bpy.props.IntProperty(
-        default=0, min=0, max=3, subtype='UNSIGNED', options=set(),
+    lodCut: bpy.props.EnumProperty(
+        items=shared.lodEnum,
+        options=set(),
         name='LOD Cut',
         description=f'''
 Denotes which graphical setting level the Projector will no longer be displayed at. \
 If critical for gameplay, leaving this at "None" is prudent. Otherwise, it is useful for performance scaling.\
 ''',
     )
-    lodReduce: bpy.props.IntProperty(
-        default=0, min=0, max=3, subtype='UNSIGNED', options=set(),
+    lodReduce: bpy.props.EnumProperty(
+        items=shared.lodEnum,
+        options=set(),
         name='LOD Reduction',
         description=f'''
 Denotes which graphical setting the Projector can potentially be not shown at if there are too many splats on screen. \

@@ -28,7 +28,6 @@ import bpy
 import mathutils
 import os.path
 import random
-from . import calculateTangents
 import time
 import math
 
@@ -664,6 +663,9 @@ class Exporter:
         for meshIndex, meshObject in enumerate(nonEmptyMeshObjects):
             mesh: bpy.types.Mesh = meshObject.data
             print("Exporting mesh object %s" % meshObject.name)
+
+            sign_pos = mesh.m3_sign_group.split()
+
             if bpy.ops.object.mode_set.poll():
                 bpy.ops.object.mode_set(mode='OBJECT')
             bpy.ops.object.select_all(action = 'DESELECT')
@@ -718,8 +720,54 @@ class Exporter:
             numberOfBoneWeightPairsPerVertex = 0
             staticMeshBoneLookupIndex = None
             mesh.calc_loop_triangles()
+            
+            def normalize(x, y, z):
+                length = math.sqrt(x*x + y*y + z*z)
+                if length == 0:
+                    return 0.0, 0.0, 0.0
+                return (x / length, y / length, z / length)
+
+            def uvIntToFloat(m3UVCoordinate):
+                return (m3UVCoordinate.x / 2048.0, 1 - m3UVCoordinate.y / 2048.0)
+
             for tri in mesh.loop_triangles:
                 assert(len(tri.vertices) == 3)
+
+                #Calculate tangents
+
+                vertex0 = meshObject.data.vertices[tri.vertices[0]]
+                vertex1 = meshObject.data.vertices[tri.vertices[1]]
+                vertex2 = meshObject.data.vertices[tri.vertices[2]]
+                
+                uv0 = meshObject.data.uv_layers[0].data[tri.loops[0]].uv
+                uv1 = meshObject.data.uv_layers[0].data[tri.loops[1]].uv
+                uv2 = meshObject.data.uv_layers[0].data[tri.loops[2]].uv
+                
+                u0 = uv0[0]
+                u1 = uv1[0]
+                u2 = uv2[0]
+                v0 = uv0[1]
+                v1 = uv1[1]
+                v2 = uv2[1]
+
+                deltaU1 = u1 - u0
+                deltaU2 = u2 - u0
+                deltaV1 = v1 - v0
+                deltaV2 = v2 - v0
+
+                e1x = vertex1.co.x - vertex0.co.x
+                e1y = vertex1.co.y - vertex0.co.y
+                e1z = vertex1.co.z - vertex0.co.z
+
+                e2x = vertex2.co.x - vertex0.co.x
+                e2y = vertex2.co.y - vertex0.co.y
+                e2z = vertex2.co.z - vertex0.co.z
+
+                tx = (deltaV2 * e1x - deltaV1 * e2x)
+                ty = (deltaV2 * e1y - deltaV1 * e2y)
+                tz = (deltaV2 * e1z - deltaV1 * e2z)
+                tx, ty, tz = normalize(tx, ty, tz)
+
                 for faceRelativeVertexIndex, vertIndex in enumerate(tri.vertices):
                     blenderVertex = mesh.vertices[vertIndex]
                     m3Vertex = m3VertexStructureDefinition.createInstance()
@@ -804,8 +852,17 @@ class Exporter:
                             setattr(m3Vertex, m3AttributeName, self.createM3UVVector(0.0, 0.0))
 
                     m3Vertex.normal = self.blenderVector3ToVector3As3Fixed8(blenderVertex.normal)
-                    m3Vertex.sign = 1.0
-                    m3Vertex.tangent = self.createVector3As3Fixed8(0.0, 0.0, 0.0)
+
+                    if str(tri.polygon_index) in sign_pos:
+                        m3Vertex.sign = 1.0
+                        m3Vertex.tangent.x = -tx
+                        m3Vertex.tangent.y = -ty
+                        m3Vertex.tangent.z = -tz
+                    else:
+                        m3Vertex.sign = -1.0
+                        m3Vertex.tangent.x = tx
+                        m3Vertex.tangent.y = ty
+                        m3Vertex.tangent.z = tz
 
                     # TODO: unsure if this actually works as intended.. find a model for test
                     red = 1.0
@@ -884,9 +941,6 @@ class Exporter:
             if bone.getNamedBit("flags","skinned"):
                 numberOfBonesToCheckForSkin = boneIndex + 1
         model.numberOfBonesToCheckForSkin = numberOfBonesToCheckForSkin
-        #Add tangents to the vertices used for bump/normal mapping:
-        calculateTangents.recalculateTangentsOfDivisions(m3Vertices, model.divisions)
-
 
         model.vertices = m3VertexStructureDefinition.instancesToBytes(m3Vertices)
 
