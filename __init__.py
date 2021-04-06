@@ -499,61 +499,51 @@ def getOrCreateStrip(m3Animation, animationData):
         strip = track.strips.new(name=stripName, start=0,action=animationData.action)
     return strip
 
+def handleAnimationStartFrameChange(self, context):
+    context.scene.frame_start = self.startFrame
 
-def handleAnimationChange(targetObject, oldAnimation, newAnimation):
-    animationData = targetObject.animation_data 
-    oldAction = animationData.action
-    #if oldAction != None and oldAnimation != None:
-    #    oldStrip = getOrCreateStrip(oldAnimation, animationData)
-    #    oldStrip.action = animationData.action
+def handleAnimationEndFrameChange(self, context):
+    context.scene.frame_end = self.exlusiveEndFrame - 1
 
-    if newAnimation:
-        newTrackName = newAnimation.name + "_full"
+def handleAnimationChange(targetObject, animation):
+    animationData = targetObject.animation_data
+
+    if animation:
+        newTrackName = animation.name + "_full"
         newTrack = animationData.nla_tracks.get(newTrackName)
+
         if newTrack != None and len(newTrack.strips) > 0:
             newStrip = newTrack.strips[0]
             newAction = newStrip.action
         else:
-            newAction = None
+            animationData.action = bpy.data.actions.new(targetObject.name + animation.name)
+            newStrip = getOrCreateStrip(animation, animationData)
+            newAction = newStrip.action
     else:
         newAction = None
     prepareDefaultValuesForNewAction(targetObject, newAction)
     animationData.action = newAction
 
-
 def handleAnimationSequenceIndexChange(self, context):
     scene = self
-    newIndex = scene.m3_animation_index
 
-    if newIndex is -1 and len(scene.m3_animations) > 0:
-        print()
+    if scene.m3_animation_index is -1 and len(scene.m3_animations) > 0:
         scene.m3_animation_index = 0
         return
 
-    oldIndex = scene.m3_animation_old_index
-    #shared.setAnimationWithIndexToCurrentData(scene, oldIndex)
-    if (newIndex >= 0) and (newIndex < len(scene.m3_animations)):
-        newAnimation = scene.m3_animations[newIndex]
-    else:
-        newAnimation = None
-    if oldIndex >= 0 and (oldIndex < len(scene.m3_animations)):
-        oldAnimation = scene.m3_animations[oldIndex]
-    else:
-        oldAnimation = None
+    animation = scene.m3_animations[scene.m3_animation_index]
 
-    if newAnimation != None:
-        scene.frame_start = newAnimation.startFrame
-        scene.frame_end = newAnimation.exlusiveEndFrame - 1
+    if animation != None:
+        scene.frame_start = animation.startFrame
+        scene.frame_end = animation.exlusiveEndFrame - 1
 
     for targetObject in scene.objects:
         animationData = targetObject.animation_data
         if animationData != None:
-            handleAnimationChange(targetObject, oldAnimation, newAnimation)
+            handleAnimationChange(targetObject, animation)
 
     if scene.animation_data != None:
-        handleAnimationChange(scene, oldAnimation, newAnimation)
-
-    scene.m3_animation_old_index = newIndex
+        handleAnimationChange(scene, animation)
 
 
 def prepareDefaultValuesForNewAction(objectWithAnimationData, newAction):
@@ -1214,10 +1204,10 @@ class M3TransformationCollection(bpy.types.PropertyGroup):
 
 class M3Animation(bpy.types.PropertyGroup):
     name : bpy.props.StringProperty(name="name", default="Stand", options=set())
-    startFrame : bpy.props.IntProperty(subtype="UNSIGNED", options=set())
+    startFrame : bpy.props.IntProperty(subtype="UNSIGNED", options=set(), update=handleAnimationStartFrameChange)
     useSimulateFrame : bpy.props.BoolProperty(default=False, options=set())
     simulateFrame : bpy.props.IntProperty(subtype="UNSIGNED", default=0, options=set())
-    exlusiveEndFrame : bpy.props.IntProperty(subtype="UNSIGNED", options=set())
+    exlusiveEndFrame : bpy.props.IntProperty(subtype="UNSIGNED", options=set(), update=handleAnimationEndFrameChange)
     assignedActions : bpy.props.CollectionProperty(type=AssignedActionOfM3Animation, options=set())
     transformationCollections : bpy.props.CollectionProperty(type=M3TransformationCollection, options=set())
     transformationCollectionIndex : bpy.props.IntProperty(default=0, options=set())
@@ -1875,7 +1865,11 @@ class AnimationSequencesPropPanel(bpy.types.Panel):
         animationIndex = scene.m3_animation_index
         if animationIndex >= 0 and animationIndex < len(scene.m3_animations):
             animation = scene.m3_animations[animationIndex]
-            col = layout.column(align=True)
+            row = layout.row()
+            col = row.column(align=True)
+            col.prop(animation, "startFrame", text="Start Frame")
+            col.prop(animation, "exlusiveEndFrame", text="End Frame")
+            col = row.column(align=True)
             col.prop(animation, "movementSpeed", text="Mov. Speed")
             col.prop(animation, "frequency", text="Frequency")
             col = layout.column_flow(columns=2)
@@ -4405,8 +4399,8 @@ class M3_ANIMATIONS_OT_add(bpy.types.Operator):
         animation.exlusiveEndFrame = 60
         animation.frequency = 1
         animation.movementSpeed = 0.0
-        scene.m3_animation_index = len(scene.m3_animations)-1
 
+        scene.m3_animation_index = len(scene.m3_animations)-1
         return{"FINISHED"}
 
     def findUnusedName(self, scene):
@@ -4457,7 +4451,6 @@ class M3_ANIMATIONS_OT_remove(bpy.types.Operator):
             scene.m3_animations.remove(scene.m3_animation_index)
 
             # In the case index < 0, the handle function resolves it
-            scene.m3_animation_old_index = -1
             scene.m3_animation_index -= 1
 
         return{"FINISHED"}
@@ -6460,7 +6453,6 @@ classes = (
 def register():
     for cls in classes: bpy.utils.register_class(cls)
     bpy.types.Scene.m3_animation_index = bpy.props.IntProperty(update=handleAnimationSequenceIndexChange, options=set(), default= -1)
-    bpy.types.Scene.m3_animation_old_index = bpy.props.IntProperty(options=set(), default= -1)
     bpy.types.Scene.m3_animations = bpy.props.CollectionProperty(type=M3Animation)
     bpy.types.Scene.m3_material_layer_index = bpy.props.IntProperty(options=set())
     bpy.types.Scene.m3_material_references = bpy.props.CollectionProperty(type=cm.M3Material)
