@@ -473,7 +473,6 @@ class Importer:
             self.initSTCsOfAnimations()
 
             if len(scene.m3_animations) >= 1:
-                scene.m3_animation_old_index = -1
                 scene.m3_animation_index = -1
                 scene.m3_animation_index = 0
 
