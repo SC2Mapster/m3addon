@@ -1332,12 +1332,10 @@ class Importer:
 
                 # old (stored) vertex -> tuple of vertex data that makes the vertex unique
                 oldVertexIndexToTupleIdMap = {}
-                vertSign = []
                 for vertexIndex in regionVertexIndices:
                     m3Vertex = m3Vertices[vertexIndex]
                     v = m3Vertex
                     idTuple = (v.position.x, v.position.y, v.position.z, v.boneWeight0, v.boneWeight1, v.boneWeight2, v.boneWeight3, v.boneLookupIndex0, v.boneLookupIndex1, v.boneLookupIndex2, v.boneLookupIndex3, v.normal.x, v.normal.y, v.normal.z)
-                    vertSign.append(v.sign)
                     oldVertexIndexToTupleIdMap[vertexIndex] = idTuple
 
                 nonTrianglesCounter = 0
@@ -1354,11 +1352,11 @@ class Importer:
                     print("Warning: The mesh contained %d invalid triangles which have been ignored" % nonTrianglesCounter)
 
                 vertexPositions = []
+                vertexSign = []
                 nextNewVertexIndex = 0
                 oldVertexIndexToNewVertexIndexMap = {}
                 newVertexIndexToOldVertexIndicesMap = {}
                 vertexIdTupleToNewIndexMap = {}
-                newVertSign = []
 
                 for vertexIndex in regionVertexIndices:
                     idTuple = oldVertexIndexToTupleIdMap[vertexIndex]
@@ -1367,9 +1365,8 @@ class Importer:
                         newIndex = nextNewVertexIndex
                         nextNewVertexIndex += 1
                         m3Vertex = m3Vertices[vertexIndex]
-                        position = (m3Vertex.position.x, m3Vertex.position.y, m3Vertex.position.z)
-                        vertexPositions.append(position)
-                        newVertSign.append(vertSign[vertexIndex])
+                        vertexPositions.append((m3Vertex.position.x, m3Vertex.position.y, m3Vertex.position.z))
+                        vertexSign.append(m3Vertex.sign)
                         vertexIdTupleToNewIndexMap[idTuple] = newIndex
                     oldVertexIndexToNewVertexIndexMap[vertexIndex] = newIndex
                     #store which old vertex indices where merged to a new one:
@@ -1391,7 +1388,6 @@ class Importer:
                     if isATriangle:
                         faceWithNewIndices = (i0, i1, i2)
                         trianglesWithNewIndices.append(faceWithNewIndices)
-
 
                 mesh.vertices.add(len(vertexPositions))
                 mesh.vertices.foreach_set("co", io_utils.unpack_list(vertexPositions))
@@ -1448,12 +1444,10 @@ class Importer:
                 layer = bm.faces.layers.int.new("m3sign")
                 for face in bm.faces:
                     for vert in face.verts:
-                        signSum = 0
-                        if newVertSign[vert.index] == 1.0:
-                            signSum += 1
-                        if signSum > 0:
+                        if vertexSign[vert.index] == 1.0:
                             face[layer] = 1
                             break
+                            
 
                 # Need to set mode back to object so that bmesh is cleared and does not interfere with the rest of the operations
                 bpy.ops.object.mode_set(mode='OBJECT')
