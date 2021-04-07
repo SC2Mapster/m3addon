@@ -4968,8 +4968,6 @@ class M3_PARTICLE_SYSTEMS_OT_duplicate(bpy.types.Operator):
         handleParticleSystemTypeOrNameChange(newParticleSystem, context)
         scene.m3_particle_system_index = len(scene.m3_particle_systems) - 1
 
-        print(particleSystem.index)
-
         newParticleSystem.materialName                 = particleSystem.materialName                             
         newParticleSystem.maxParticles                 = particleSystem.maxParticles                             
         newParticleSystem.emissionSpeed1               = particleSystem.emissionSpeed1                             
@@ -6156,10 +6154,9 @@ class M3_OT_conertM3ToBlenderNormalMap(bpy.types.Operator):
 def getSignGroup(bm):
     return bm.faces.layers.int.get("m3sign") or bm.faces.layers.int.new("m3sign")
 
-
 class ObjectSignPanel(bpy.types.Panel):
     bl_idname = "OBJECT_PT_M3_sign"
-    bl_label = "M3 Reverse Sign Group"
+    bl_label = "M3 Inverse Sign Group"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "data"
@@ -6172,19 +6169,19 @@ class ObjectSignPanel(bpy.types.Panel):
 
     def draw(self, context):
         layout = self.layout
-        split = layout.split()
-        row = split.row(align=True)
-        row.operator('m3.object_sign_selpos', text='Select')
-        row = split.row(align=True)
-        row.operator('m3.object_sign_setpos', text='Set')
-        row.operator('m3.object_sign_addpos', text='Add')
-        row.operator('m3.object_sign_rmvpos', text='Remove')
+        col = layout.column()
+        col.operator('m3.object_sign_select', text='Select')
+        col = layout.column_flow(columns=2)
+        col.operator('m3.object_sign_set', text='Set To Selected')
+        col.operator('m3.object_sign_invert', text='Invert Selected')
+        col.operator('m3.object_sign_add', text='Add Selected')
+        col.operator('m3.object_sign_remove', text='Remove Selected')
 
 
-class ObjectSignOpSetPos(bpy.types.Operator):
-    bl_idname = "m3.object_sign_setpos"
-    bl_label = "Set positive sign group faces"
-    bl_description = "Sets the selected faces to the positive sign group"
+class ObjectSignOpSet(bpy.types.Operator):
+    bl_idname = "m3.object_sign_set"
+    bl_label = "Set faces"
+    bl_description = "Sets the selected faces to the sign inversion group"
     bl_options = {"UNDO"}
 
     def invoke(self, context, event):
@@ -6193,17 +6190,17 @@ class ObjectSignOpSetPos(bpy.types.Operator):
 
         layer = getSignGroup(bm)
         for face in bm.faces:
-            face[layer] = 1 if face.select else -1
+            face[layer] = 1 if face.select else 0
 
         bmesh.update_edit_mesh(mesh)
 
         return {'FINISHED'}
 
 
-class ObjectSignOpSelPos(bpy.types.Operator):
-    bl_idname = "m3.object_sign_selpos"
-    bl_label = "Select positive sign group faces"
-    bl_description = "Selects the assigned faces of the positive sign group"
+class ObjectSignOpSelect(bpy.types.Operator):
+    bl_idname = "m3.object_sign_select"
+    bl_label = "Select faces"
+    bl_description = "Selects the assigned faces of the sign inversion group"
     bl_options = {"UNDO"}
 
     def invoke(self, context, event):
@@ -6220,10 +6217,10 @@ class ObjectSignOpSelPos(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class ObjectSignOpAddPos(bpy.types.Operator):
-    bl_idname = "m3.object_sign_addpos"
-    bl_label = "Add positive sign group faces"
-    bl_description = "Adds the selected faces to the positive sign group"
+class ObjectSignOpAdd(bpy.types.Operator):
+    bl_idname = "m3.object_sign_add"
+    bl_label = "Add faces"
+    bl_description = "Adds the selected faces to the sign inversion group"
     bl_options = {"UNDO"}
 
     def invoke(self, context, event):
@@ -6240,10 +6237,10 @@ class ObjectSignOpAddPos(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class ObjectSignOpRmvPos(bpy.types.Operator):
-    bl_idname = "m3.object_sign_rmvpos"
-    bl_label = "Remove positive sign group faces"
-    bl_description = "Removes the selected faces from the positive sign group"
+class ObjectSignOpRemove(bpy.types.Operator):
+    bl_idname = "m3.object_sign_remove"
+    bl_label = "Remove faces"
+    bl_description = "Removes the selected faces from the sign inversion group"
     bl_options = {"UNDO"}
 
     def invoke(self, context, event):
@@ -6254,6 +6251,26 @@ class ObjectSignOpRmvPos(bpy.types.Operator):
         for face in bm.faces:
             if face.select:
                 face[layer] = -1
+
+        bmesh.update_edit_mesh(mesh)
+
+        return {'FINISHED'}
+
+
+class ObjectSignOpInvert(bpy.types.Operator):
+    bl_idname = "m3.object_sign_invert"
+    bl_label = "Invert faces"
+    bl_description = "Inverts the value of the sign inversion group for the selected faces."
+    bl_options = {"UNDO"}
+
+    def invoke(self, context, event):
+        mesh = context.object.data
+        bm = bmesh.from_edit_mesh(mesh)
+
+        layer = getSignGroup(bm)
+        for face in bm.faces:
+            if face.select == True:
+                face[layer] = 1 if face[layer] == 0 else 0
 
         bmesh.update_edit_mesh(mesh)
 
@@ -6375,10 +6392,11 @@ classes = (
     TightHitTestPanel,
     ExtraBonePropertiesPanel,
     ObjectSignPanel,
-    ObjectSignOpSetPos,
-    ObjectSignOpSelPos,
-    ObjectSignOpAddPos,
-    ObjectSignOpRmvPos,
+    ObjectSignOpSet,
+    ObjectSignOpSelect,
+    ObjectSignOpAdd,
+    ObjectSignOpRemove,
+    ObjectSignOpInvert,
     M3_MATERIALS_OT_add,
     M3_MATERIALS_OT_createForMesh,
     M3_MATERIALS_OT_remove,
