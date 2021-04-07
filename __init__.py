@@ -4968,6 +4968,8 @@ class M3_PARTICLE_SYSTEMS_OT_duplicate(bpy.types.Operator):
         handleParticleSystemTypeOrNameChange(newParticleSystem, context)
         scene.m3_particle_system_index = len(scene.m3_particle_systems) - 1
 
+        print(particleSystem.index)
+
         newParticleSystem.materialName                 = particleSystem.materialName                             
         newParticleSystem.maxParticles                 = particleSystem.maxParticles                             
         newParticleSystem.emissionSpeed1               = particleSystem.emissionSpeed1                             
@@ -6151,6 +6153,10 @@ class M3_OT_conertM3ToBlenderNormalMap(bpy.types.Operator):
         return{"FINISHED"}
 
 
+def getSignGroup(bm):
+    return bm.faces.layers.int.get("m3sign") or bm.faces.layers.int.new("m3sign")
+
+
 class ObjectSignPanel(bpy.types.Panel):
     bl_idname = "OBJECT_PT_M3_sign"
     bl_label = "M3 Reverse Sign Group"
@@ -6185,13 +6191,13 @@ class ObjectSignOpSetPos(bpy.types.Operator):
         mesh = context.object.data
         bm = bmesh.from_edit_mesh(mesh)
 
-        mesh.m3_sign_group = ' '
-
+        layer = getSignGroup(bm)
         for face in bm.faces:
-            if face.select is True:
-                mesh.m3_sign_group += '{face} '.format(face=face.index)
+            face[layer] = 1 if face.select else -1
 
-        return {'RUNNING_MODAL'}
+        bmesh.update_edit_mesh(mesh)
+
+        return {'FINISHED'}
 
 
 class ObjectSignOpSelPos(bpy.types.Operator):
@@ -6204,13 +6210,14 @@ class ObjectSignOpSelPos(bpy.types.Operator):
         mesh = context.object.data
         bm = bmesh.from_edit_mesh(mesh)
 
-        for index in mesh.m3_sign_group.split():
-            if bm.faces[int(index)]:
-                bm.faces[int(index)].select = True
+        layer = getSignGroup(bm)
+        for face in bm.faces:
+            if face[layer] == 1:
+                face.select = True
 
         bmesh.update_edit_mesh(mesh)
 
-        return {'RUNNING_MODAL'}
+        return {'FINISHED'}
 
 
 class ObjectSignOpAddPos(bpy.types.Operator):
@@ -6223,13 +6230,14 @@ class ObjectSignOpAddPos(bpy.types.Operator):
         mesh = context.object.data
         bm = bmesh.from_edit_mesh(mesh)
 
-        groupFaces = mesh.m3_sign_group.split()
-
+        layer = getSignGroup(bm)
         for face in bm.faces:
-            if face.select is True and str(face.index) not in groupFaces:
-                mesh.m3_sign_group += '{face} '.format(face=face.index)
+            if face.select:
+                face[layer] = 1
 
-        return {'RUNNING_MODAL'}
+        bmesh.update_edit_mesh(mesh)
+
+        return {'FINISHED'}
 
 
 class ObjectSignOpRmvPos(bpy.types.Operator):
@@ -6242,11 +6250,14 @@ class ObjectSignOpRmvPos(bpy.types.Operator):
         mesh = context.object.data
         bm = bmesh.from_edit_mesh(mesh)
 
+        layer = getSignGroup(bm)
         for face in bm.faces:
-            if face.select is True:
-                mesh.m3_sign_group = mesh.m3_sign_group.replace(' {face} '.format(face=face.index), ' ')
+            if face.select:
+                face[layer] = -1
 
-        return {'RUNNING_MODAL'}
+        bmesh.update_edit_mesh(mesh)
+
+        return {'FINISHED'}
 
 
 def menu_func_convertNormalMaps(self, context):

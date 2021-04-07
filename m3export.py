@@ -664,7 +664,7 @@ class Exporter:
             mesh: bpy.types.Mesh = meshObject.data
             print("Exporting mesh object %s" % meshObject.name)
 
-            sign_pos = mesh.m3_sign_group.split()
+            signGroup = mesh.polygon_layers_int.get("m3sign") or mesh.polygon_layers_int.new(name="m3sign")
 
             if bpy.ops.object.mode_set.poll():
                 bpy.ops.object.mode_set(mode='OBJECT')
@@ -849,7 +849,7 @@ class Exporter:
 
                     m3Vertex.normal = self.blenderVector3ToVector3As3Fixed8(blenderVertex.normal)
 
-                    if str(tri.polygon_index) in sign_pos:
+                    if signGroup.data[tri.polygon_index].value == 1:
                         m3Vertex.sign = 1.0
                         m3Vertex.tangent.x = -tx
                         m3Vertex.tangent.y = -ty

@@ -25,6 +25,7 @@ from . import cm
 import bpy
 import mathutils
 import math
+import bmesh
 from bpy_extras import io_utils
 import bpy.types as bt
 from os import path
@@ -1331,10 +1332,12 @@ class Importer:
 
                 # old (stored) vertex -> tuple of vertex data that makes the vertex unique
                 oldVertexIndexToTupleIdMap = {}
+                vertSign = []
                 for vertexIndex in regionVertexIndices:
                     m3Vertex = m3Vertices[vertexIndex]
                     v = m3Vertex
                     idTuple = (v.position.x, v.position.y, v.position.z, v.boneWeight0, v.boneWeight1, v.boneWeight2, v.boneWeight3, v.boneLookupIndex0, v.boneLookupIndex1, v.boneLookupIndex2, v.boneLookupIndex3, v.normal.x, v.normal.y, v.normal.z)
+                    vertSign.append(v.sign)
                     oldVertexIndexToTupleIdMap[vertexIndex] = idTuple
 
                 nonTrianglesCounter = 0
@@ -1355,6 +1358,7 @@ class Importer:
                 oldVertexIndexToNewVertexIndexMap = {}
                 newVertexIndexToOldVertexIndicesMap = {}
                 vertexIdTupleToNewIndexMap = {}
+                newVertSign = []
 
                 for vertexIndex in regionVertexIndices:
                     idTuple = oldVertexIndexToTupleIdMap[vertexIndex]
@@ -1365,6 +1369,7 @@ class Importer:
                         m3Vertex = m3Vertices[vertexIndex]
                         position = (m3Vertex.position.x, m3Vertex.position.y, m3Vertex.position.z)
                         vertexPositions.append(position)
+                        newVertSign.append(vertSign[vertexIndex])
                         vertexIdTupleToNewIndexMap[idTuple] = newIndex
                     oldVertexIndexToNewVertexIndexMap[vertexIndex] = newIndex
                     #store which old vertex indices where merged to a new one:
@@ -1433,19 +1438,34 @@ class Importer:
                                 boneWeight = boneWeightAsInt / 255.0
                                 vertexGroup.add([oldVertexIndexToNewVertexIndexMap[vertexIndex]], boneWeight, 'REPLACE')
 
+                bpy.ops.object.mode_set(mode='OBJECT')
+                bpy.ops.object.select_all(action='DESELECT')
+                self.scene.view_layers[0].objects.active = meshObject
+                meshObject.select_set(True)
+                bpy.ops.object.mode_set(mode='EDIT')
+            
+                bm = bmesh.from_edit_mesh(mesh)
+                layer = bm.faces.layers.int.new("m3sign")
+                for face in bm.faces:
+                    for vert in face.verts:
+                        signSum = 0
+                        if newVertSign[vert.index] == 1.0:
+                            signSum += 1
+                        if signSum > 0:
+                            face[layer] = 1
+                            break
+
+                # Need to set mode back to object so that bmesh is cleared and does not interfere with the rest of the operations
+                bpy.ops.object.mode_set(mode='OBJECT')
+
                 if self.scene.m3_import_options.applySmoothShading:
                     for polygon in mesh.polygons:
                         polygon.use_smooth = True
 
                 if self.scene.m3_import_options.markSharpEdges:
                     self.markBordersEdgesSharp(mesh)
-                    if bpy.ops.object.mode_set.poll():
-                        bpy.ops.object.mode_set(mode='OBJECT')
                     # Remove doubles after marking the sharp edges
                     # since the sharp edge detection algrithm depend on it
-                    bpy.ops.object.select_all(action='DESELECT')
-                    self.scene.view_layers[0].objects.active = meshObject
-                    meshObject.select_set(True)
                     bpy.ops.object.mode_set(mode='EDIT')
                     bpy.ops.mesh.select_all(action='SELECT')
                     bpy.ops.mesh.remove_doubles()
