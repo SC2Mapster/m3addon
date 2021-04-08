@@ -493,9 +493,16 @@ def handleAnimationSequenceEndFrameChange(self, context):
 def handleAnimationChange(ob, animation):
     animationData = ob.animation_data
 
+    if type(ob) == bpy.types.Scene:
+        prefix = "Scene"
+    elif ob.type == "ARMATURE":
+        prefix = "Armature Object"
+    else:
+        return
+
     if animation:
-        animationName = ob.name + animation.name
-        action = bpy.data.actions[animationName] if animationName in bpy.data.actions else bpy.data.actions.new(ob.name + animation.name)
+        animationName = prefix + animation.name
+        action = bpy.data.actions[animationName] if animationName in bpy.data.actions else bpy.data.actions.new(prefix + animation.name)
         action.id_root = shared.typeIdOfObject(ob)
     else:
         action = None
@@ -511,6 +518,7 @@ def handleAnimationSequenceIndexChange(self, context):
         animation = scene.m3_animations[scene.m3_animation_index]
 
         scene.frame_start = animation.startFrame
+        scene.frame_current = scene.frame_start
         scene.frame_end = animation.exlusiveEndFrame - 1
 
     for ob in scene.objects:
