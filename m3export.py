@@ -2296,21 +2296,17 @@ class Exporter:
         return matrix
 
 
-    def determineAnimationActionTuplesFor(self, objectWithAnimationData):
+    def determineAnimationActionTuplesFor(self, ob):
         """ returns (animation, action) tuples for all animations of the given object"""
 
-
-        animationData = objectWithAnimationData.animation_data
-
+        animationData = ob.animation_data
         animationActionTuples = []
-        scene = self.scene
+        
         for animationIndex in self.animationIndicesToExport:
             animation = self.scene.m3_animations[animationIndex]
             action = None
             if animationData != None:
-                track = animationData.nla_tracks.get(animation.name + "_full")
-                if track != None and len(track.strips) > 0:
-                    action = track.strips[0].action
+                action = bpy.data.actions[ob.name + animation.name] if ob.name + animation.name in bpy.data.actions else None
             animationActionTuples.append((animation, action))
 
         return animationActionTuples
@@ -2777,9 +2773,8 @@ class BlenderToM3DataTransferer:
 def export(scene: bpy.types.Scene, operator: bpy.types.Operator, filename):
     exporter = Exporter(scene, operator)
 
-    # prepare scene for export of animation (is this actually needed?)
-    shared.setAnimationWithIndexToCurrentData(scene, scene.m3_animation_index)
     tmp_anim_index = scene.m3_animation_index
+    tmp_anim_frame = scene.frame_current
 
     try:
         exporter.export(filename)
@@ -2796,5 +2791,5 @@ def export(scene: bpy.types.Scene, operator: bpy.types.Operator, filename):
         # restore animation selection
         if scene.m3_animation_index != tmp_anim_index:
             scene.m3_animation_index = tmp_anim_index
-            shared.setAnimationWithIndexToCurrentData(scene, tmp_anim_index)
+        scene.frame_current = tmp_anim_frame
     return {'CANCELLED'}

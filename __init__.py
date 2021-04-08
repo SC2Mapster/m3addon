@@ -484,67 +484,49 @@ def handleWarpVisibilityUpdate(self, context):
         boneName = warp.boneName
         shared.setBoneVisibility(scene, boneName, self.showWarps)
 
-
-def getTrackName(m3Animation):
-    return m3Animation.name + "_full"
-
-
-def getOrCreateStrip(m3Animation, animationData):
-    trackName = getTrackName(m3Animation)
-    track = shared.getOrCreateTrack(animationData, trackName)
-    if len(track.strips) > 0:
-        strip = track.strips[0]
-    else:
-        stripName = trackName
-        strip = track.strips.new(name=stripName, start=0,action=animationData.action)
-    return strip
-
-def handleAnimationStartFrameChange(self, context):
+def handleAnimationSequenceStartFrameChange(self, context):
     context.scene.frame_start = self.startFrame
 
-def handleAnimationEndFrameChange(self, context):
+def handleAnimationSequenceEndFrameChange(self, context):
     context.scene.frame_end = self.exlusiveEndFrame - 1
 
-def handleAnimationChange(targetObject, animation):
-    animationData = targetObject.animation_data
+def handleAnimationChange(ob, animation):
+    animationData = ob.animation_data
 
     if animation:
-        newTrackName = animation.name + "_full"
-        newTrack = animationData.nla_tracks.get(newTrackName)
-
-        if newTrack != None and len(newTrack.strips) > 0:
-            newStrip = newTrack.strips[0]
-            newAction = newStrip.action
-        else:
-            animationData.action = bpy.data.actions.new(targetObject.name + animation.name)
-            newStrip = getOrCreateStrip(animation, animationData)
-            newAction = newStrip.action
+        animationName = ob.name + animation.name
+        action = bpy.data.actions[animationName] if animationName in bpy.data.actions else bpy.data.actions.new(ob.name + animation.name)
+        action.id_root = shared.typeIdOfObject(ob)
     else:
-        newAction = None
-    prepareDefaultValuesForNewAction(targetObject, newAction)
-    animationData.action = newAction
+        action = None
+
+    prepareDefaultValuesForNewAction(ob, action)
+    animationData.action = action
 
 def handleAnimationSequenceIndexChange(self, context):
     scene = self
 
-    if scene.m3_animation_index is -1 and len(scene.m3_animations) > 0:
-        scene.m3_animation_index = 0
-        return
+    animation = None
+    if scene.m3_animation_index >= 0:
+        animation = scene.m3_animations[scene.m3_animation_index]
 
-    animation = scene.m3_animations[scene.m3_animation_index]
-
-    if animation != None:
         scene.frame_start = animation.startFrame
         scene.frame_end = animation.exlusiveEndFrame - 1
 
-    for targetObject in scene.objects:
-        animationData = targetObject.animation_data
-        if animationData != None:
-            handleAnimationChange(targetObject, animation)
+    for ob in scene.objects:
+        animationData = ob.animation_data
+        if animationData is None:
+            ob.animation_data_create()
+        handleAnimationChange(ob, animation)
 
-    if scene.animation_data != None:
-        handleAnimationChange(scene, animation)
+    if scene.animation_data is None:
+        scene.animation_data_create()
+    handleAnimationChange(scene, animation)
 
+def handleAnimationSequenceNameChange(self, context):
+    bpy.data.actions["Armature Object" + self.nameOld].name = "Armature Object" + self.name
+    bpy.data.actions["Scene" + self.nameOld].name = "Scene" + self.name
+    self.nameOld = self.name
 
 def prepareDefaultValuesForNewAction(objectWithAnimationData, newAction):
     oldAnimatedProperties = set()
@@ -1190,11 +1172,6 @@ class M3AnimatedPropertyReference(bpy.types.PropertyGroup):
     longAnimId : bpy.props.StringProperty(name="longAnimId", options=set())
 
 
-class AssignedActionOfM3Animation(bpy.types.PropertyGroup):
-    targetName : bpy.props.StringProperty(name="targetName", options=set())
-    actionName : bpy.props.StringProperty(name="actionName", options=set())
-
-
 class M3TransformationCollection(bpy.types.PropertyGroup):
     name : bpy.props.StringProperty(name="name", default="all", options=set())
     animatedProperties : bpy.props.CollectionProperty(type=M3AnimatedPropertyReference, options=set())
@@ -1203,12 +1180,12 @@ class M3TransformationCollection(bpy.types.PropertyGroup):
 
 
 class M3Animation(bpy.types.PropertyGroup):
-    name : bpy.props.StringProperty(name="name", default="Stand", options=set())
-    startFrame : bpy.props.IntProperty(subtype="UNSIGNED", options=set(), update=handleAnimationStartFrameChange)
+    name : bpy.props.StringProperty(name="name", default="Stand", options=set(), update=handleAnimationSequenceNameChange)
+    nameOld : bpy.props.StringProperty(name="nameOld", default="Stand", options=set())
+    startFrame : bpy.props.IntProperty(subtype="UNSIGNED", options=set(), update=handleAnimationSequenceStartFrameChange)
     useSimulateFrame : bpy.props.BoolProperty(default=False, options=set())
     simulateFrame : bpy.props.IntProperty(subtype="UNSIGNED", default=0, options=set())
-    exlusiveEndFrame : bpy.props.IntProperty(subtype="UNSIGNED", options=set(), update=handleAnimationEndFrameChange)
-    assignedActions : bpy.props.CollectionProperty(type=AssignedActionOfM3Animation, options=set())
+    exlusiveEndFrame : bpy.props.IntProperty(subtype="UNSIGNED", options=set(), update=handleAnimationSequenceEndFrameChange)
     transformationCollections : bpy.props.CollectionProperty(type=M3TransformationCollection, options=set())
     transformationCollectionIndex : bpy.props.IntProperty(default=0, options=set())
     movementSpeed : bpy.props.FloatProperty(name="mov. speed", options=set())
@@ -4394,7 +4371,12 @@ class M3_ANIMATIONS_OT_add(bpy.types.Operator):
         scene = context.scene
         animation = scene.m3_animations.add()
         name = self.findUnusedName(scene)
-        animation.name = name
+
+        bpy.data.actions.new("Armature Object" + name)
+        bpy.data.actions.new("Scene" + name)
+
+        animation.nameOld = name
+        animation.name = animation.nameOld
         animation.startFrame = 0
         animation.exlusiveEndFrame = 60
         animation.frequency = 1
@@ -4422,15 +4404,6 @@ class M3_ANIMATIONS_OT_add(bpy.types.Operator):
         return unusedName
 
 
-def removeTrackFor(objectWithAnimationData, animation):
-    animationData = objectWithAnimationData.animation_data
-    if animationData != None:
-        trackName = getTrackName(animation)
-        track = animationData.nla_tracks.get(trackName)
-        if track != None:
-            animationData.nla_tracks.remove(track)
-
-
 class M3_ANIMATIONS_OT_remove(bpy.types.Operator):
     bl_idname      = "m3.animations_remove"
     bl_label       = "Remove Animation Sequence"
@@ -4442,16 +4415,27 @@ class M3_ANIMATIONS_OT_remove(bpy.types.Operator):
         if scene.m3_animation_index >= 0:
             animation = scene.m3_animations[scene.m3_animation_index]
 
-            for targetObject in scene.objects:
-                removeTrackFor(targetObject, animation)
+            armAction = bpy.data.actions["Armature Object" + animation.name] if "Armature Object" + animation.name in bpy.data.actions else None
+            scnAction = bpy.data.actions["Scene" + animation.name] if "Scene" + animation.name in bpy.data.actions else None
 
-            if scene.animation_data != None:
-                removeTrackFor(scene, animation)
+            if armAction:
+                armAction.name = armAction.name + "(Deleted)"
+                armAction.use_fake_user = False
+            if scnAction:
+                scnAction.name = scnAction.name + "(Deleted)"
+                scnAction.use_fake_user = False
 
             scene.m3_animations.remove(scene.m3_animation_index)
 
-            # In the case index < 0, the handle function resolves it
-            scene.m3_animation_index -= 1
+            if scene.m3_animation_index is 0 and len(scene.m3_animations) is 1:
+                scene.m3_animation_index -= 1
+            # Here we jog the animation index to get the actions to refresh
+            elif scene.m3_animation_index > 0:
+                scene.m3_animation_index -= 1
+                scene.m3_animation_index += 1
+            else:
+                scene.m3_animation_index += 1
+                scene.m3_animation_index -= 1
 
         return{"FINISHED"}
 
@@ -4475,8 +4459,8 @@ class M3_ANIMATIONS_OT_move(bpy.types.Operator):
         return{"FINISHED"}
 
 
-def copyCurrentActionOfObjectToM3Animation(objectWithAnimationData, targetAnimation):
-    animationData = objectWithAnimationData.animation_data
+def copyCurrentActionOfObjectToM3Animation(ob, targetAnimation):
+    animationData = ob.animation_data
     if animationData == None:
         return
 
@@ -4484,9 +4468,7 @@ def copyCurrentActionOfObjectToM3Animation(objectWithAnimationData, targetAnimat
     if sourceAction == None:
         return
 
-    targetStrip = getOrCreateStrip(targetAnimation, animationData)
-
-    newAction = bpy.data.actions.new(objectWithAnimationData.name + targetAnimation.name)
+    newAction = bpy.data.actions.new(ob.name + targetAnimation.name)
 
     for sourceCurve in sourceAction.fcurves:
         path = sourceCurve.data_path
@@ -4512,8 +4494,6 @@ def copyCurrentActionOfObjectToM3Animation(objectWithAnimationData, targetAnimat
             targetKeyFrame.handle_right.x = sourceKeyFrame.handle_right.x
             targetKeyFrame.handle_right.y = sourceKeyFrame.handle_right.y
 
-    targetStrip.action = newAction
-
 
 class M3_ANIMATIONS_OT_duplicate(bpy.types.Operator):
     bl_idname      = "m3.animations_duplicate"
@@ -4529,7 +4509,8 @@ class M3_ANIMATIONS_OT_duplicate(bpy.types.Operator):
         uniqueNameFinder.markNamesOfCollectionAsUsed(scene.m3_animations)
 
         newAnimation = scene.m3_animations.add()
-        newAnimation.name = uniqueNameFinder.findNameAndMarkAsUsedLike(oldAnimation.name)
+        newAnimation.nameOld = uniqueNameFinder.findNameAndMarkAsUsedLike(oldAnimation.name)
+        newAnimation.name = newAnimation.nameOld
         newAnimation.startFrame = oldAnimation.startFrame
         newAnimation.exlusiveEndFrame = oldAnimation.exlusiveEndFrame
         newAnimation.frequency = oldAnimation.frequency
@@ -4549,7 +4530,7 @@ class M3_ANIMATIONS_OT_duplicate(bpy.types.Operator):
 
         for targetObject in scene.objects:
             copyCurrentActionOfObjectToM3Animation(targetObject, newAnimation)
-
+        
         if scene.animation_data != None:
             copyCurrentActionOfObjectToM3Animation(scene, newAnimation)
 
@@ -4561,7 +4542,7 @@ class M3_ANIMATIONS_OT_duplicate(bpy.types.Operator):
 class M3_ANIMATIONS_OT_deselect(bpy.types.Operator):
     bl_idname      = "m3.animations_deselect"
     bl_label       = "Edit Default Values"
-    bl_description = "Deselects the active M3 animation sequence so that the user can edit the default values"
+    bl_description = "Deselects the active M3 animation sequence so that the default values can be edited"
     bl_options = {"UNDO"}
 
     def invoke(self, context, event):
@@ -6292,7 +6273,6 @@ def menu_func_export(self, context):
 
 classes = (
     M3AnimatedPropertyReference,
-    AssignedActionOfM3Animation,
     M3TransformationCollection,
     cm.M3MaterialLayer,
     M3CompositeMaterialSection,
@@ -6531,7 +6511,6 @@ def register():
     bpy.types.IMAGE_MT_image.append(menu_func_convertNormalMaps)
     bpy.types.Bone.m3_bind_scale = bpy.props.FloatVectorProperty(default=(1.0, 1.0, 1.0), size=3, options=set())
     bpy.types.EditBone.m3_bind_scale = bpy.props.FloatVectorProperty(default=(1.0, 1.0, 1.0), size=3, options=set())
-    bpy.types.Scene.m3_default_value_action_assignments = bpy.props.CollectionProperty(type=AssignedActionOfM3Animation, options=set())
 
 
 def unregister():

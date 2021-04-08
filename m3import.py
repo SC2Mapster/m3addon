@@ -1614,24 +1614,19 @@ class Importer:
         return animIdToTimeValueMap
 
 
-    def createOrGetActionFor(self, objectWithAnimationData, animationTempData):
+    def createOrGetActionFor(self, ob, animationTempData):
         scene = bpy.context.scene
         animation = scene.m3_animations[animationTempData.animationIndex]
 
-        if objectWithAnimationData.animation_data == None:
-            objectWithAnimationData.animation_data_create()
-        animationData = objectWithAnimationData.animation_data
+        if ob.animation_data == None:
+            ob.animation_data_create()
+        animationData = ob.animation_data
 
-        trackName = animation.name + "_full"
-        track = shared.getOrCreateTrack(animationData, trackName)
-        if len(track.strips) > 0:
-            strip = track.strips[0]
-            action = strip.action
-        else:
-            stripName = trackName
-            action = bpy.data.actions.new(objectWithAnimationData.name + animation.name)
-            action.id_root = shared.typeIdOfObject(objectWithAnimationData)
-            strip = track.strips.new(name=stripName, start=0, action=action)
+        actionName = ob.name + animation.name
+        action = bpy.data.actions[actionName] if actionName in bpy.data.actions else bpy.data.actions.new(actionName)
+        action.use_fake_user = True
+        action.id_root = shared.typeIdOfObject(ob)
+
         return action
 
     def findSimulateFrame(self, animIdToTimeValueMap):
@@ -1667,6 +1662,7 @@ class Importer:
             animationIndex = len(scene.m3_animations)
             animation = scene.m3_animations.add()
             animation.name = uniqueNameFinder.findNameAndMarkAsUsedLike(sequence.name)
+            animation.nameOld = animation.name
             animation.startFrame = msToFrame(sequence.animStartInMS)
             animation.exlusiveEndFrame = msToFrame(sequence.animEndInMS)
             transferer = M3ToBlenderDataTransferer(self, None, None, blenderObject=animation, m3Object=sequence)

@@ -412,28 +412,6 @@ def dump(obj, title = None):
 def isVideoFilePath(filePath):
     return filePath.endswith(".ogv") or filePath.endswith(".ogg")
 
-def setAnimationWithIndexToCurrentData(scene, animationIndex):
-    if (animationIndex < 0) or (animationIndex >= len(scene.m3_animations)):
-        return
-    animation = scene.m3_animations[animationIndex]
-    animation.startFrame = scene.frame_start
-    animation.exlusiveEndFrame = scene.frame_end+1
-    while len(animation.assignedActions) > 0:
-        animation.assignedActions.remove(0)
-
-    for targetObject in bpy.data.objects:
-        if targetObject.animation_data != None:
-            assignedAction = animation.assignedActions.add()
-            assignedAction.targetName = targetObject.name
-            if targetObject.animation_data.action != None:
-                assignedAction.actionName = targetObject.animation_data.action.name
-    if scene.animation_data != None and scene.animation_data.action != None:
-        assignedAction = animation.assignedActions.add()
-        assignedAction.targetName = scene.name
-        assignedAction.actionName = scene.animation_data.action.name
-
-
-
 def sqr(x):
     return x*x
 
@@ -1378,29 +1356,18 @@ def typeIdOfObject(obj):
     else:
         raise Exception("Can't determine type id for type %s yet" % objectType)
 
-def getOrCreateTrack(animationData, trackName):
-    track = animationData.nla_tracks.get(trackName)
-    if track == None:
-        track = animationData.nla_tracks.new(prev=None)
-        track.name = trackName
-        track.mute = True
-    return track
 
+def getOrCreateDefaultActionFor(ob):
+    if ob.animation_data == None:
+        ob.animation_data_create()
+    animationData = ob.animation_data
 
-def getOrCreateDefaultActionFor(objectWithAnimationData):
-    if objectWithAnimationData.animation_data == None:
-        objectWithAnimationData.animation_data_create()
-    animationData = objectWithAnimationData.animation_data
-    defaultValuesTrack = getOrCreateTrack(animationData, "Default Values")
+    actionName = "DEFAULTS_FOR_" + ob.name
+    action = bpy.data.actions[actionName] if actionName in bpy.data.actions else bpy.data.actions.new(actionName)
+    action.use_fake_user = True
+    action.id_root = typeIdOfObject(ob)
 
-    if len(defaultValuesTrack.strips) > 0:
-        defaultAction = defaultValuesTrack.strips[0].action
-    else:
-        stripName = "Default Values"
-        defaultAction = bpy.data.actions.new("DEFAULTS_FOR_" + objectWithAnimationData.name)
-        defaultAction.id_root = typeIdOfObject(objectWithAnimationData)
-        strip = defaultValuesTrack.strips.new(name=stripName, start=0, action=defaultAction)
-    return defaultAction
+    return action
 
 def transferSpawnPoint(transferer):
     transferer.transferAnimatableVector3("location")
