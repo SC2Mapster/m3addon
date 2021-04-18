@@ -48,6 +48,7 @@ materialNames = [
     "Splat Terrain Bake",
     "Reflection",
     "Lens Flare",
+    "Shader (MADD)",
 ]
 standardMaterialTypeIndex = 1
 displacementMaterialTypeIndex = 2
@@ -59,6 +60,7 @@ volumeNoiseMaterialTypeIndex = 8
 stbMaterialTypeIndex = 9
 reflectionMaterialMaterialTypeIndex = 10
 lensFlareMaterialTypeIndex = 11
+bufferMaterialTypeIndex = 12
 
 emissionAreaTypePoint = "0"
 emissionAreaTypePlane = "1"
@@ -1780,6 +1782,8 @@ def transferLight(transferer):
 def transferBillboardBehavior(transferer):
     transferer.transferEnum("billboardType")
 
+def transferBufferMaterial(transferer):
+    pass
 
 m3MaterialFieldNames = {
     standardMaterialTypeIndex: "standardMaterials",
@@ -1791,7 +1795,8 @@ m3MaterialFieldNames = {
     volumeNoiseMaterialTypeIndex: "volumeNoiseMaterials",
     stbMaterialTypeIndex: "splatTerrainBakeMaterials",
     # TODO: reflection material
-    lensFlareMaterialTypeIndex: "lensFlareMaterial"
+    lensFlareMaterialTypeIndex: "lensFlareMaterial",
+    bufferMaterialTypeIndex: "bufferMaterial",
 }
 
 materialTransferMethods = {
@@ -1804,5 +1809,6 @@ materialTransferMethods = {
     volumeNoiseMaterialTypeIndex: transferVolumeNoiseMaterial,
     stbMaterialTypeIndex: transfersplatTerrainBakeMaterial,
     # TODO: reflection material
-    lensFlareMaterialTypeIndex: transferLensFlareMaterial
+    lensFlareMaterialTypeIndex: transferLensFlareMaterial,
+    bufferMaterialTypeIndex: transferBufferMaterial,
 }

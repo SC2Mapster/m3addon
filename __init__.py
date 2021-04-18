@@ -1339,6 +1339,11 @@ class M3LensFlareMaterial(bpy.types.PropertyGroup):
     layers : bpy.props.CollectionProperty(type=cm.M3MaterialLayer, options=set())
 
 
+class M3MaterialNode(bpy.types.PropertyGroup):
+    name : bpy.props.StringProperty(name="name", default="Material", update=handleMaterialNameChange, options=set())
+    # the following field gets used to update the name of the material reference:
+    materialReferenceIndex : bpy.props.IntProperty(options=set(), default=-1)
+
 class M3Camera(bpy.types.PropertyGroup):
     name : bpy.props.StringProperty(name="name", default="Camera", update=handleCameraNameChange, options=set())
     oldName : bpy.props.StringProperty(name="oldName", options=set())
@@ -6299,6 +6304,7 @@ classes = (
     M3CreepMaterial,
     M3STBMaterial,
     M3LensFlareMaterial,
+    M3MaterialNode,
     M3Camera,
     M3ParticleSystem,
     M3Ribbon,
@@ -6482,6 +6488,7 @@ def register():
     bpy.types.Scene.m3_creep_materials = bpy.props.CollectionProperty(type=M3CreepMaterial)
     bpy.types.Scene.m3_stb_materials = bpy.props.CollectionProperty(type=M3STBMaterial)
     bpy.types.Scene.m3_lens_flare_materials = bpy.props.CollectionProperty(type=M3LensFlareMaterial)
+    bpy.types.Scene.m3_buffer_materials = bpy.props.CollectionProperty(type=M3MaterialNode)
     bpy.types.Scene.m3_material_reference_index = bpy.props.IntProperty(options=set(), default= -1)
     bpy.types.Scene.m3_cameras = bpy.props.CollectionProperty(type=M3Camera)
     bpy.types.Scene.m3_camera_index = bpy.props.IntProperty(options=set(), update=handleCameraIndexChanged, default= -1)

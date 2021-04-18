@@ -2040,7 +2040,7 @@
             <field name="spawnPoints" type="Reference" refTo="SVC3" />
             <field name="windMultiplier" type="float" default-value="0.0"/>
             <field name="lodReduction" type="uint32" default-value="2"/>
-            <field name="lodCutoff" type="uint32" default-value="1"/> 
+            <field name="lodCutoff" type="uint32" default-value="1"/>
             <field name="unknown21ca0cea" type="AnimationReferenceHeader" />
             <field name="initOfUnknown21ca0cea" size="4" expected-value="0x00000000" />
             <field name="nullOfUnknown21ca0cea" size="4" expected-value="0x00000000" />
@@ -2266,7 +2266,8 @@
             <field till-version="1" name="planeEquations" type="SmallReference" refTo="VEC4" />
             <!-- Belongs to the previous reference and seems not be get properly initialized with 0: -->
             <field till-version="1" name="uninitializedFieldAt116" type="uint32" default-value="0" />
-            <field name="unknown66ce545e" size="24" expected-value="0x000000000000000000000000000000000000000000000000" since-version="2" />
+            <field name="unknown66ce545e" size="20" expected-value="0x0000000000000000000000000000000000000000" since-version="2" />
+            <field name="unknown66ce545e_b" type="uint32" default-value="0" since-version="2" />
             <field name="size0" type="float" default-value="1.0" /> <!-- box x-size / capsule radius (/ cylinder radius / sphere radius?) -->
             <field name="size1" type="float" default-value="1.0" /> <!-- box y-size / capsule length (/ cylinder length?) -->
             <field name="size2" type="float" default-value="1.0" /> <!-- box z-size -->
@@ -2717,6 +2718,27 @@
         </fields>
     </structure>
 
+    <structure name="MADD" version="3" size="160">
+        <description>Material Buffer (node based)</description>
+        <versions>
+            <version number="1" size="112" />
+            <version number="2" size="160" />
+            <version number="3" size="160" />
+        </versions>
+        <fields>
+            <field name="name" type="Reference" refTo="CHAR" since-version="1" />
+            <field name="unknown2" type="Reference" refTo="U32_" since-version="2" />
+            <field name="unknown3" type="Reference" refTo="U32_" since-version="2" />
+            <field name="unknown4" type="Reference" refTo="CHAR" since-version="2" />
+            <field name="unknown5" type="Reference" refTo="SCHR" since-version="2" />
+            <!-- <field name="unknown6" type="Matrix44" since-version="1" />
+            <field name="unknown7" type="Reference" since-version="2" />
+            <field name="unknown8" type="Reference" since-version="2" />
+            <field name="unknown9" type="Reference" since-version="2" /> -->
+            <field name="sz2" size="100" since-version="1" />
+        </fields>
+    </structure>
+
     <structure name="MODL" >
         <description>
             Describes the content of the file.
@@ -2728,6 +2750,7 @@
             <version number="26" size="820" />
             <version number="28" size="844" />
             <version number="29" size="856" />
+            <version number="30" size="868" />
         </versions>
         <fields>
             <field name="modelName" type="Reference" refTo="CHAR"/>
@@ -2768,13 +2791,13 @@
             <field name="unknown09" type="uint32" expected-value="0" />
             <field name="unknown11" type="uint32" expected-value="0" />
             <field name="unknown12" type="uint32" expected-value="0" />
-            <field name="unknown13" type="uint32" expected-value="0" />
+            <field name="unknown13" type="uint32" default-value="0" />
             <field name="unknown14" type="uint32" expected-value="0" />
             <field name="unknown15" type="uint32" expected-value="0" />
-            <field name="unknown16" type="uint32" expected-value="0" />
+            <field name="unknown16" type="uint32" default-value="0" />
             <field name="unknown17" type="uint32" expected-value="0" />
             <field name="unknown18" type="uint32" expected-value="0" />
-            <field name="unknown19" type="uint32" expected-value="0" />
+            <field name="unknown19" type="uint32" default-value="0" />
             <field name="attachmentPoints" type="Reference" refTo="ATT_" />
             <field name="attachmentPointAddons" type="Reference" refTo="U16_"/>
             <field name="lights" type="Reference" refTo="LITE" />
@@ -2794,6 +2817,7 @@
             <field name="splatTerrainBakeMaterials" type="Reference" refTo="STBM" since-version="26" />
             <field name="reflectionMaterial" type="Reference" refTo="REF_" since-version="28" />
             <field name="lensFlareMaterial" type="Reference" refTo="LFLR" since-version="29" />
+            <field name="bufferMaterial" type="Reference" refTo="MADD" since-version="30" />
             <field name="particles" type="Reference" refTo="PAR_" />
             <field name="particleCopies" type="Reference" refTo="PARC" />
             <field name="ribbons" type="Reference" refTo="RIB_" />
