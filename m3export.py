@@ -719,7 +719,7 @@ class Exporter:
             numberOfBoneWeightPairsPerVertex = 0
             staticMeshBoneLookupIndex = None
             mesh.calc_loop_triangles()
-            
+
             def normalize(x, y, z):
                 length = math.sqrt(x*x + y*y + z*z)
                 if length == 0:
@@ -734,11 +734,11 @@ class Exporter:
                 vertex0 = meshObject.data.vertices[tri.vertices[0]]
                 vertex1 = meshObject.data.vertices[tri.vertices[1]]
                 vertex2 = meshObject.data.vertices[tri.vertices[2]]
-                
+
                 uv0 = meshObject.data.uv_layers[0].data[tri.loops[0]].uv
                 uv1 = meshObject.data.uv_layers[0].data[tri.loops[1]].uv
                 uv2 = meshObject.data.uv_layers[0].data[tri.loops[2]].uv
-                
+
                 u0 = uv0[0]
                 u1 = uv1[0]
                 u2 = uv2[0]
@@ -2301,7 +2301,7 @@ class Exporter:
 
         animationData = ob.animation_data
         animationActionTuples = []
-        
+
         for animationIndex in self.animationIndicesToExport:
             animation = self.scene.m3_animations[animationIndex]
             action = None

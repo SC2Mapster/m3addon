@@ -32,7 +32,7 @@ bl_info = {
 }
 
 import bpy
-import bpy.types as bt 
+import bpy.types as bt
 import math
 import bmesh
 from .common import mlog
@@ -2265,7 +2265,7 @@ class MaterialLayersPanel(bpy.types.Panel):
     def draw(self, context):
         scene = context.scene
         materialReference = scene.m3_material_references[scene.m3_material_reference_index]
-        
+
         layout = self.layout
         displayMaterialLayersUI(scene, layout, materialReference)
 
@@ -4463,7 +4463,7 @@ class M3_ANIMATIONS_OT_move(bpy.types.Operator):
         if (ii < len(scene.m3_animations) - self.shift):
             scene.m3_animations.move(ii, ii + self.shift)
             scene.m3_animation_index += self.shift
-        
+
         return{"FINISHED"}
 
 
@@ -4538,7 +4538,7 @@ class M3_ANIMATIONS_OT_duplicate(bpy.types.Operator):
 
         for targetObject in scene.objects:
             copyCurrentActionOfObjectToM3Animation(targetObject, newAnimation)
-        
+
         if scene.animation_data != None:
             copyCurrentActionOfObjectToM3Animation(scene, newAnimation)
 
@@ -4830,14 +4830,14 @@ class M3_CAMERAS_OT_duplicate(bpy.types.Operator):
         newCamera = scene.m3_cameras.add()
         newCamera.name = self.findUnusedName(scene, camera.name)
 
-        newCamera.fieldOfView  = camera.fieldOfView        
-        newCamera.farClip      = camera.farClip        
-        newCamera.nearClip     = camera.nearClip        
-        newCamera.clip2        = camera.clip2        
-        newCamera.focalDepth   = camera.focalDepth        
-        newCamera.falloffStart = camera.falloffStart 
-        newCamera.falloffEnd   = camera.falloffEnd        
-        newCamera.depthOfField = camera.depthOfField 
+        newCamera.fieldOfView  = camera.fieldOfView
+        newCamera.farClip      = camera.farClip
+        newCamera.nearClip     = camera.nearClip
+        newCamera.clip2        = camera.clip2
+        newCamera.focalDepth   = camera.focalDepth
+        newCamera.falloffStart = camera.falloffStart
+        newCamera.falloffEnd   = camera.falloffEnd
+        newCamera.depthOfField = camera.depthOfField
 
         scene.m3_camera_index = len(scene.m3_cameras)-1
         return {"FINISHED"}
@@ -4957,112 +4957,112 @@ class M3_PARTICLE_SYSTEMS_OT_duplicate(bpy.types.Operator):
         handleParticleSystemTypeOrNameChange(newParticleSystem, context)
         scene.m3_particle_system_index = len(scene.m3_particle_systems) - 1
 
-        newParticleSystem.materialName                 = particleSystem.materialName                             
-        newParticleSystem.maxParticles                 = particleSystem.maxParticles                             
-        newParticleSystem.emissionSpeed1               = particleSystem.emissionSpeed1                             
-        newParticleSystem.emissionSpeed2               = particleSystem.emissionSpeed2                             
-        newParticleSystem.randomizeWithEmissionSpeed2  = particleSystem.randomizeWithEmissionSpeed2                              
-        newParticleSystem.emissionAngleX               = particleSystem.emissionAngleX                             
-        newParticleSystem.emissionAngleY               = particleSystem.emissionAngleY                             
-        newParticleSystem.emissionSpreadX              = particleSystem.emissionSpreadX                             
-        newParticleSystem.emissionSpreadY              = particleSystem.emissionSpreadY                             
-        newParticleSystem.lifespan1                    = particleSystem.lifespan1                             
-        newParticleSystem.lifespan2                    = particleSystem.lifespan2                             
-        newParticleSystem.randomizeWithLifespan2       = particleSystem.randomizeWithLifespan2                             
-        newParticleSystem.killSphere                   = particleSystem.killSphere                             
-        newParticleSystem.zAcceleration                = particleSystem.zAcceleration                             
-        newParticleSystem.sizeAnimationMiddle          = particleSystem.sizeAnimationMiddle                             
-        newParticleSystem.colorAnimationMiddle         = particleSystem.colorAnimationMiddle                             
-        newParticleSystem.alphaAnimationMiddle         = particleSystem.alphaAnimationMiddle                             
-        newParticleSystem.rotationAnimationMiddle      = particleSystem.rotationAnimationMiddle                             
-        newParticleSystem.sizeHoldTime                 = particleSystem.sizeHoldTime                             
-        newParticleSystem.colorHoldTime                = particleSystem.colorHoldTime                             
-        newParticleSystem.alphaHoldTime                = particleSystem.alphaHoldTime                             
-        newParticleSystem.rotationHoldTime             = particleSystem.rotationHoldTime                                                          
-        newParticleSystem.sizeSmoothingType            = particleSystem.sizeSmoothingType                             
-        newParticleSystem.colorSmoothingType           = particleSystem.colorSmoothingType                             
-        newParticleSystem.rotationSmoothingType        = particleSystem.rotationSmoothingType                             
-        newParticleSystem.particleSizes1               = particleSystem.particleSizes1                             
-        newParticleSystem.rotationValues1              = particleSystem.rotationValues1                             
-        newParticleSystem.initialColor1                = particleSystem.initialColor1                             
-        newParticleSystem.middleColor1                 = particleSystem.middleColor1                                                          
-        newParticleSystem.finalColor1                  = particleSystem.finalColor1                             
-        newParticleSystem.drag                         = particleSystem.drag                                                     
-        newParticleSystem.mass                         = particleSystem.mass                          
-        newParticleSystem.mass2                        = particleSystem.mass2                               
-        newParticleSystem.randomizeWithMass2           = particleSystem.randomizeWithMass2                    
-        newParticleSystem.unknownFloat2c               = particleSystem.unknownFloat2c                             
-        newParticleSystem.trailingEnabled              = particleSystem.trailingEnabled                             
-        newParticleSystem.emissionRate                 = particleSystem.emissionRate                             
-        newParticleSystem.emissionAreaType             = particleSystem.emissionAreaType                             
-        newParticleSystem.cutoutEmissionArea           = particleSystem.cutoutEmissionArea                             
-        newParticleSystem.emissionAreaSize             = particleSystem.emissionAreaSize                             
-        newParticleSystem.emissionAreaCutoutSize       = particleSystem.emissionAreaCutoutSize                             
-        newParticleSystem.emissionAreaRadius           = particleSystem.emissionAreaRadius                             
-        newParticleSystem.emissionAreaCutoutRadius     = particleSystem.emissionAreaCutoutRadius    
+        newParticleSystem.materialName                 = particleSystem.materialName
+        newParticleSystem.maxParticles                 = particleSystem.maxParticles
+        newParticleSystem.emissionSpeed1               = particleSystem.emissionSpeed1
+        newParticleSystem.emissionSpeed2               = particleSystem.emissionSpeed2
+        newParticleSystem.randomizeWithEmissionSpeed2  = particleSystem.randomizeWithEmissionSpeed2
+        newParticleSystem.emissionAngleX               = particleSystem.emissionAngleX
+        newParticleSystem.emissionAngleY               = particleSystem.emissionAngleY
+        newParticleSystem.emissionSpreadX              = particleSystem.emissionSpreadX
+        newParticleSystem.emissionSpreadY              = particleSystem.emissionSpreadY
+        newParticleSystem.lifespan1                    = particleSystem.lifespan1
+        newParticleSystem.lifespan2                    = particleSystem.lifespan2
+        newParticleSystem.randomizeWithLifespan2       = particleSystem.randomizeWithLifespan2
+        newParticleSystem.killSphere                   = particleSystem.killSphere
+        newParticleSystem.zAcceleration                = particleSystem.zAcceleration
+        newParticleSystem.sizeAnimationMiddle          = particleSystem.sizeAnimationMiddle
+        newParticleSystem.colorAnimationMiddle         = particleSystem.colorAnimationMiddle
+        newParticleSystem.alphaAnimationMiddle         = particleSystem.alphaAnimationMiddle
+        newParticleSystem.rotationAnimationMiddle      = particleSystem.rotationAnimationMiddle
+        newParticleSystem.sizeHoldTime                 = particleSystem.sizeHoldTime
+        newParticleSystem.colorHoldTime                = particleSystem.colorHoldTime
+        newParticleSystem.alphaHoldTime                = particleSystem.alphaHoldTime
+        newParticleSystem.rotationHoldTime             = particleSystem.rotationHoldTime
+        newParticleSystem.sizeSmoothingType            = particleSystem.sizeSmoothingType
+        newParticleSystem.colorSmoothingType           = particleSystem.colorSmoothingType
+        newParticleSystem.rotationSmoothingType        = particleSystem.rotationSmoothingType
+        newParticleSystem.particleSizes1               = particleSystem.particleSizes1
+        newParticleSystem.rotationValues1              = particleSystem.rotationValues1
+        newParticleSystem.initialColor1                = particleSystem.initialColor1
+        newParticleSystem.middleColor1                 = particleSystem.middleColor1
+        newParticleSystem.finalColor1                  = particleSystem.finalColor1
+        newParticleSystem.drag                         = particleSystem.drag
+        newParticleSystem.mass                         = particleSystem.mass
+        newParticleSystem.mass2                        = particleSystem.mass2
+        newParticleSystem.randomizeWithMass2           = particleSystem.randomizeWithMass2
+        newParticleSystem.unknownFloat2c               = particleSystem.unknownFloat2c
+        newParticleSystem.trailingEnabled              = particleSystem.trailingEnabled
+        newParticleSystem.emissionRate                 = particleSystem.emissionRate
+        newParticleSystem.emissionAreaType             = particleSystem.emissionAreaType
+        newParticleSystem.cutoutEmissionArea           = particleSystem.cutoutEmissionArea
+        newParticleSystem.emissionAreaSize             = particleSystem.emissionAreaSize
+        newParticleSystem.emissionAreaCutoutSize       = particleSystem.emissionAreaCutoutSize
+        newParticleSystem.emissionAreaRadius           = particleSystem.emissionAreaRadius
+        newParticleSystem.emissionAreaCutoutRadius     = particleSystem.emissionAreaCutoutRadius
 
         for spawnPoint in particleSystem.spawnPoints:
             newSpawnPoint = newParticleSystem.spawnPoints.add()
             newSpawnPoint.location = spawnPoint.location
-                                                                                         
-        newParticleSystem.emissionType                 = particleSystem.emissionType                             
-        newParticleSystem.randomizeWithParticleSizes2  = particleSystem.randomizeWithParticleSizes2                              
-        newParticleSystem.particleSizes2               = particleSystem.particleSizes2                             
-        newParticleSystem.randomizeWithRotationValues2 = particleSystem.randomizeWithRotationValues2                             
-        newParticleSystem.rotationValues2              = particleSystem.rotationValues2                             
-        newParticleSystem.randomizeWithColor2          = particleSystem.randomizeWithColor2                             
-        newParticleSystem.initialColor2                = particleSystem.initialColor2                             
-        newParticleSystem.middleColor2                 = particleSystem.middleColor2                             
-        newParticleSystem.finalColor2                  = particleSystem.finalColor2                             
-        newParticleSystem.partEmit                     = particleSystem.partEmit                             
-        newParticleSystem.phase1StartImageIndex        = particleSystem.phase1StartImageIndex                             
-        newParticleSystem.phase1EndImageIndex          = particleSystem.phase1EndImageIndex                             
-        newParticleSystem.phase2StartImageIndex        = particleSystem.phase2StartImageIndex                             
-        newParticleSystem.phase2EndImageIndex          = particleSystem.phase2EndImageIndex                             
-        newParticleSystem.relativePhase1Length         = particleSystem.relativePhase1Length                             
-        newParticleSystem.numberOfColumns              = particleSystem.numberOfColumns                             
-        newParticleSystem.numberOfRows                 = particleSystem.numberOfRows                             
-        newParticleSystem.columnWidth                  = particleSystem.columnWidth                             
-        newParticleSystem.rowHeight                    = particleSystem.rowHeight                             
-        newParticleSystem.bounce                       = particleSystem.bounce                             
-        newParticleSystem.friction                     = particleSystem.friction                             
-        newParticleSystem.unknownFloat6                = particleSystem.unknownFloat6                             
-        newParticleSystem.unknownFloat7                = particleSystem.unknownFloat7                             
-        newParticleSystem.particleType                 = particleSystem.particleType                             
-        newParticleSystem.lengthWidthRatio             = particleSystem.lengthWidthRatio                             
-        newParticleSystem.localForceChannels           = particleSystem.localForceChannels                             
-        newParticleSystem.worldForceChannels           = particleSystem.worldForceChannels                             
-        newParticleSystem.trailingParticlesName        = particleSystem.trailingParticlesName                             
-        newParticleSystem.trailingParticlesChance      = particleSystem.trailingParticlesChance                             
-        newParticleSystem.trailingParticlesRate        = particleSystem.trailingParticlesRate                             
-        newParticleSystem.noiseAmplitude               = particleSystem.noiseAmplitude                             
-        newParticleSystem.noiseFrequency               = particleSystem.noiseFrequency                              
-        newParticleSystem.noiseCohesion                = particleSystem.noiseCohesion                             
-        newParticleSystem.noiseEdge                    = particleSystem.noiseEdge                             
-        newParticleSystem.sort                         = particleSystem.sort                             
-        newParticleSystem.collideTerrain               = particleSystem.collideTerrain                              
-        newParticleSystem.collideObjects               = particleSystem.collideObjects                              
-        newParticleSystem.spawnOnBounce                = particleSystem.spawnOnBounce                             
-        newParticleSystem.inheritEmissionParams        = particleSystem.inheritEmissionParams                             
-        newParticleSystem.inheritParentVel             = particleSystem.inheritParentVel                             
-        newParticleSystem.sortByZHeight                = particleSystem.sortByZHeight                             
-        newParticleSystem.reverseIteration             = particleSystem.reverseIteration                             
-        newParticleSystem.litParts                     = particleSystem.litParts                             
-        newParticleSystem.randFlipBookStart            = particleSystem.randFlipBookStart                             
-        newParticleSystem.multiplyByGravity            = particleSystem.multiplyByGravity                             
-        newParticleSystem.clampTailParts               = particleSystem.clampTailParts                             
-        newParticleSystem.spawnTrailingParts           = particleSystem.spawnTrailingParts                             
-        newParticleSystem.fixLengthTailParts           = particleSystem.fixLengthTailParts                             
-        newParticleSystem.useVertexAlpha               = particleSystem.useVertexAlpha                             
-        newParticleSystem.modelParts                   = particleSystem.modelParts                             
-        newParticleSystem.swapYZonModelParts           = particleSystem.swapYZonModelParts                             
-        newParticleSystem.scaleTimeByParent            = particleSystem.scaleTimeByParent                             
-        newParticleSystem.useLocalTime                 = particleSystem.useLocalTime                             
-        newParticleSystem.simulateOnInit               = particleSystem.simulateOnInit                             
-        newParticleSystem.copy                         = particleSystem.copy                             
-        newParticleSystem.windMultiplier               = particleSystem.windMultiplier                             
-        newParticleSystem.lodReduction                 = particleSystem.lodReduction                             
-        newParticleSystem.lodCutoff                    = particleSystem.lodCutoff                             
+
+        newParticleSystem.emissionType                 = particleSystem.emissionType
+        newParticleSystem.randomizeWithParticleSizes2  = particleSystem.randomizeWithParticleSizes2
+        newParticleSystem.particleSizes2               = particleSystem.particleSizes2
+        newParticleSystem.randomizeWithRotationValues2 = particleSystem.randomizeWithRotationValues2
+        newParticleSystem.rotationValues2              = particleSystem.rotationValues2
+        newParticleSystem.randomizeWithColor2          = particleSystem.randomizeWithColor2
+        newParticleSystem.initialColor2                = particleSystem.initialColor2
+        newParticleSystem.middleColor2                 = particleSystem.middleColor2
+        newParticleSystem.finalColor2                  = particleSystem.finalColor2
+        newParticleSystem.partEmit                     = particleSystem.partEmit
+        newParticleSystem.phase1StartImageIndex        = particleSystem.phase1StartImageIndex
+        newParticleSystem.phase1EndImageIndex          = particleSystem.phase1EndImageIndex
+        newParticleSystem.phase2StartImageIndex        = particleSystem.phase2StartImageIndex
+        newParticleSystem.phase2EndImageIndex          = particleSystem.phase2EndImageIndex
+        newParticleSystem.relativePhase1Length         = particleSystem.relativePhase1Length
+        newParticleSystem.numberOfColumns              = particleSystem.numberOfColumns
+        newParticleSystem.numberOfRows                 = particleSystem.numberOfRows
+        newParticleSystem.columnWidth                  = particleSystem.columnWidth
+        newParticleSystem.rowHeight                    = particleSystem.rowHeight
+        newParticleSystem.bounce                       = particleSystem.bounce
+        newParticleSystem.friction                     = particleSystem.friction
+        newParticleSystem.unknownFloat6                = particleSystem.unknownFloat6
+        newParticleSystem.unknownFloat7                = particleSystem.unknownFloat7
+        newParticleSystem.particleType                 = particleSystem.particleType
+        newParticleSystem.lengthWidthRatio             = particleSystem.lengthWidthRatio
+        newParticleSystem.localForceChannels           = particleSystem.localForceChannels
+        newParticleSystem.worldForceChannels           = particleSystem.worldForceChannels
+        newParticleSystem.trailingParticlesName        = particleSystem.trailingParticlesName
+        newParticleSystem.trailingParticlesChance      = particleSystem.trailingParticlesChance
+        newParticleSystem.trailingParticlesRate        = particleSystem.trailingParticlesRate
+        newParticleSystem.noiseAmplitude               = particleSystem.noiseAmplitude
+        newParticleSystem.noiseFrequency               = particleSystem.noiseFrequency
+        newParticleSystem.noiseCohesion                = particleSystem.noiseCohesion
+        newParticleSystem.noiseEdge                    = particleSystem.noiseEdge
+        newParticleSystem.sort                         = particleSystem.sort
+        newParticleSystem.collideTerrain               = particleSystem.collideTerrain
+        newParticleSystem.collideObjects               = particleSystem.collideObjects
+        newParticleSystem.spawnOnBounce                = particleSystem.spawnOnBounce
+        newParticleSystem.inheritEmissionParams        = particleSystem.inheritEmissionParams
+        newParticleSystem.inheritParentVel             = particleSystem.inheritParentVel
+        newParticleSystem.sortByZHeight                = particleSystem.sortByZHeight
+        newParticleSystem.reverseIteration             = particleSystem.reverseIteration
+        newParticleSystem.litParts                     = particleSystem.litParts
+        newParticleSystem.randFlipBookStart            = particleSystem.randFlipBookStart
+        newParticleSystem.multiplyByGravity            = particleSystem.multiplyByGravity
+        newParticleSystem.clampTailParts               = particleSystem.clampTailParts
+        newParticleSystem.spawnTrailingParts           = particleSystem.spawnTrailingParts
+        newParticleSystem.fixLengthTailParts           = particleSystem.fixLengthTailParts
+        newParticleSystem.useVertexAlpha               = particleSystem.useVertexAlpha
+        newParticleSystem.modelParts                   = particleSystem.modelParts
+        newParticleSystem.swapYZonModelParts           = particleSystem.swapYZonModelParts
+        newParticleSystem.scaleTimeByParent            = particleSystem.scaleTimeByParent
+        newParticleSystem.useLocalTime                 = particleSystem.useLocalTime
+        newParticleSystem.simulateOnInit               = particleSystem.simulateOnInit
+        newParticleSystem.copy                         = particleSystem.copy
+        newParticleSystem.windMultiplier               = particleSystem.windMultiplier
+        newParticleSystem.lodReduction                 = particleSystem.lodReduction
+        newParticleSystem.lodCutoff                    = particleSystem.lodCutoff
 
         return {"FINISHED"}
 
@@ -5220,52 +5220,52 @@ class M3_RIBBONS_OT_duplicate(bpy.types.Operator):
         newRibbon.boneSuffix = findUnusedRibbonName(scene, prefix=ribbon.boneSuffix)
         handleRibbonBoneSuffixChange(newRibbon, context)
 
-        newRibbon.updateBlenderBoneShapes     = ribbon.updateBlenderBoneShapes                       
-        newRibbon.materialName                = ribbon.materialName                       
-        newRibbon.waveLength                  = ribbon.waveLength                       
-        newRibbon.tipOffsetZ                  = ribbon.tipOffsetZ                       
-        newRibbon.centerBias                  = ribbon.centerBias                       
-        newRibbon.radiusScale                 = ribbon.radiusScale                       
-        newRibbon.twist                       = ribbon.twist                       
-        newRibbon.baseColoring                = ribbon.baseColoring                       
-        newRibbon.centerColoring              = ribbon.centerColoring                       
-        newRibbon.tipColoring                 = ribbon.tipColoring                       
-        newRibbon.stretchAmount               = ribbon.stretchAmount                       
-        newRibbon.stretchLimit                = ribbon.stretchLimit                        
-        newRibbon.surfaceNoiseAmplitude       = ribbon.surfaceNoiseAmplitude                       
-        newRibbon.surfaceNoiseNumberOfWaves   = ribbon.surfaceNoiseNumberOfWaves                       
-        newRibbon.surfaceNoiseFrequency       = ribbon.surfaceNoiseFrequency                       
-        newRibbon.surfaceNoiseScale           = ribbon.surfaceNoiseScale                       
-        newRibbon.ribbonType                  = ribbon.ribbonType                       
-        newRibbon.ribbonDivisions             = ribbon.ribbonDivisions                       
-        newRibbon.ribbonSides                 = ribbon.ribbonSides                       
-        newRibbon.ribbonLength                = ribbon.ribbonLength                       
-        newRibbon.directionVariationBool      = ribbon.directionVariationBool                       
-        newRibbon.directionVariationAmount    = ribbon.directionVariationAmount                       
+        newRibbon.updateBlenderBoneShapes     = ribbon.updateBlenderBoneShapes
+        newRibbon.materialName                = ribbon.materialName
+        newRibbon.waveLength                  = ribbon.waveLength
+        newRibbon.tipOffsetZ                  = ribbon.tipOffsetZ
+        newRibbon.centerBias                  = ribbon.centerBias
+        newRibbon.radiusScale                 = ribbon.radiusScale
+        newRibbon.twist                       = ribbon.twist
+        newRibbon.baseColoring                = ribbon.baseColoring
+        newRibbon.centerColoring              = ribbon.centerColoring
+        newRibbon.tipColoring                 = ribbon.tipColoring
+        newRibbon.stretchAmount               = ribbon.stretchAmount
+        newRibbon.stretchLimit                = ribbon.stretchLimit
+        newRibbon.surfaceNoiseAmplitude       = ribbon.surfaceNoiseAmplitude
+        newRibbon.surfaceNoiseNumberOfWaves   = ribbon.surfaceNoiseNumberOfWaves
+        newRibbon.surfaceNoiseFrequency       = ribbon.surfaceNoiseFrequency
+        newRibbon.surfaceNoiseScale           = ribbon.surfaceNoiseScale
+        newRibbon.ribbonType                  = ribbon.ribbonType
+        newRibbon.ribbonDivisions             = ribbon.ribbonDivisions
+        newRibbon.ribbonSides                 = ribbon.ribbonSides
+        newRibbon.ribbonLength                = ribbon.ribbonLength
+        newRibbon.directionVariationBool      = ribbon.directionVariationBool
+        newRibbon.directionVariationAmount    = ribbon.directionVariationAmount
         newRibbon.directionVariationFrequency = ribbon.directionVariationFrequency
-        newRibbon.amplitudeVariationBool      = ribbon.amplitudeVariationBool                       
-        newRibbon.amplitudeVariationAmount    = ribbon.amplitudeVariationAmount                       
+        newRibbon.amplitudeVariationBool      = ribbon.amplitudeVariationBool
+        newRibbon.amplitudeVariationAmount    = ribbon.amplitudeVariationAmount
         newRibbon.amplitudeVariationFrequency = ribbon.amplitudeVariationFrequency
-        newRibbon.lengthVariationBool         = ribbon.lengthVariationBool                       
-        newRibbon.lengthVariationAmount       = ribbon.lengthVariationAmount                       
-        newRibbon.lengthVariationFrequency    = ribbon.lengthVariationFrequency                       
-        newRibbon.radiusVariationBool         = ribbon.radiusVariationBool                       
-        newRibbon.radiusVariationAmount       = ribbon.radiusVariationAmount                       
-        newRibbon.radiusVariationFrequency    = ribbon.radiusVariationFrequency                       
-        newRibbon.collideWithTerrain          = ribbon.collideWithTerrain                       
-        newRibbon.collideWithObjects          = ribbon.collideWithObjects                       
-        newRibbon.edgeFalloff                 = ribbon.edgeFalloff                       
-        newRibbon.inheritParentVelocity       = ribbon.inheritParentVelocity                       
-        newRibbon.smoothSize                  = ribbon.smoothSize                       
-        newRibbon.bezierSmoothSize            = ribbon.bezierSmoothSize                       
-        newRibbon.useVertexAlpha              = ribbon.useVertexAlpha                       
-        newRibbon.scaleTimeByParent           = ribbon.scaleTimeByParent                       
-        newRibbon.forceLegacy                 = ribbon.forceLegacy                       
-        newRibbon.useLocaleTime               = ribbon.useLocaleTime                       
-        newRibbon.simulateOnInitialization    = ribbon.simulateOnInitialization                       
-        newRibbon.useLengthAndTime            = ribbon.useLengthAndTime   
+        newRibbon.lengthVariationBool         = ribbon.lengthVariationBool
+        newRibbon.lengthVariationAmount       = ribbon.lengthVariationAmount
+        newRibbon.lengthVariationFrequency    = ribbon.lengthVariationFrequency
+        newRibbon.radiusVariationBool         = ribbon.radiusVariationBool
+        newRibbon.radiusVariationAmount       = ribbon.radiusVariationAmount
+        newRibbon.radiusVariationFrequency    = ribbon.radiusVariationFrequency
+        newRibbon.collideWithTerrain          = ribbon.collideWithTerrain
+        newRibbon.collideWithObjects          = ribbon.collideWithObjects
+        newRibbon.edgeFalloff                 = ribbon.edgeFalloff
+        newRibbon.inheritParentVelocity       = ribbon.inheritParentVelocity
+        newRibbon.smoothSize                  = ribbon.smoothSize
+        newRibbon.bezierSmoothSize            = ribbon.bezierSmoothSize
+        newRibbon.useVertexAlpha              = ribbon.useVertexAlpha
+        newRibbon.scaleTimeByParent           = ribbon.scaleTimeByParent
+        newRibbon.forceLegacy                 = ribbon.forceLegacy
+        newRibbon.useLocaleTime               = ribbon.useLocaleTime
+        newRibbon.simulateOnInitialization    = ribbon.simulateOnInitialization
+        newRibbon.useLengthAndTime            = ribbon.useLengthAndTime
 
-        scene.m3_ribbon_index = len(scene.m3_ribbons) - 1     
+        scene.m3_ribbon_index = len(scene.m3_ribbons) - 1
 
         return {"FINISHED"}
 
@@ -5404,16 +5404,16 @@ class M3_FORCES_OT_duplicate(bpy.types.Operator):
         newForce.boneName = shared.boneNameForForce(newForce)
         newForce.updateBlenderBoneShape = True
 
-        newForce.type              = force.type             
-        newForce.shape             = force.shape             
-        newForce.channels          = force.channels             
-        newForce.strength          = force.strength             
-        newForce.width             = force.width             
-        newForce.height            = force.height             
-        newForce.length            = force.length             
-        newForce.useFalloff        = force.useFalloff             
+        newForce.type              = force.type
+        newForce.shape             = force.shape
+        newForce.channels          = force.channels
+        newForce.strength          = force.strength
+        newForce.width             = force.width
+        newForce.height            = force.height
+        newForce.length            = force.length
+        newForce.useFalloff        = force.useFalloff
         newForce.useHeightGradient = force.useHeightGradient
-        newForce.unbounded         = force.unbounded             
+        newForce.unbounded         = force.unbounded
 
         scene.m3_force_index = len(scene.m3_forces) - 1
 
@@ -5491,9 +5491,9 @@ class M3_RIGID_BODIES_OT_duplicate(bpy.types.Operator):
         newRigidBody = scene.m3_rigid_bodies.add()
         newRigidBody.name = findUnusedRigidBodyName(scene, prefix=rigidBody.name)
 
-        newRigidBody.unknownAt0          = rigidBody.unknownAt0              
-        newRigidBody.unknownAt4          = rigidBody.unknownAt4              
-        newRigidBody.unknownAt8          = rigidBody.unknownAt8   
+        newRigidBody.unknownAt0          = rigidBody.unknownAt0
+        newRigidBody.unknownAt4          = rigidBody.unknownAt4
+        newRigidBody.unknownAt8          = rigidBody.unknownAt8
 
         for physicsShape in rigidBody.physicsShapes:
             newPhysicsShape = newRigidBody.physicsShapes.add()
@@ -5508,24 +5508,24 @@ class M3_RIGID_BODIES_OT_duplicate(bpy.types.Operator):
             newPhysicsShape.size0                   = physicsShape.size0
             newPhysicsShape.size1                   = physicsShape.size1
             newPhysicsShape.size2                   = physicsShape.size2
-               
-        newRigidBody.collidable          = rigidBody.collidable              
-        newRigidBody.walkable            = rigidBody.walkable              
-        newRigidBody.stackable           = rigidBody.stackable              
+
+        newRigidBody.collidable          = rigidBody.collidable
+        newRigidBody.walkable            = rigidBody.walkable
+        newRigidBody.stackable           = rigidBody.stackable
         newRigidBody.simulateOnCollision = rigidBody.simulateOnCollision
-        newRigidBody.ignoreLocalBodies   = rigidBody.ignoreLocalBodies              
-        newRigidBody.alwaysExists        = rigidBody.alwaysExists              
-        newRigidBody.doNotSimulate       = rigidBody.doNotSimulate              
-        newRigidBody.localForces         = rigidBody.localForces              
-        newRigidBody.wind                = rigidBody.wind               
-        newRigidBody.explosion           = rigidBody.explosion              
-        newRigidBody.energy              = rigidBody.energy              
-        newRigidBody.blood               = rigidBody.blood              
-        newRigidBody.magnetic            = rigidBody.magnetic              
-        newRigidBody.grass               = rigidBody.grass              
-        newRigidBody.brush               = rigidBody.brush              
-        newRigidBody.trees               = rigidBody.trees              
-        newRigidBody.priority            = rigidBody.priority              
+        newRigidBody.ignoreLocalBodies   = rigidBody.ignoreLocalBodies
+        newRigidBody.alwaysExists        = rigidBody.alwaysExists
+        newRigidBody.doNotSimulate       = rigidBody.doNotSimulate
+        newRigidBody.localForces         = rigidBody.localForces
+        newRigidBody.wind                = rigidBody.wind
+        newRigidBody.explosion           = rigidBody.explosion
+        newRigidBody.energy              = rigidBody.energy
+        newRigidBody.blood               = rigidBody.blood
+        newRigidBody.magnetic            = rigidBody.magnetic
+        newRigidBody.grass               = rigidBody.grass
+        newRigidBody.brush               = rigidBody.brush
+        newRigidBody.trees               = rigidBody.trees
+        newRigidBody.priority            = rigidBody.priority
 
         scene.m3_rigid_body_index = len(scene.m3_rigid_bodies) - 1
         return {"FINISHED"}
@@ -5681,22 +5681,22 @@ class M3_LIGHTS_OT_duplicate(bpy.types.Operator):
         handleLightTypeOrBoneSuffixChange(newLight, context)
         newLight.updateBlenderBone = True
 
-        newLight.lightType       = light.lightType             
-        newLight.lightColor      = light.lightColor         
-        newLight.lightIntensity  = light.lightIntensity 
-        newLight.specColor       = light.specColor         
-        newLight.specIntensity   = light.specIntensity         
+        newLight.lightType       = light.lightType
+        newLight.lightColor      = light.lightColor
+        newLight.lightIntensity  = light.lightIntensity
+        newLight.specColor       = light.specColor
+        newLight.specIntensity   = light.specIntensity
         newLight.attenuationNear = light.attenuationNear
-        newLight.unknownAt148    = light.unknownAt148         
-        newLight.attenuationFar  = light.attenuationFar 
-        newLight.hotSpot         = light.hotSpot         
-        newLight.falloff         = light.falloff         
-        newLight.unknownAt12     = light.unknownAt12         
-        newLight.unknownAt8      = light.unknownAt8         
-        newLight.shadowCast      = light.shadowCast         
-        newLight.specular        = light.specular         
+        newLight.unknownAt148    = light.unknownAt148
+        newLight.attenuationFar  = light.attenuationFar
+        newLight.hotSpot         = light.hotSpot
+        newLight.falloff         = light.falloff
+        newLight.unknownAt12     = light.unknownAt12
+        newLight.unknownAt8      = light.unknownAt8
+        newLight.shadowCast      = light.shadowCast
+        newLight.specular        = light.specular
         newLight.unknownFlag0x04 = light.unknownFlag0x04
-        newLight.turnOn          = light.turnOn         
+        newLight.turnOn          = light.turnOn
 
         return {"FINISHED"}
 
@@ -5850,13 +5850,13 @@ class M3_WARPS_OT_duplicate(bpy.types.Operator):
         newWarp.boneName = shared.boneNameForWarp(newWarp)
         newWarp.updateBlenderBone = True
 
-        newWarp.materialName        = warp.materialName             
-        newWarp.radius              = warp.radius             
-        newWarp.unknown9306aac0     = warp.unknown9306aac0             
+        newWarp.materialName        = warp.materialName
+        newWarp.radius              = warp.radius
+        newWarp.unknown9306aac0     = warp.unknown9306aac0
         newWarp.compressionStrength = warp.compressionStrength
-        newWarp.unknown50c7f2b4     = warp.unknown50c7f2b4             
-        newWarp.unknown8d9c977c     = warp.unknown8d9c977c             
-        newWarp.unknownca6025a2     = warp.unknownca6025a2             
+        newWarp.unknown50c7f2b4     = warp.unknown50c7f2b4
+        newWarp.unknown8d9c977c     = warp.unknown8d9c977c
+        newWarp.unknownca6025a2     = warp.unknownca6025a2
 
         scene.m3_warp_index = len(scene.m3_warps) - 1
         return {"FINISHED"}
@@ -6038,7 +6038,7 @@ class M3_ATTACHMENT_POINTS_OT_move(bpy.types.Operator):
             scene.m3_attachment_point_index += self.shift
 
         return{"FINISHED"}
-        
+
 
 class M3_OT_generateBlenderMaterails(bpy.types.Operator):
     bl_idname      = "m3.generate_blender_materials"
