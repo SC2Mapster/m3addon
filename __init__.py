@@ -5403,23 +5403,14 @@ class M3_FORCES_OT_duplicate(bpy.types.Operator):
         scene = context.scene
         force = scene.m3_forces[scene.m3_force_index]
         newForce = scene.m3_forces.add()
-        newForce.updateBlenderBoneShape = False
-        newForce.boneSuffix = findUnusedForceName(scene)
-        handleForceTypeOrBoneSuffixChange(newForce, context)
+
+        newForce.updateBlenderBone = False
+        shared.copyBpyProperties(newForce, force, ['updateBlenderBone'])
+        newForce.boneSuffix = findUnusedForceName(scene, prefix=force.boneSuffix)
         newForce.boneName = shared.boneNameForForce(newForce)
-        newForce.updateBlenderBoneShape = True
+        newForce.updateBlenderBone = True
 
-        newForce.type              = force.type
-        newForce.shape             = force.shape
-        newForce.channels          = force.channels
-        newForce.strength          = force.strength
-        newForce.width             = force.width
-        newForce.height            = force.height
-        newForce.length            = force.length
-        newForce.useFalloff        = force.useFalloff
-        newForce.useHeightGradient = force.useHeightGradient
-        newForce.unbounded         = force.unbounded
-
+        # select duplicated obj (and create its bone from callback)
         scene.m3_force_index = len(scene.m3_forces) - 1
 
         return {"FINISHED"}
@@ -5494,45 +5485,20 @@ class M3_RIGID_BODIES_OT_duplicate(bpy.types.Operator):
         scene = context.scene
         rigidBody = scene.m3_rigid_bodies[scene.m3_rigid_body_index]
         newRigidBody = scene.m3_rigid_bodies.add()
+        shared.copyBpyProperties(newRigidBody, rigidBody, ['physicsShapes'])
         newRigidBody.name = findUnusedRigidBodyName(scene, prefix=rigidBody.name)
 
-        newRigidBody.unknownAt0          = rigidBody.unknownAt0
-        newRigidBody.unknownAt4          = rigidBody.unknownAt4
-        newRigidBody.unknownAt8          = rigidBody.unknownAt8
+        # select duplicated obj
+        scene.m3_rigid_body_index = len(scene.m3_rigid_bodies) - 1
 
         for physicsShape in rigidBody.physicsShapes:
             newPhysicsShape = newRigidBody.physicsShapes.add()
+            newPhysicsShape.updateBlenderBoneShapes = False
+            shared.copyBpyProperties(newPhysicsShape, physicsShape, ['updateBlenderBoneShapes'])
+            newPhysicsShape.updateBlenderBoneShapes = True
+            newRigidBody.physicsShapeIndex = len(newRigidBody.physicsShapes) - 1
+            shared.updateBoneShapeOfRigidBody(scene, newRigidBody)
 
-            newPhysicsShape.name                    = physicsShape.name
-            newPhysicsShape.updateBlenderBoneShapes = physicsShape.updateBlenderBoneShapes
-            newPhysicsShape.offset                  = physicsShape.offset
-            newPhysicsShape.rotationEuler           = physicsShape.rotationEuler
-            newPhysicsShape.scale                   = physicsShape.scale
-            newPhysicsShape.shape                   = physicsShape.shape
-            newPhysicsShape.meshObjectName          = physicsShape.meshObjectName
-            newPhysicsShape.size0                   = physicsShape.size0
-            newPhysicsShape.size1                   = physicsShape.size1
-            newPhysicsShape.size2                   = physicsShape.size2
-
-        newRigidBody.collidable          = rigidBody.collidable
-        newRigidBody.walkable            = rigidBody.walkable
-        newRigidBody.stackable           = rigidBody.stackable
-        newRigidBody.simulateOnCollision = rigidBody.simulateOnCollision
-        newRigidBody.ignoreLocalBodies   = rigidBody.ignoreLocalBodies
-        newRigidBody.alwaysExists        = rigidBody.alwaysExists
-        newRigidBody.doNotSimulate       = rigidBody.doNotSimulate
-        newRigidBody.localForces         = rigidBody.localForces
-        newRigidBody.wind                = rigidBody.wind
-        newRigidBody.explosion           = rigidBody.explosion
-        newRigidBody.energy              = rigidBody.energy
-        newRigidBody.blood               = rigidBody.blood
-        newRigidBody.magnetic            = rigidBody.magnetic
-        newRigidBody.grass               = rigidBody.grass
-        newRigidBody.brush               = rigidBody.brush
-        newRigidBody.trees               = rigidBody.trees
-        newRigidBody.priority            = rigidBody.priority
-
-        scene.m3_rigid_body_index = len(scene.m3_rigid_bodies) - 1
         return {"FINISHED"}
 
 
@@ -5680,28 +5646,15 @@ class M3_LIGHTS_OT_duplicate(bpy.types.Operator):
         scene = context.scene
         light = scene.m3_lights[scene.m3_light_index]
         newLight = scene.m3_lights.add()
+
+        newLight.updateBlenderBone = False
+        shared.copyBpyProperties(newLight, light, ['updateBlenderBone'])
         newLight.boneSuffix = findUnusedLightName(scene, prefix=light.boneSuffix)
         newLight.boneName = shared.boneNameForLight(newLight)
-
-        handleLightTypeOrBoneSuffixChange(newLight, context)
         newLight.updateBlenderBone = True
 
-        newLight.lightType       = light.lightType
-        newLight.lightColor      = light.lightColor
-        newLight.lightIntensity  = light.lightIntensity
-        newLight.specColor       = light.specColor
-        newLight.specIntensity   = light.specIntensity
-        newLight.attenuationNear = light.attenuationNear
-        newLight.unknownAt148    = light.unknownAt148
-        newLight.attenuationFar  = light.attenuationFar
-        newLight.hotSpot         = light.hotSpot
-        newLight.falloff         = light.falloff
-        newLight.unknownAt12     = light.unknownAt12
-        newLight.unknownAt8      = light.unknownAt8
-        newLight.shadowCast      = light.shadowCast
-        newLight.specular        = light.specular
-        newLight.unknownFlag0x04 = light.unknownFlag0x04
-        newLight.turnOn          = light.turnOn
+        # select duplicated obj (and create its bone from callback)
+        scene.m3_light_index = len(scene.m3_lights) - 1
 
         return {"FINISHED"}
 
@@ -5850,20 +5803,16 @@ class M3_WARPS_OT_duplicate(bpy.types.Operator):
         scene = context.scene
         warp = scene.m3_warps[scene.m3_warp_index]
         newWarp = scene.m3_warps.add()
+
         newWarp.updateBlenderBone = False
+        shared.copyBpyProperties(newWarp, warp, ['updateBlenderBone'])
         newWarp.boneSuffix = findUnusedWarpName(scene, prefix=warp.boneSuffix)
         newWarp.boneName = shared.boneNameForWarp(newWarp)
         newWarp.updateBlenderBone = True
 
-        newWarp.materialName        = warp.materialName
-        newWarp.radius              = warp.radius
-        newWarp.unknown9306aac0     = warp.unknown9306aac0
-        newWarp.compressionStrength = warp.compressionStrength
-        newWarp.unknown50c7f2b4     = warp.unknown50c7f2b4
-        newWarp.unknown8d9c977c     = warp.unknown8d9c977c
-        newWarp.unknownca6025a2     = warp.unknownca6025a2
-
+        # select duplicated obj (and create its bone from callback)
         scene.m3_warp_index = len(scene.m3_warps) - 1
+
         return {"FINISHED"}
 
 

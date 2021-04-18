@@ -175,6 +175,15 @@ def attachmentPointNameFromBoneName(boneName):
     else:
         return boneName
 
+def copyBpyProperties(dst, src, skip=[]):
+    assert type(dst) == type(src)
+    props = type(dst).__annotations__.keys()
+    # TODO: should probably filter the annotations list to bpy.types.Property
+    for k in props:
+        if k in skip:
+            continue
+        setattr(dst, k, getattr(src, k))
+    return dst
 
 def setDefaultValue(defaultAction, path, index, value):
     curve = None

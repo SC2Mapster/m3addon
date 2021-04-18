@@ -135,7 +135,7 @@ class ProjectionPanel(bpy.types.Panel):
             row = layout.row()
             row.label(text=cm.M3GroupProjection.bl_rna.properties['attenuationPlaneDistance'].name)
             row.prop(projection, 'attenuationPlaneDistance', text='Start at')
-            
+
             layout.label(text="Flags:")
             box = layout.box()
             col = box.column_flow()
@@ -211,36 +211,7 @@ class M3_PROJECTIONS_OT_duplicate(bpy.types.Operator):
         scene = context.scene
         projection = scene.m3_projections[scene.m3_projection_index]
         newProjection = scene.m3_projections.add()
+        shared.copyBpyProperties(newProjection, projection, ['name', 'boneName'])
         newProjection.name = findUnusedProjectionName(scene)
-
-        newProjection.materialName = projection.materialName
-        newProjection.projectionType = projection.projectionType
-        newProjection.fieldOfView = projection.fieldOfView
-        newProjection.aspectRatio = projection.aspectRatio
-        newProjection.near = projection.near
-        newProjection.far = projection.far
-        newProjection.depth = projection.depth
-        newProjection.width = projection.width
-        newProjection.height = projection.height
-        newProjection.alphaOverTimeStart = projection.alphaOverTimeStart
-        newProjection.alphaOverTimeMid = projection.alphaOverTimeMid
-        newProjection.alphaOverTimeEnd = projection.alphaOverTimeEnd
-        newProjection.splatLifeTimeAttack = projection.splatLifeTimeAttack
-        newProjection.splatLifeTimeAttackTo = projection.splatLifeTimeAttackTo
-        newProjection.splatLifeTimeHold = projection.splatLifeTimeHold
-        newProjection.splatLifeTimeHoldTo = projection.splatLifeTimeHoldTo
-        newProjection.splatLifeTimeDecay = projection.splatLifeTimeDecay
-        newProjection.splatLifeTimeDecayTo = projection.splatLifeTimeDecayTo
-        newProjection.attenuationPlaneDistance = projection.attenuationPlaneDistance
-        newProjection.active = projection.active
-        newProjection.splatLayer = projection.splatLayer
-        newProjection.lodCut = projection.lodCut
-        newProjection.lodReduce = projection.lodReduce
-        newProjection.staticPosition = projection.staticPosition
-        newProjection.unknownFlag0x2 = projection.unknownFlag0x2
-        newProjection.unknownFlag0x4 = projection.unknownFlag0x4
-        newProjection.unknownFlag0x8 = projection.unknownFlag0x8
-
         scene.m3_projection_index = len(scene.m3_projections) - 1
-
-        return {"FINSHED"}
+        return {"FINISHED"}
