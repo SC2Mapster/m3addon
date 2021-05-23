@@ -22,6 +22,7 @@
 from typing import Iterable, List, Dict
 from . import m3
 from . import shared
+from .shared import ExportError
 from . import cm
 from .common import mlog
 import bpy
@@ -33,15 +34,9 @@ import math
 actionTypeScene = "SCENE"
 actionTypeArmature = "OBJECT"
 
-class ExportError(Exception):
-    def __init__(self, message: str):
-        super().__init__()
-        self.message = message
-
-class ExportErrorMODLVersionInsufficient(Exception):
+class ExportErrorMODLVersionInsufficient(ExportError):
     def __init__(self, minVersion: int, cause: str = None):
-        super().__init__()
-        self.message = f'Unable to export in choosen version of m3 container, try version {minVersion} or higher. Reason: {cause}.'
+        super().__init__(f'Unable to export in choosen version of m3 container, try version {minVersion} or higher. Reason: {cause}.')
 
 class Exporter:
     def __init__(self, scene: bpy.types.Scene, operator: bpy.types.Operator):
@@ -1833,6 +1828,10 @@ class Exporter:
             materialNames = [*map(lambda x: x.name, scene.m3_lens_flare_materials)]
             raise ExportErrorMODLVersionInsufficient(29, f'Lens flare materials: {materialNames}')
 
+        if len(scene.m3_buffer_materials) > 0:
+            materialNames = [*map(lambda x: x.name, scene.m3_buffer_materials)]
+            raise ExportError(f'MADD based materials cannot be exported. Affected materials: {materialNames}')
+
         for materialIndex, material in enumerate(scene.m3_standard_materials):
             model.standardMaterials.append(self.createStandardMaterial(materialIndex, material))
 
@@ -2701,11 +2700,9 @@ def export(scene: bpy.types.Scene, operator: bpy.types.Operator, filename):
     try:
         exporter.export(filename)
         return {'FINISHED'}
-    except ExportErrorMODLVersionInsufficient as e:
-        operator.report({'ERROR'}, e.message)
     except ExportError as e:
         mlog.exception('failed to export')
-        operator.report({'ERROR'}, f'M3Export failed, reason: {e.message}')
+        operator.report({'ERROR'}, f'M3Export failed: {str(e)}')
     except:
         mlog.exception('failed to export')
         raise
