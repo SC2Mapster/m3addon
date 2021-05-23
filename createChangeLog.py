@@ -53,7 +53,7 @@ class ChangeLogCreator:
                     previousModel = currentModel
                 time.sleep(0.1)
         finally:
-           self.logFile.close()
+            self.logFile.close()
 
     def compareM3Structures(self, previous, current, structurePath):
         previousType = previous.structureDescription
@@ -76,7 +76,7 @@ class ChangeLogCreator:
                 currentLength = len(currentFieldContent)
                 previousLength = len(previousFieldContent)
                 if len(currentFieldContent) != previousLength:
-                    self.log("The length of %s changed from %d to %d" % (fieldPath, previousLength, currentLength ))
+                    self.log("The length of %s changed from %d to %d" % (fieldPath, previousLength, currentLength))
                 else:
                     elementIndex = 0
                     for previousElement, currentElement in zip(previousFieldContent, currentFieldContent):
@@ -86,7 +86,7 @@ class ChangeLogCreator:
             else:
 
                 if currentFieldContent != previousFieldContent:
-                    if field.name != "animId" and field.name != "uniqueUnknownNumber" :
+                    if field.name != "animId" and field.name != "uniqueUnknownNumber":
                         if isinstance(field, m3.IntField):
                             previousFieldContentStr = hex(previousFieldContent)
                             currentFieldContentStr = hex(currentFieldContent)
@@ -97,11 +97,10 @@ class ChangeLogCreator:
                     else:
                         self.changedAnimationIds += 1
 
-
-
     def log(self, message):
         self.logFile.write(str(message) + "\n")
         print(message)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -110,7 +109,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     modelFileName = args.m3File
     logFileName = args.log_file
-    if logFileName == None:
+    if logFileName is None:
         logFileName = modelFileName[:-3] + "-changelog.txt"
     changeLogCreator = ChangeLogCreator(modelFileName, logFileName)
     changeLogCreator.createChangeLog()

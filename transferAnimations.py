@@ -32,22 +32,21 @@ if __name__ == "__main__":
     parser.add_argument('outputFile', help="name of the new m3 file to create")
     args = parser.parse_args()
 
-
     m3Model = m3.loadModel(args.m3File)
     m3aModel = m3.loadModel(args.m3aFile)
     outputFile = args.outputFile
     sameFormat = True
 
-    if (len(m3Model.sequences) > 0 and len(m3aModel.sequences) > 0 ):
+    if (len(m3Model.sequences) > 0 and len(m3aModel.sequences) > 0):
         if m3Model.sequences[0].structureDescription != m3aModel.sequences[0].structureDescription:
             sameFormat = False
-    if (len(m3Model.sequenceTransformationCollections) > 0 and len(m3aModel.sequenceTransformationCollections) > 0 ):
+    if (len(m3Model.sequenceTransformationCollections) > 0 and len(m3aModel.sequenceTransformationCollections) > 0):
         if m3Model.sequenceTransformationCollections[0].structureDescription != m3aModel.sequenceTransformationCollections[0].structureDescription:
             sameFormat = False
-    if (len(m3Model.sequenceTransformationGroups) > 0 and len(m3aModel.sequenceTransformationGroups) > 0 ):
+    if (len(m3Model.sequenceTransformationGroups) > 0 and len(m3aModel.sequenceTransformationGroups) > 0):
         if m3Model.sequenceTransformationGroups[0].structureDescription != m3aModel.sequenceTransformationGroups[0].structureDescription:
             sameFormat = False
-    if (len(m3Model.sts) > 0 and len(m3aModel.sts) > 0 ):
+    if (len(m3Model.sts) > 0 and len(m3aModel.sts) > 0):
         if m3Model.sts[0].structureDescription != m3aModel.sts[0].structureDescription:
             sameFormat = False
 
@@ -93,7 +92,6 @@ if __name__ == "__main__":
         stg.stcIndices = newSTCIndices
         m3Model.sequences.append(sequence)
         m3Model.sequenceTransformationGroups.append(stg)
-
 
     m3.saveAndInvalidateModel(m3Model, outputFile)
 

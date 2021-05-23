@@ -21,7 +21,6 @@
 
 
 import m3
-import sys
 import argparse
 
 
@@ -31,7 +30,6 @@ if __name__ == "__main__":
     parser.add_argument('modelToFix', help="m3 which has the wrong animation ids")
     parser.add_argument('outputFile', help="name of the new m3 file to create")
     args = parser.parse_args()
-
 
     animIdModel = m3.loadModel(args.animIdFile)
     modelToFix = m3.loadModel(args.modelToFix)
@@ -61,7 +59,7 @@ if __name__ == "__main__":
 
     def assertModelContainsOneDivisionAndMSec(model):
         if len(model.divisions) != 1 or len(model.divisions[0].msec) != 1:
-            raise Exception("Model contains %d divisions and the first division has %d msec" %(en(model.divisions), len(model.divisions[0].msec)))
+            raise Exception("Model contains %d divisions and the first division has %d msec" % (len(model.divisions), len(model.divisions[0].msec)))
 
     assertModelContainsOneDivisionAndMSec(modelToFix)
     assertModelContainsOneDivisionAndMSec(animIdModel)
@@ -72,19 +70,18 @@ if __name__ == "__main__":
     msecToFix.boundingsAnimation.header.animId = newAnimId
     oldAnimIdToNewAnimIdMap[oldAnimId] = newAnimId
 
-
     for stc in modelToFix.sequenceTransformationCollections:
         animIds = stc.animIds
         for i in range(len(animIds)):
             newAnimId = oldAnimIdToNewAnimIdMap.get(animIds[i])
-            if newAnimId != None:
+            if newAnimId is not None:
                 animIds[i] = newAnimId
 
     for sts in modelToFix.sts:
         animIds = sts.animIds
         for i in range(len(animIds)):
             newAnimId = oldAnimIdToNewAnimIdMap.get(animIds[i])
-            if newAnimId != None:
+            if newAnimId is not None:
                 animIds[i] = newAnimId
 
     m3.saveAndInvalidateModel(modelToFix, outputFile)

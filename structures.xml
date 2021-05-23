@@ -2039,8 +2039,8 @@
             <field name="unknown18a90564" type="Vector2AnimationReferenceV0" since-version="17" /> <!-- with init=(1.0, 1.0) and null=(1.0, 1.0)-->
             <field name="spawnPoints" type="Reference" refTo="SVC3" />
             <field name="windMultiplier" type="float" default-value="0.0"/>
-            <field name="lodReduction" type="uint32" default-value="2"/>
-            <field name="lodCutoff" type="uint32" default-value="1"/>
+            <field name="lodReduce" type="uint32" default-value="2"/>
+            <field name="lodCut" type="uint32" default-value="1"/>
             <field name="unknown21ca0cea" type="AnimationReferenceHeader" />
             <field name="initOfUnknown21ca0cea" size="4" expected-value="0x00000000" />
             <field name="nullOfUnknown21ca0cea" size="4" expected-value="0x00000000" />
@@ -2122,12 +2122,26 @@
     </structure>
 
     <structure name="PHYJ">
-        <description>Physical Joins</description>
+        <description>Physical Joints</description>
         <versions>
             <version number="0" size="180" />
         </versions>
         <fields>
-            <field name="unknown" size="180" />
+            <field name="type" type="uint32"/>
+            <field name="boneIndex1" type="uint32"/>
+            <field name="boneIndex2" type="uint32"/>
+            <field name="matrix1" type="Matrix44"/>
+            <field name="matrix2" type="Matrix44"/>
+            <field name="limit" type="uint32"/>
+            <field name="limitMin" type="float"/>
+            <field name="limitMax" type="float"/>
+            <field name="coneAngle" type="float"/>
+            <field name="friction" type="uint32"/>
+            <field name="frictionAmount" type="float" default-value="0.2"/>
+            <field name="dampingRatio" type="float" default-value="0.7"/>
+            <field name="angularFrequency" type="float" default-value="5"/>
+            <field name="breakThreshold" type="float" default-value="1"/>
+            <field name="unknown176" type="uint32"/>
         </fields>
     </structure>
 
@@ -2412,14 +2426,14 @@
         <fields>
             <field name="shape" type="uint32" />
             <field name="boneIndex" type="int16" /><!-- can be -1 -->
-            <field name="uknownAt6" type="uint16" expected-value="0" />
+            <field name="unknownAt6" type="uint16" expected-value="0" />
             <field name="matrix" type="Matrix44" />
-            <field name="uknownAt72" type="uint32" expected-value="0" />
-            <field name="uknownAt76" type="uint32" default-value="0" />
-            <field name="uknownAt80" type="uint32" default-value="0" />
-            <field name="uknownAt84" type="uint32" expected-value="0" />
-            <field name="uknownAt88" type="uint32" expected-value="0" />
-            <field name="uknownAt92" type="uint32" expected-value="0" />
+            <field name="unknownAt72" type="uint32" expected-value="0" />
+            <field name="unknownAt76" type="uint32" default-value="0" />
+            <field name="unknownAt80" type="uint32" default-value="0" />
+            <field name="unknownAt84" type="uint32" expected-value="0" />
+            <field name="unknownAt88" type="uint32" expected-value="0" />
+            <field name="unknownAt92" type="uint32" expected-value="0" />
             <field name="size0" type="float" />
             <field name="size1" type="float" />
             <field name="size2" type="float" />
@@ -2532,16 +2546,16 @@
             <field name="unknown1f9302c9" type="uint32" default-value="0" since-version="8" />
             <field name="waveLength" type="FloatAnimationReference" />
             <field name="unkonwne773692a" type="AnimationReferenceHeader"/>
-            <field name="unkonwne53650fa" size="4" default-value="0x00000000" />
-            <field name="unkonwne9c6b307" size="4" expected-value="0x00000000" />
+            <field name="unkonwne53650fa" type="float" />
+            <field name="unkonwne9c6b307" type="float" />
             <!-- unknown75e0b576 is the uninitalized field that terminated a animaation reference : -->
             <field name="unknown75e0b576" type="uint32" default-value="0"/>
             <field till-version="6" name="unknownd30655aa" type="int32" default-value="0"/>
-            <field name="unknown8940c27c" type="FloatAnimationReference" />
-            <field name="unknownc2ab76c5" type="FloatAnimationReference" />
+            <field name="yaw" type="FloatAnimationReference" />
+            <field name="pitch" type="FloatAnimationReference" />
             <field name="unknownee00ae0a" type="FloatAnimationReference" />
             <field name="unknown1686c0b7" type="FloatAnimationReference" />
-            <field name="unknowne48f8f84" type="FloatAnimationReference" />
+            <field name="lifespan" type="FloatAnimationReference" />
             <field name="unknown9eba8df8" type="FloatAnimationReference" />
             <field name="unknown26271cbe" type="uint32" expected-value="0"/>
             <field name="unknownda0542fa" type="uint32" expected-value="0" />
@@ -2549,16 +2563,12 @@
             <field name="unknownfe32e718" type="float" default-value="0"/>
             <field name="tipOffsetZ" type="float" />
             <field name="centerBias" type="float" /> <!--middle point position-->
-            <field name="unknowncae7b5f7" type="float" default-value="1.0" />
-            <field name="unknown8652c547" type="float" default-value="1.0" />
-            <field name="unknown6a1cb998" type="float" default-value="1.0" />
+            <field name="colorAnimationMiddle" type="float" default-value="1.0" />
+            <field name="alphaAnimationMiddle" type="float" default-value="1.0" />
+            <field name="twistAnimationMiddle" type="float" default-value="1.0" />
             <field name="unknownbca99a4e" size="12" since-version="8" />
             <field name="radiusScale" type="Vector3AnimationReferenceV0" /> <!--X=Start, Y=Middle, Z=END-->
-            <field name="twist" type="FloatAnimationReference" />
-            <field name="unknown504bc931" type="uint32" expected-value="0"/>
-            <field name="unknown8cfd3002" type="uint32" expected-value="0"/>
-            <field name="unknown2bfdc3e9" type="uint32" expected-value="0"/>
-            <field name="unknownb8fe150a" type="uint32" default-value="0"/>
+            <field name="twist" type="Vector3AnimationReferenceV0" />
             <field name="baseColoring" type="ColorAnimationReference" />
             <field name="centerColoring" type="ColorAnimationReference" />
             <field name="tipColoring" type="ColorAnimationReference" />
@@ -2579,10 +2589,10 @@
             <field name="surfaceNoiseScale" type="float" />
             <field name="unknownafa854b0" type="uint32" /> <!--corruptor3, corruption battlecruiser5-->
             <field name="ribbonType" type="uint32" />
-            <field name="unknownbf0eb4d1" type="uint32" default-value="1"/>
+            <field name="cullType" type="uint32" default-value="1"/>
             <field name="ribbonDivisions" type="float" />
             <field name="ribbonSides" type="uint32" />
-            <field name="unknowna5803a0e" type="float" default-value="0.5"/>
+            <field name="starRatio" type="float" default-value="0.5"/>
             <field name="ribbonLength" type="FloatAnimationReference" />
             <field till-version="6"  name="filler1" type="int32" default-value="0"/>
             <field name="endPoints" type="Reference" refTo="SRIB" />
@@ -2608,8 +2618,8 @@
             </field>
             <field name="unknown30e0264e" type="uint32" default-value="0"/>
             <field name="unknown40ffe7f5" type="float" default-value="0.0"/>
-            <field name="unknown39b23b19" type="uint32" default-value="2"/>
-            <field name="unknown72f948ba" type="uint32" default-value="0"/> <!--hydralisk death 2-->
+            <field name="lodReduce" type="uint32" default-value="2"/>
+            <field name="lodCut" type="uint32" default-value="0"/>
             <field name="unknownbccd0332" size="8" since-version="8" />
             <field name="directionVariationBool" type="uint32" />
             <field name="directionVariationAmount" type="FloatAnimationReference" />
@@ -2623,9 +2633,9 @@
             <field name="radiusVariationBool" type="uint32" />
             <field name="radiusVariationAmount" type="FloatAnimationReference" />
             <field name="radiusVariationFrequency" type="FloatAnimationReference" />
-            <field name="unknown3e06cbc8" type="int32" default-value="0"/>
-            <field name="unknown4904046f" type="FloatAnimationReference" />
-            <field name="unknowna69b9387" type="FloatAnimationReference" />
+            <field name="alphaVariationBool" type="uint32" default-value="0"/>
+            <field name="alphaVariationAmount" type="FloatAnimationReference" />
+            <field name="alphaVariationFrequency" type="FloatAnimationReference" />
             <field name="unknown9a4a649a" type="FloatAnimationReference" />
             <field name="unknown76569e33" type="FloatAnimationReference" />
         </fields>
@@ -2642,7 +2652,8 @@
             <field name="unknown1" type="uint32" default-value="0"/>
             <field name="unknown2" type="uint32" default-value="0"/>
             <field name="unknown3" type="uint32" default-value="-1"/>
-            <field name="unknown4" type="uint32" />
+            <field name="boneIndex1" type="uint16" />
+            <field name="boneIndex2" type="uint16" />
             <field name="maxSearchUp" type="float" />
             <field name="maxSearchDown" type="float" />
             <field name="maxSpeed" type="float" />

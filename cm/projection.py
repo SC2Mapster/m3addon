@@ -26,8 +26,8 @@ class ProjectionType:
 
 
 ProjectionTypeList = [
-    (ProjectionType.orthonormal, "Orthonormal", "makes the Projector behave like a box. It will be the same width no matter how close the projector is to the target surface."),
-    (ProjectionType.perspective, "Perspective", "makes the Projector behave like a camera. The closer the projector is to the surface, the smaller the effect will be.")
+    (ProjectionType.orthonormal, "Orthonormal", "Makes the Projector behave like a box. It will be the same width no matter how close the projector is to the target surface."),
+    (ProjectionType.perspective, "Perspective", "Makes the Projector behave like a camera. The closer the projector is to the surface, the smaller the effect will be.")
 ]
 
 
@@ -76,10 +76,12 @@ def selectOrCreateBoneForProjection(scene, projection):
     updateBoneShapeOfProjection(projection, bone, poseBone)
 
 
-def handleProjectionSizeChange(projection, context):
+def handleProjectionSizeChange(self, context):
+    if not self.bl_update: return
+
     scene = context.scene
-    if projection.updateBlenderBone:
-        selectOrCreateBoneForProjection(scene, projection)
+    if self.updateBlenderBone:
+        selectOrCreateBoneForProjection(scene, self)
 
 
 def handleProjectionIndexChanged(self: bpy.types.Scene, context: bpy.types.Context):
@@ -90,37 +92,34 @@ def handleProjectionIndexChanged(self: bpy.types.Scene, context: bpy.types.Conte
     selectOrCreateBoneForProjection(scene, projection)
 
 
-def onUpdateName(projection, context: bpy.context):
-    projection = projection # type: M3GroupProjection
+def onUpdateName(self, context):
+    if not self.bl_update: return
+
     scene = context.scene
 
-    if projection.name == projection.boneName:
-        return
+    currentBoneName = self.boneName
+    calculatedBoneName = shared.boneNameForProjection(self)
 
-    bone, armatureObject = shared.findBoneWithArmatureObject(scene, projection.name)
-    if bone is not None:
-        projection.name = projection.boneName
-        raise Exception(f'Cannot use "{projection.name}" - it\'s already used by another object')
-        return False
+    if currentBoneName != calculatedBoneName:
+        bone, armatureObject = shared.findBoneWithArmatureObject(scene, currentBoneName)
+        if bone is not None:
+            bone.name = calculatedBoneName
+            self.boneName = bone.name
+        else:
+            self.boneName = calculatedBoneName
 
-    if projection.boneName:
-        bone, poseBone = shared.selectOrCreateBone(scene, projection.boneName)
-        bone.name = projection.name
-        projection.boneName = projection.name
-    else:
-        projection.boneName = projection.name
-        selectOrCreateBoneForProjection(scene, projection)
+    selectOrCreateBoneForProjection(scene, self)
 
 
 class M3GroupProjection(bpy.types.PropertyGroup):
     name: bpy.props.StringProperty(
         options=set(), update=onUpdateName,
     )
-    updateBlenderBone: bpy.props.BoolProperty(
-        default=True, options=set(),
-    )
     boneName: bpy.props.StringProperty(
         options=set(),
+    )
+    bl_update: bpy.props.BoolProperty(
+        default=True,
     )
     materialName: bpy.props.StringProperty(
         options=set(),

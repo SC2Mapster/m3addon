@@ -17,7 +17,7 @@
     "python.linting.flake8CategorySeverity.W": "Hint",
     "python.linting.flake8Args": [
         "--max-line-length=140",
-        "--ignore=E402,E261,E302,E713", // pedanting stuff
+        "--ignore=E402,E261,E302,E713,E501,E221,E271,E701,E128,E126,E124", // pedanting stuff
         "--extend-ignore=F722,F821", // false positive bullshit
         // E128
         // E123,E702,E125

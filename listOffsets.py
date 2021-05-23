@@ -9,7 +9,7 @@ structureName = sys.argv[1]
 structureVersion = int(sys.argv[2])
 
 structureDescription = m3.structures[structureName].getVersion(structureVersion)
-if structureDescription == None:
+if structureDescription is None:
     raise Exception("The structure %s hasn't been defined in version %d" % (structureName, structureVersion))
 offset = 0
 for field in structureDescription.fields:

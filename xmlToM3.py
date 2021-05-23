@@ -19,7 +19,6 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
-import struct
 import sys
 import m3
 import xml.dom.minidom
@@ -45,9 +44,9 @@ def createSingleStructureElement(xmlNode, structureDescription):
             raise Exception("XML file is incompatible: too many fields")
         field = structureDescription.fields[fieldIndex]
         if field.name != fieldName:
-            raise Exception("XML file is incompatible: Expected field %s but found field %s" % (field.name, fieldName) )
+            raise Exception("XML file is incompatible: Expected field %s but found field %s" % (field.name, fieldName))
 
-        fieldContent = createFieldContent(child,field)
+        fieldContent = createFieldContent(child, field)
         setattr(createdObject, field.name, fieldContent)
         fieldIndex += 1
 
@@ -57,10 +56,11 @@ def createSingleStructureElement(xmlNode, structureDescription):
 
     return createdObject
 
-intTypeStrings = set(["int32","int16","int8","uint32", "uint16", "uint8"])
+
+intTypeStrings = set(["int32", "int16", "int8", "uint32", "uint16", "uint8"])
 def createFieldContent(xmlNode, field):
     if isinstance(field, m3.ReferenceField):
-        if field.historyOfReferencedStructures == None:
+        if field.historyOfReferencedStructures is None:
             return [] # TODO check if that's correct
         else:
             referencedStructureName = field.historyOfReferencedStructures.name
@@ -71,13 +71,13 @@ def createFieldContent(xmlNode, field):
             elif referencedStructureName == "U8__":
                 return bytearray(hexToBytes(stringContentOf(xmlNode), xmlNode))
             else:
-                if field.historyOfReferencedStructures != None:
+                if field.historyOfReferencedStructures is not None:
                     return createElementList(xmlNode, field.name, field.historyOfReferencedStructures)
                 else:
                     return createElementList(xmlNode, field.name, None)
 
     elif isinstance(field, m3.UnknownBytesField):
-        return hexToBytes(stringContentOf(xmlNode),xmlNode)
+        return hexToBytes(stringContentOf(xmlNode), xmlNode)
     elif isinstance(field, m3.PrimitiveField):
         if field.typeString == "float":
             return float(stringContentOf(xmlNode))
@@ -91,16 +91,16 @@ def createFieldContent(xmlNode, field):
         raise Exception("Unsupported field type %s" % type(field))
 
 def removeWhitespace(s):
-    return s.translate({ord(" "):None,ord("\t"):None,ord("\r"):None,ord("\n"):None})
+    return s.translate({ord(" "): None, ord("\t"): None, ord("\r"): None, ord("\n"): None})
 
 def hexToBytes(hexString, xmlNode):
     hexString = removeWhitespace(hexString)
     if hexString == "":
         return bytearray(0)
     if not hexString.startswith("0x"):
-        raise Exception('hex string "%s" of node %s does not start with 0x' % (hexString,xmlNode.nodeName) )
+        raise Exception('hex string "%s" of node %s does not start with 0x' % (hexString, xmlNode.nodeName))
     hexString = hexString[2:]
-    return bytes([int(hexString[x:x+2], 16) for x in range(0, len(hexString),2)])
+    return bytes([int(hexString[x: x + 2], 16) for x in range(0, len(hexString), 2)])
 
 def stringContentOf(xmlNode):
     content = ""
@@ -108,11 +108,11 @@ def stringContentOf(xmlNode):
         if child.nodeType == Node.TEXT_NODE:
             content += child.data
         else:
-            raise Exception("Element %s contained childs of xml node type %s." % (xmlNode.nodeName,type(xmlNode)))
+            raise Exception("Element %s contained childs of xml node type %s." % (xmlNode.nodeName, type(xmlNode)))
     return content
 
 def createListElement(xmlNode, structureDescription):
-    if structureDescription.structureName in ["I32_","I16_", "I8__", "U32_", "U16_", "U8__", "FLAG"]:
+    if structureDescription.structureName in ["I32_", "I16_", "I8__", "U32_", "U16_", "U8__", "FLAG"]:
         return int(stringContentOf(xmlNode), 0)
     elif structureDescription.structureName in ["REAL"]:
         return float(stringContentOf(xmlNode))
@@ -133,7 +133,7 @@ def childElementsOf(parentName, xmlNode):
 
 def createElementList(xmlNode, parentName, historyOfReferencedStructure):
     xmlElements = list(childElementsOf(parentName, xmlNode))
-    if historyOfReferencedStructure.name in ["CHAR", "I32_","I16_", "I8__", "U32_", "U16_", "U8__", "REAL", "FLAG"]:
+    if historyOfReferencedStructure.name in ["CHAR", "I32_", "I16_", "I8__", "U32_", "U16_", "U8__", "REAL", "FLAG"]:
         structVersion = 0
     else:
         if len(xmlElements) == 0:
@@ -145,7 +145,7 @@ def createElementList(xmlNode, parentName, historyOfReferencedStructure):
         if structName == "" or structVersion == "":
             raise Exception("Incompatible format: Require now a strutureName and structureVerson attribute for the list %s" % parentName)
         if structName != historyOfReferencedStructure.name:
-            raise Exception("Expected a %s to have the structure name %s instead of %s" % (parentName,  historyOfReferencedStructure.name, structName))
+            raise Exception("Expected a %s to have the structure name %s instead of %s" % (parentName, historyOfReferencedStructure.name, structName))
     structureDescription = historyOfReferencedStructure.getVersion(structVersion)
     createdList = []
     for child in xmlElements:
@@ -155,9 +155,8 @@ def createElementList(xmlNode, parentName, historyOfReferencedStructure):
     return createdList
 
 
-
 def convertFile(inputFilePath, outputDirectory):
-    if outputDirectory != None:
+    if outputDirectory is not None:
         fileName = os.path.basename(inputFilePath)
         outputFilePath = os.path.join(outputDirectory, fileName[:-4])
     else:
@@ -172,7 +171,6 @@ def convertFile(inputFilePath, outputDirectory):
     m3.saveAndInvalidateModel(model, outputFilePath)
 
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('path', nargs='+', help="Either a *.m3.xml file or a directory with *.m3.xml files generated with m3ToXml.py")
@@ -180,14 +178,13 @@ if __name__ == "__main__":
     parser.add_argument('--watch', action='store_const', const=True, default=False)
     args = parser.parse_args()
     outputDirectory = args.output_directory
-    if outputDirectory != None and not os.path.isdir(outputDirectory):
+    if outputDirectory is not None and not os.path.isdir(outputDirectory):
         sys.stderr.write("%s is not a directory" % outputDirectory)
         sys.exit(2)
     for filePath in args.path:
         if not (filePath.endswith(".m3.xml") or os.path.isdir(filePath)):
             sys.stderr.write("%s neither a directory nor does it end with '.m3.xml'\n" % filePath)
             sys.exit(2)
-
 
     if args.watch:
         if ((len(args.path) == 0) or os.path.isdir(filePath)):

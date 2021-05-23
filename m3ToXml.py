@@ -19,7 +19,6 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
-import struct
 import sys
 import m3
 import argparse
@@ -52,7 +51,7 @@ def printXmlElement(out, level, name, value):
 
 def printObject(out, level, name, value):
     valueType = type(value)
-    if value == None:
+    if value is None:
         out.write(indent(level) + openCloseTag(name))
         return
 
@@ -189,7 +188,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     outputDirectory = args.output_directory
-    if outputDirectory != None and not os.path.isdir(outputDirectory):
+    if outputDirectory is not None and not os.path.isdir(outputDirectory):
         sys.stderr.write("%s is not a directory" % outputDirectory)
         sys.exit(2)
 

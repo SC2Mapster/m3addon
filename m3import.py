@@ -41,7 +41,7 @@ def toBlenderVector2(m3Vector2):
     return mathutils.Vector((m3Vector2.x, m3Vector2.y))
 
 def toBlenderColorVector(m3Color):
-    return mathutils.Vector((m3Color.red /255.0, m3Color.green /255.0, m3Color.blue /255.0, m3Color.alpha /255.0))
+    return mathutils.Vector((m3Color.red / 255.0, m3Color.green / 255.0, m3Color.blue / 255.0, m3Color.alpha / 255.0))
 
 
 def toBlenderUVCoordinate(m3UVCoordinate, uvwMult, uvwOffset):
@@ -59,8 +59,8 @@ def toBlenderMatrix(m3Matrix):
         (m3Matrix.x.w, m3Matrix.y.w, m3Matrix.z.w, m3Matrix.w.w)
     ))
 
-FRAME_RATE = 30.0
 
+FRAME_RATE = 30.0
 
 
 def msToFrame(timeInMS):
@@ -107,10 +107,9 @@ def extendTimeToValueMapByInterpolation(timeToVectorMap, wantedTimes, interpolat
             if wantedTime == rightInterpolationTime:
                 timeToVectorMap[wantedTime] = rightInterpolationValue
             else:
-                timeSinceLeftTime =  wantedTime - leftInterpolationTime
+                timeSinceLeftTime = wantedTime - leftInterpolationTime
                 intervalLength = rightInterpolationTime - leftInterpolationTime
                 rightFactor = timeSinceLeftTime / intervalLength
-                leftFactor = 1 - rightFactor
                 timeToVectorMap[wantedTime] = interpolationFunc(leftInterpolationValue, rightInterpolationValue, rightFactor)
             wantedTimesIndex += 1
             if wantedTimesIndex == len(wantedTimes):
@@ -147,15 +146,15 @@ def visualizeMatrix(matrix, at3DCursor):
     if at3DCursor:
         meshObject.location = bpy.context.scene.cursor.location
     else:
-        meshObject.location = (0,0,0)
+        meshObject.location = (0, 0, 0)
     meshObject.show_name = True
     oVertex = matrix.translation
     matrix3x3 = matrix.to_3x3()
     xVertex = oVertex + matrix3x3.col[0]
     yVertex = oVertex + matrix3x3.col[1]
     zVertex = oVertex + matrix3x3.col[2]
-    vertices = [oVertex, xVertex,yVertex,zVertex]
-    edges = [(0,1),(0,2),(0,3)]
+    vertices = [oVertex, xVertex, yVertex, zVertex]
+    edges = [(0, 1), (0, 2), (0, 3)]
     bpy.context.scene.collection.objects.link(meshObject)
     mesh.from_pydata(vertices, edges, [])
     mesh.update(calc_edges=True)
@@ -168,8 +167,6 @@ def checkOrder(boneEntries):
                 raise Exception("Bones are not sorted as expected")
         index += 1
 
-
-
 def determineTails(m3Bones, heads, boneDirectionVectors):
     childBoneIndexLists = []
     for boneIndex, boneEntry in enumerate(m3Bones):
@@ -179,7 +176,6 @@ def determineTails(m3Bones, heads, boneDirectionVectors):
 
     tails = []
     for m3Bone, head, childIndices, boneDirectionVector in zip(m3Bones, heads, childBoneIndexLists, boneDirectionVectors):
-        skinned = m3Bone.getNamedBit("flags", "skinned")
 
         if False:
             if len(childIndices) == 1:
@@ -210,7 +206,7 @@ def determineTails(m3Bones, heads, boneDirectionVectors):
             # If head and tail are the same then the bone will be removed after leaving edit mode
             # The length of tailOffset gets doubled each step in order to get in a reasonable amount of steps
             # to a value that matters
-            while (tail -head).length == 0:
+            while (tail - head).length == 0:
                 tailOffset *= 2
                 tail = head + tailOffset
 
@@ -251,17 +247,16 @@ class M3ToBlenderDataTransferer:
         self.animPathPrefix = animPathPrefix
         self.blenderObject = blenderObject
         self.m3Object = m3Object
-        self.m3Version =  m3Object.structureDescription.structureVersion
+        self.m3Version = m3Object.structureDescription.structureVersion
 
     def transferAnimatableFloat(self, fieldName):
         animationReference = getattr(self.m3Object, fieldName)
         setattr(self.blenderObject, fieldName, animationReference.initValue)
         animationHeader = animationReference.header
         animId = animationHeader.animId
-        animPath = self.animPathPrefix +  fieldName
+        animPath = self.animPathPrefix + fieldName
         defaultValue = animationReference.initValue
         self.importer.animateFloat(self.objectWithAnimationData, animPath, animId, defaultValue)
-
 
     def transferAnimatableInteger(self, fieldName):
         """ Helper method"""
@@ -270,7 +265,7 @@ class M3ToBlenderDataTransferer:
         animationHeader = animationReference.header
         animId = animationHeader.animId
         defaultValue = animationReference.initValue
-        self.importer.animateInteger(self.objectWithAnimationData,  self.animPathPrefix,  fieldName, animId, defaultValue)
+        self.importer.animateInteger(self.objectWithAnimationData, self.animPathPrefix, fieldName, animId, defaultValue)
 
     def transferAnimatableInt16(self, fieldName):
         self.transferAnimatableInteger(fieldName)
@@ -291,23 +286,27 @@ class M3ToBlenderDataTransferer:
         self.transferAnimatableInteger(fieldName)
 
     def transferFloat(self, fieldName, sinceVersion=None, tillVersion=None):
-        if (tillVersion != None) and (self.m3Version > tillVersion):
+        if (tillVersion is not None) and (self.m3Version > tillVersion):
             return
-        if (sinceVersion != None) and (self.m3Version < sinceVersion):
+        if (sinceVersion is not None) and (self.m3Version < sinceVersion):
             return
         setattr(self.blenderObject, fieldName, getattr(self.m3Object, fieldName))
 
-    def transferInt(self, fieldName):
+    def transferInt(self, fieldName, sinceVersion=None, tillVersion=None):
+        if (tillVersion is not None) and (self.m3Version > tillVersion):
+            return
+        if (sinceVersion is not None) and (self.m3Version < sinceVersion):
+            return
         setattr(self.blenderObject, fieldName, getattr(self.m3Object, fieldName))
 
     def transferString(self, fieldName):
         value = getattr(self.m3Object, fieldName)
-        if value == None:
+        if value is None:
             value = ""
         setattr(self.blenderObject, fieldName, value)
 
     def transferBoolean(self, fieldName, tillVersion=None):
-        if (tillVersion != None) and (self.m3Version > tillVersion):
+        if (tillVersion is not None) and (self.m3Version > tillVersion):
             return
         integerValue = getattr(self.m3Object, fieldName)
         if integerValue == 0:
@@ -318,7 +317,7 @@ class M3ToBlenderDataTransferer:
             print("WARNING: %s was neither 0 nor 1" % fieldName)
 
     def transferBit(self, m3FieldName, bitName, sinceVersion=None):
-        if (sinceVersion != None) and (self.m3Version < sinceVersion):
+        if (sinceVersion is not None) and (self.m3Version < sinceVersion):
             return
         setattr(self.blenderObject, bitName, self.m3Object.getNamedBit(m3FieldName, bitName))
 
@@ -344,7 +343,7 @@ class M3ToBlenderDataTransferer:
             vector[bitIndex] = (mask & integerValue) > 0
 
     def transferAnimatableVector3(self, fieldName, sinceVersion=None):
-        if (sinceVersion != None) and (self.m3Version < sinceVersion):
+        if (sinceVersion is not None) and (self.m3Version < sinceVersion):
             return
         animationReference = getattr(self.m3Object, fieldName)
         setattr(self.blenderObject, fieldName, toBlenderVector3(animationReference.initValue))
@@ -352,7 +351,7 @@ class M3ToBlenderDataTransferer:
         animId = animationHeader.animId
         animPath = self.animPathPrefix + fieldName
         defaultValue = animationReference.initValue
-        self.importer.animateVector3(self.objectWithAnimationData,  animPath, animId, defaultValue)
+        self.importer.animateVector3(self.objectWithAnimationData, animPath, animId, defaultValue)
 
     def transferAnimatableVector2(self, fieldName):
         animationReference = getattr(self.m3Object, fieldName)
@@ -361,8 +360,7 @@ class M3ToBlenderDataTransferer:
         animId = animationHeader.animId
         animPath = self.animPathPrefix + fieldName
         defaultValue = animationReference.initValue
-        self.importer.animateVector2(self.objectWithAnimationData,  animPath, animId, defaultValue)
-
+        self.importer.animateVector2(self.objectWithAnimationData, animPath, animId, defaultValue)
 
     def transferAnimatableColor(self, fieldName):
         animationReference = getattr(self.m3Object, fieldName)
@@ -371,8 +369,7 @@ class M3ToBlenderDataTransferer:
         animId = animationHeader.animId
         animPath = self.animPathPrefix + fieldName
         defaultValue = animationReference.initValue
-        self.importer.animateColor(self.objectWithAnimationData,  animPath, animId, defaultValue)
-
+        self.importer.animateColor(self.objectWithAnimationData, animPath, animId, defaultValue)
 
     def transferAnimatableBoundings(self):
         animationReference = self.m3Object
@@ -380,7 +377,7 @@ class M3ToBlenderDataTransferer:
         animId = animationHeader.animId
         boundingsObject = self.blenderObject
         animPathMinBorder = self.animPathPrefix + "minBorder"
-        animPathMaxBorder = self.animPathPrefix +  "maxBorder"
+        animPathMaxBorder = self.animPathPrefix + "maxBorder"
         animPathRadius = self.animPathPrefix + "radius"
         m3InitValue = animationReference.initValue
         boundingsObject.minBorder = toBlenderVector3(m3InitValue.minBorder)
@@ -389,11 +386,10 @@ class M3ToBlenderDataTransferer:
         minBorderDefault = toBlenderVector3(m3InitValue.minBorder)
         maxBorderDefault = toBlenderVector3(m3InitValue.maxBorder)
         radiusDefault = m3InitValue.radius
-        self.importer.animateBoundings(self.objectWithAnimationData,  animPathMinBorder, animPathMaxBorder, animPathRadius, animId, minBorderDefault, maxBorderDefault, radiusDefault)
-
+        self.importer.animateBoundings(self.objectWithAnimationData, animPathMinBorder, animPathMaxBorder, animPathRadius, animId, minBorderDefault, maxBorderDefault, radiusDefault)
 
     def transferEnum(self, fieldName, sinceVersion=None):
-        if (sinceVersion != None) and (self.m3Version < sinceVersion):
+        if (sinceVersion is not None) and (self.m3Version < sinceVersion):
             return
         value = str(getattr(self.m3Object, fieldName))
         setattr(self.blenderObject, fieldName, value)
@@ -420,7 +416,7 @@ class Importer:
         self.sequenceNameAndSTCIndexToAnimIdSet = {}
         self.armature: bpy.types.Armature = None
         self.armatureObject: bpy.types.Object = None
-        self.boneNames = None
+        self.boneNames = []
 
         scene.render.fps = FRAME_RATE
         self.animations = []
@@ -482,7 +478,6 @@ class Importer:
         if bpy.ops.object.select_all.poll():
             bpy.ops.object.select_all(action='DESELECT')
 
-
     def addAnimIdData(self, animId, objectId, animPath):
         longAnimId = shared.getLongAnimIdOf(objectId, animPath)
         self.animIdToLongAnimIdMap[animId] = longAnimId
@@ -494,8 +489,8 @@ class Importer:
         self.addAnimIdData(self.model.uniqueUnknownNumber, objectId=(shared.animObjectIdModel), animPath="")
 
     def createArmatureObject(self):
-        #bpy.ops.object.mode_set(mode='OBJECT')
-        #alternative: armature = bpy.ops.object.armature_add(view_align=False,enter_editmode=False, location=location, rotation=(0,0,0), layers=firstLayerOnly)
+        # bpy.ops.object.mode_set(mode='OBJECT')
+        # alternative: armature = bpy.ops.object.armature_add(view_align=False,enter_editmode=False, location=location, rotation=(0,0,0), layers=firstLayerOnly)
         scene = bpy.context.scene
         armatureObject = bpy.data.objects.new("Armature Object", self.armature)
         armatureObject.location = scene.cursor.location
@@ -503,7 +498,6 @@ class Importer:
         scene.view_layers[0].objects.active = armatureObject
         armatureObject.select_set(True)
         self.armatureObject = armatureObject
-
 
     def createBones(self):
         """ Imports the bones
@@ -544,6 +538,7 @@ class Importer:
         e_i = relEditBoneMatrices[i]
         """
         model = self.model
+        self.adjustM3BoneNames(model)
         print("Creating bone structure in rest position")
 
         absoluteBoneRestPositions = determineAbsoluteBoneRestPositions(model)
@@ -555,17 +550,14 @@ class Importer:
 
         self.scene.m3_import_options.recalculateRestPositionBones = True
 
-
         # In blender the edit bone with the vector (0,1,0) stands for a idenity matrix
         # So the second column of a edit bone matrix represents the bone vector
         boneDirectionVectors = list(m.col[1].to_3d().normalized() for m in absoluteBoneRestPositions)
         tails = determineTails(model.bones, heads, boneDirectionVectors)
-        rolls = determineRolls(absoluteBoneRestPositions, heads , tails)
+        rolls = determineRolls(absoluteBoneRestPositions, heads, tails)
 
         bindScales = self.determineBindScales()
         bindScaleMatrices = self.scaleVectorsToMatrices(bindScales)
-
-
 
         editBones = self.createEditBones(model.bones, heads, tails, rolls, bindScales)
 
@@ -575,9 +567,59 @@ class Importer:
         bpy.ops.object.mode_set(mode='POSE')
         self.adjustPoseBones(model.bones, relEditBoneMatrices, bindScaleMatrices)
 
+    def adjustM3BoneNames(self, model):
+
+        def adjustM3BoneNameForType(bone, arr, prefix, unwantedPrefixes):
+            for item in arr:
+                if bone.name.startswith(prefix): return
+                for unwantedPrefix in unwantedPrefixes:
+                    if not bone.name.startswith(unwantedPrefix): return
+
+                    bone.name = bone.name[len(unwantedPrefix):]
+
+                    if bone.name == "":
+                        bone.name == "Null"
+
+                    bone.name = prefix + bone.name
+                    break
+
+        particleIndices = []
+        for item in model.particles:
+            particleIndices.append(item.bone)
+            for copy in item.copyIndices:
+                particleIndices.append(copy)
+
+        ribbonIndices = []
+        for item in model.ribbons:
+            ribbonIndices.append(item.bone)
+
+        forceIndices = []
+        for item in model.forces:
+            forceIndices.append(item.bone)
+
+        projectionIndices = []
+        for item in model.projections:
+            projectionIndices.append(item.bone)
+
+        warpIndices = []
+        for item in model.warps:
+            warpIndices.append(item.bone)
+
+        for ii, bone in enumerate(model.bones):
+
+            adjustM3BoneNameForType(bone, particleIndices, shared.star2ParticlePrefix, ["P_", "MR3_Particle_"])
+            adjustM3BoneNameForType(bone, ribbonIndices, shared.star2RibbonPrefix, ["SC2SplRbn"])
+            adjustM3BoneNameForType(bone, forceIndices, shared.star2ForcePrefix, [])
+            adjustM3BoneNameForType(bone, projectionIndices, shared.star2ProjectionPrefix, [])
+            adjustM3BoneNameForType(bone, warpIndices, shared.star2WarpPrefix, [])
+
+            if bone.name == "":
+                bone.name = "null"
+
     def adjustPoseBones(self, m3Bones, relEditBoneMatrices, bindScaleMatrices):
         index = 0
         for bone, relEditBoneMatrix, bindMatrix in zip(m3Bones, relEditBoneMatrices, bindScaleMatrices):
+
             poseBone = self.armatureObject.pose.bones[self.boneNames[index]]
             scale = toBlenderVector3(bone.scale.initValue)
             rotation = toBlenderQuaternion(bone.rotation.initValue)
@@ -599,7 +641,8 @@ class Importer:
             poseBone.rotation_quaternion = rotation
             poseBone.location = location
             self.animateBone(index, bone, leftCorrectionMatrix, rightCorrectionMatrix, location, rotation, scale)
-            index+=1
+
+            index += 1
 
     def determineBindScales(self):
         bindScales = []
@@ -608,7 +651,6 @@ class Importer:
             location, rotation, scale = matrix.decompose()
             bindScales.append(scale)
         return bindScales
-
 
     def scaleVectorsToMatrices(self, scaleVectors):
         scaleMatrices = []
@@ -620,7 +662,7 @@ class Importer:
         previousRotation = None
         for timeInMS in timeEntries:
             rotation = timeToRotationMap.get(timeInMS)
-            if previousRotation != None:
+            if previousRotation is not None:
                 shared.smoothQuaternionTransition(previousQuaternion=previousRotation, quaternionToFix=rotation)
             previousRotation = rotation
 
@@ -656,18 +698,16 @@ class Importer:
         self.addAnimIdData(scaleAnimId, objectId=shared.animObjectIdArmature, animPath=scaleAnimPath)
 
         for animationTempData in self.animations:
-            scene = bpy.context.scene
-            animation =  scene.m3_animations[animationTempData.animationIndex]
             animIdToTimeValueMap = animationTempData.animIdToTimeValueMap
             action = self.createOrGetActionFor(self.armatureObject, animationTempData)
 
-            timeToLocationMap = animIdToTimeValueMap.get(locationAnimId,{0:m3Bone.location.initValue})
+            timeToLocationMap = animIdToTimeValueMap.get(locationAnimId, {0: m3Bone.location.initValue})
             timeToLocationMap = convertToBlenderVector3Map(timeToLocationMap)
 
-            timeToRotationMap = animIdToTimeValueMap.get(rotationAnimId, {0:m3Bone.rotation.initValue})
+            timeToRotationMap = animIdToTimeValueMap.get(rotationAnimId, {0: m3Bone.rotation.initValue})
             timeToRotationMap = convertToBlenderQuaternionMap(timeToRotationMap)
 
-            timeToScaleMap = animIdToTimeValueMap.get(scaleAnimId,{0:m3Bone.scale.initValue})
+            timeToScaleMap = animIdToTimeValueMap.get(scaleAnimId, {0: m3Bone.scale.initValue})
             timeToScaleMap = convertToBlenderVector3Map(timeToScaleMap)
 
             rotKeys = list(timeToRotationMap.keys())
@@ -678,7 +718,7 @@ class Importer:
             timeEntries.extend(timeToLocationMap.keys())
             timeEntries.extend(timeToRotationMap.keys())
             timeEntries.extend(timeToScaleMap.keys())
-            timeEntries = list(set(timeEntries))#elimate duplicates
+            timeEntries = list(set(timeEntries)) # elimate duplicates
             timeEntries.sort()
 
             extendTimeToVectorMapByInterpolation(timeToLocationMap, timeEntries)
@@ -689,16 +729,15 @@ class Importer:
 
             self.fix180DegreeRotationsInMapWithKeys(timeToRotationMap, timeEntries)
 
-
             frames = []
             for timeInMS in timeEntries:
                 frames.append(msToFrame(timeInMS))
 
             group = boneName
             if locationAnimId in animIdToTimeValueMap:
-                locXCurve = action.fcurves.new(locationAnimPath, index = 0, action_group = group)
-                locYCurve = action.fcurves.new(locationAnimPath, index = 1, action_group = group)
-                locZCurve = action.fcurves.new(locationAnimPath, index = 2, action_group = group)
+                locXCurve = action.fcurves.new(locationAnimPath, index=0, action_group=group)
+                locYCurve = action.fcurves.new(locationAnimPath, index=1, action_group=group)
+                locZCurve = action.fcurves.new(locationAnimPath, index=2, action_group=group)
                 for timeInMS, frame in zip(timeEntries, frames):
                     location = timeToLocationMap.get(timeInMS)
                     insertLinearKeyFrame(locXCurve, frame, location.x)
@@ -706,10 +745,10 @@ class Importer:
                     insertLinearKeyFrame(locZCurve, frame, location.z)
 
             if rotationAnimId in animIdToTimeValueMap:
-                rotWCurve = action.fcurves.new(rotationAnimPath, index = 0, action_group = group)
-                rotXCurve = action.fcurves.new(rotationAnimPath, index = 1, action_group = group)
-                rotYCurve = action.fcurves.new(rotationAnimPath, index = 2, action_group = group)
-                rotZCurve = action.fcurves.new(rotationAnimPath, index = 3, action_group = group)
+                rotWCurve = action.fcurves.new(rotationAnimPath, index=0, action_group=group)
+                rotXCurve = action.fcurves.new(rotationAnimPath, index=1, action_group=group)
+                rotYCurve = action.fcurves.new(rotationAnimPath, index=2, action_group=group)
+                rotZCurve = action.fcurves.new(rotationAnimPath, index=3, action_group=group)
                 for timeInMS, frame in zip(timeEntries, frames):
                     rotation = timeToRotationMap.get(timeInMS)
                     insertLinearKeyFrame(rotWCurve, frame, rotation.w)
@@ -718,15 +757,14 @@ class Importer:
                     insertLinearKeyFrame(rotZCurve, frame, rotation.z)
 
             if scaleAnimId in animIdToTimeValueMap:
-                scaXCurve = action.fcurves.new(scaleAnimPath, index = 0, action_group = group)
-                scaYCurve = action.fcurves.new(scaleAnimPath, index = 1, action_group = group)
-                scaZCurve = action.fcurves.new(scaleAnimPath, index = 2, action_group = group)
+                scaXCurve = action.fcurves.new(scaleAnimPath, index=0, action_group=group)
+                scaYCurve = action.fcurves.new(scaleAnimPath, index=1, action_group=group)
+                scaZCurve = action.fcurves.new(scaleAnimPath, index=2, action_group=group)
                 for timeInMS, frame in zip(timeEntries, frames):
                     scale = timeToScaleMap.get(timeInMS)
                     insertLinearKeyFrame(scaXCurve, frame, scale.x)
                     insertLinearKeyFrame(scaYCurve, frame, scale.y)
                     insertLinearKeyFrame(scaZCurve, frame, scale.z)
-
 
     def importVisibilityTest(self):
         print("Imported bounding radius %s" % self.model.boundings.radius)
@@ -751,8 +789,6 @@ class Importer:
                 materialLayer.fresnelMaskX = 1.0 - m3Layer.fresnelInvertedMaskX
                 materialLayer.fresnelMaskY = 1.0 - m3Layer.fresnelInvertedMaskY
                 materialLayer.fresnelMaskZ = 1.0 - m3Layer.fresnelInvertedMaskZ
-
-
 
     def createMaterials(self):
         print("Loading materials")
@@ -793,7 +829,7 @@ class Importer:
             materialReference.name = material.name
             materialReference.materialType = materialType
             materialReference.materialIndex = blenderMaterialIndex
-            if hasattr(m3Material,"sections"): # Currently only composite materials have sections
+            if hasattr(m3Material, "sections"): # Currently only composite materials have sections
                 for sectionIndex, m3Section in enumerate(m3Material.sections):
                     section = material.sections.add()
                     sectionAnimPathPrefix = animPathPrefix + ".sections[%s]." % sectionIndex
@@ -811,7 +847,6 @@ class Importer:
             freeName = uniqueNameFinder.findNameAndMarkAsUsedLike(wantedName)
             self.materialReferenceIndexToNameMap[materialReferenceIndex] = freeName
 
-
     def getMaterialNameByM3MaterialReference(self, materialReference):
         materialIndex = materialReference.materialIndex
         materialType = materialReference.materialType
@@ -825,48 +860,42 @@ class Importer:
         print("Loading cameras")
 
         for m3Camera in self.model.cameras:
-            blenderCameraIndex = len(scene.m3_cameras)
             camera = scene.m3_cameras.add()
-            animPathPrefix = "m3_cameras[%s]." % blenderCameraIndex
-            transferer = M3ToBlenderDataTransferer(self, scene,  animPathPrefix, blenderObject=camera, m3Object=m3Camera)
+
+            animPathPrefix = "m3_cameras[%s]." % len(scene.m3_cameras)
+            transferer = M3ToBlenderDataTransferer(self, scene, animPathPrefix, blenderObject=camera, m3Object=m3Camera)
             shared.transferCamera(transferer)
+
             blenderBoneName = self.boneNames[m3Camera.boneIndex]
             m3Bone = self.model.bones[m3Camera.boneIndex]
             if m3Bone.name != m3Camera.name:
                 raise Exception("Bone of camera '%s' had different name: '%s'" % (camera.name, m3Bone.name))
             camera.name = blenderBoneName
+
             bone = self.armature.bones[blenderBoneName]
-            poseBone = self.armatureObject.pose.bones[blenderBoneName]
             bone.hide = not showCameras
 
     def intShapeObject(self, blenderShapeObject, m3ShapeObject):
         scene = bpy.context.scene
-        blenderShapeObject.updateBlenderBone = False
-        transferer = M3ToBlenderDataTransferer(self, None, None, blenderObject=blenderShapeObject, m3Object=m3ShapeObject)
-        shared.transferFuzzyHitTest(transferer)
+        blenderBoneName = self.boneNames[m3ShapeObject.boneIndex]
+        blenderShapeObject.boneName = blenderBoneName
+        if m3ShapeObject.boneIndex != -1:
+            if blenderBoneName == shared.tightHitTestBoneName:
+                showBone = scene.m3_bone_visiblity_options.showTightHitTest
+            else:
+                showBone = scene.m3_bone_visiblity_options.showFuzzyHitTests
+            bone = self.armature.bones[blenderBoneName]
+            bone.hide = not showBone
         matrix = toBlenderMatrix(m3ShapeObject.matrix)
         offset, rotation, scale = matrix.decompose()
         blenderShapeObject.offset = offset
         blenderShapeObject.rotationEuler = rotation.to_euler("XYZ")
         blenderShapeObject.scale = scale
-        if m3ShapeObject.boneIndex != -1:
-            m3Bone = self.model.bones[m3ShapeObject.boneIndex]
-            blenderBoneName = self.boneNames[m3ShapeObject.boneIndex]
-            blenderShapeObject.boneName = blenderBoneName
-            bone = self.armature.bones[blenderBoneName]
-            poseBone = self.armatureObject.pose.bones[blenderBoneName]
-            shared.updateBoneShapeOfShapeObject(blenderShapeObject, bone, poseBone)
-            if blenderBoneName == shared.tightHitTestBoneName:
-                showBone = scene.m3_bone_visiblity_options.showTightHitTest
-            else:
-                showBone = scene.m3_bone_visiblity_options.showFuzzyHitTests
-            bone.hide = not showBone
-        blenderShapeObject.updateBlenderBone = True
-
+        transferer = M3ToBlenderDataTransferer(self, None, None, blenderObject=blenderShapeObject, m3Object=m3ShapeObject)
+        shared.transferFuzzyHitTest(transferer)
 
     def m3Vector4IsZero(self, v):
         return v.x == 0.0 and v.y == 0.0 and v.z == 0.0 and v.w == 0.0
-
 
     def initTightHitTest(self):
         print("Loading tight hit test shape")
@@ -890,8 +919,6 @@ class Importer:
         showParticleSystems = scene.m3_bone_visiblity_options.showParticleSystems
         print("Loading particle systems")
 
-
-
         uniqueNameFinder = shared.UniqueNameFinder()
         uniqueNameFinder.markNamesOfCollectionAsUsed(self.scene.m3_particle_systems)
         for particleSystem in self.scene.m3_particle_systems:
@@ -900,32 +927,19 @@ class Importer:
         m3IndexToParticleSystemMap = {}
         for particleSystemIndex, m3ParticleSystem in enumerate(self.model.particles):
             blenderBoneName = self.boneNames[m3ParticleSystem.bone]
-            if blenderBoneName.startswith(shared.star2ParticlePrefix):
-                wantedName = blenderBoneName[len(shared.star2ParticlePrefix):]
-            elif blenderBoneName.startswith("MR3_Particle_"):
-                wantedName = blenderBoneName[len("MR3_Particle_"):]
-            else:
-                print("Warning: A particle system was bound to bone %s which does not start with %s" %(blenderBoneName, shared.star2ParticlePrefix))
-                wantedName = blenderBoneName
+            wantedName = blenderBoneName[len(shared.star2ParticlePrefix):]
             name = uniqueNameFinder.findNameAndMarkAsUsedLike(wantedName)
             m3IndexToParticleSystemMap[particleSystemIndex] = name
 
         for particleSystemIndex, m3ParticleSystem in enumerate(self.model.particles):
-            blenderParticleSystemIndex = len(scene.m3_particle_systems)
             particleSystem = scene.m3_particle_systems.add()
-            particleSystem.updateBlenderBoneShapes = False
-            animPathPrefix = "m3_particle_systems[%s]." % blenderParticleSystemIndex
-            transferer = M3ToBlenderDataTransferer(self, scene, animPathPrefix, blenderObject=particleSystem, m3Object=m3ParticleSystem)
-            shared.transferParticleSystem(transferer)
+            particleSystem.bl_update = False
 
             blenderBoneName = self.boneNames[m3ParticleSystem.bone]
-            particleSystem.boneName = blenderBoneName
-            particleSystem.name = m3IndexToParticleSystemMap[particleSystemIndex]
 
-            bone = self.armature.bones[blenderBoneName]
-            poseBone = self.armatureObject.pose.bones[blenderBoneName]
-            shared.updateBoneShapeOfParticleSystem(particleSystem, bone, poseBone)
-            bone.hide = not showParticleSystems
+            animPathPrefix = "m3_particle_systems[%s]." % len(scene.m3_particle_systems)
+            transferer = M3ToBlenderDataTransferer(self, scene, animPathPrefix, blenderObject=particleSystem, m3Object=m3ParticleSystem)
+            shared.transferParticleSystem(transferer)
 
             particleSystem.materialName = self.getNameOfMaterialWithReferenceIndex(m3ParticleSystem.materialReferenceIndex)
             if hasattr(m3ParticleSystem, "forceChannelsCopy") and m3ParticleSystem.forceChannelsCopy != m3ParticleSystem.forceChannels:
@@ -949,13 +963,18 @@ class Importer:
                 else:
                     particleSystem.colorSmoothingType = "0"
 
-
                 if m3ParticleSystem.getNamedBit("flags", "bezSmoothRotation"):
                     particleSystem.rotationSmoothingType = "2"
                 elif m3ParticleSystem.getNamedBit("flags", "smoothRotation"):
                     particleSystem.rotationSmoothingType = "1"
                 else:
                     particleSystem.rotationSmoothingType = "0"
+
+            particleSystem.bl_update = True
+            particleSystem.name = m3IndexToParticleSystemMap[particleSystemIndex]
+
+            bone = self.armature.bones[blenderBoneName]
+            bone.hide = not showParticleSystems
 
             for spawnPointIndex, m3SpawnPoint in enumerate(m3ParticleSystem.spawnPoints):
                 spawnPoint = particleSystem.spawnPoints.add()
@@ -964,163 +983,122 @@ class Importer:
                 shared.transferSpawnPoint(transferer)
 
             if m3ParticleSystem.trailingParticlesIndex != -1:
-                particleSystem.trailingParticlesName = m3IndexToParticleSystemMap.get(m3ParticleSystem.trailingParticlesIndex )
+                particleSystem.trailingParticlesName = m3IndexToParticleSystemMap.get(m3ParticleSystem.trailingParticlesIndex)
 
             for blenderCopyIndex, m3CopyIndex in enumerate(m3ParticleSystem.copyIndices):
                 m3Copy = self.model.particleCopies[m3CopyIndex]
                 copy = particleSystem.copies.add()
+
                 copyAnimPathPrefix = animPathPrefix + "copies[%d]." % blenderCopyIndex
-                transferer = M3ToBlenderDataTransferer(self, scene,  copyAnimPathPrefix, blenderObject=copy, m3Object=m3Copy)
+                transferer = M3ToBlenderDataTransferer(self, scene, copyAnimPathPrefix, blenderObject=copy, m3Object=m3Copy)
                 shared.transferParticleSystemCopy(transferer)
-                m3Bone = self.model.bones[m3Copy.bone]
-                fullCopyBoneName = m3Bone.name
 
                 blenderBoneName = self.boneNames[m3Copy.bone]
-                copy.boneName = blenderBoneName
-
-                bone = self.armature.bones[blenderBoneName]
-                poseBone = self.armatureObject.pose.bones[blenderBoneName]
-                shared.updateBoneShapeOfParticleSystem(particleSystem, bone, poseBone)
-                bone.hide = not showParticleSystems
-
-                if blenderBoneName.startswith(shared.star2ParticlePrefix):
-                    wantedName = blenderBoneName[len(shared.star2ParticlePrefix):]
-                else:
-                    print("Warning: A particle system copy was bound to bone %s which does not start with %s" %(blenderBoneName, shared.star2ParticlePrefix))
-                    wantedName = blenderBoneName
+                wantedName = blenderBoneName[len(shared.star2ParticlePrefix):]
                 copy.name = uniqueNameFinder.findNameAndMarkAsUsedLike(wantedName)
 
-
-            particleSystem.updateBlenderBoneShapes = True
-
+                bone = self.armature.bones[blenderBoneName]
+                bone.hide = not showParticleSystems
 
     def createRibbons(self):
         scene = bpy.context.scene
         showRibbons = scene.m3_bone_visiblity_options.showRibbons
         print("Loading particle systems")
         for m3Ribbon in self.model.ribbons:
-            blenderRibbonIndex = len(scene.m3_ribbons)
             ribbon = scene.m3_ribbons.add()
-            ribbon.updateBlenderBoneShapes = False
-            animPathPrefix = "m3_ribbons[%s]." % blenderRibbonIndex
+
+            animPathPrefix = "m3_ribbons[%s]." % len(scene.m3_ribbons)
             transferer = M3ToBlenderDataTransferer(self, scene, animPathPrefix, blenderObject=ribbon, m3Object=m3Ribbon)
             shared.transferRibbon(transferer)
-            boneEntry = self.model.bones[m3Ribbon.boneIndex]
+
             blenderBoneName = self.boneNames[m3Ribbon.boneIndex]
-            ribbon.boneSuffix = blenderBoneName
-            for ribbonPrefix in [shared.star2RibbonPrefix, "SC2SplRbn"]:
-                if blenderBoneName.startswith(ribbonPrefix):
-                    ribbon.boneSuffix = blenderBoneName[len(ribbonPrefix):]
-            ribbon.boneName = blenderBoneName
+            ribbon.name = blenderBoneName[len(shared.star2RibbonPrefix):]
 
             for m3EndPoint in m3Ribbon.endPoints:
                 endPoint = ribbon.endPoints.add()
                 endPoint.name = self.boneNames[m3EndPoint.boneIndex]
-                # tODO import properties
+                # TODO import properties
 
             bone = self.armature.bones[blenderBoneName]
-            poseBone = self.armatureObject.pose.bones[blenderBoneName]
-            shared.updateBoneShapeOfRibbon(ribbon, bone, poseBone)
             bone.hide = not showRibbons
-
             ribbon.materialName = self.getNameOfMaterialWithReferenceIndex(m3Ribbon.materialReferenceIndex)
-
-            ribbon.updateBlenderBoneShapes = True
-
 
     def createProjections(self):
         scene = bpy.context.scene
-        showProjections = scene.m3_bone_visiblity_options.showProjections
         print("Loading projections")
         for m3Projection in self.model.projections:
-            blenderProjectionIndex = len(scene.m3_projections)
             projection = scene.m3_projections.add()
-            projection.updateBlenderBoneShapes = False
-            animPathPrefix = "m3_projections[%s]." % blenderProjectionIndex
-            boneEntry = self.model.bones[m3Projection.boneIndex]
-            projection.boneName = self.boneNames[m3Projection.boneIndex]
-            projection.name = projection.boneName
-            transferer = M3ToBlenderDataTransferer(self, scene,  animPathPrefix, blenderObject=projection, m3Object=m3Projection)
+            projection.bl_update = False
+
+            animPathPrefix = "m3_projections[%s]." % len(scene.m3_projections)
+            transferer = M3ToBlenderDataTransferer(self, scene, animPathPrefix, blenderObject=projection, m3Object=m3Projection)
             shared.transferProjection(transferer)
+
             projection.depth = m3Projection.boxTopZOffset.initValue - m3Projection.boxBottomZOffset.initValue
             projection.width = m3Projection.boxRightXOffset.initValue - m3Projection.boxLeftXOffset.initValue
             projection.height = m3Projection.boxBackYOffset.initValue - m3Projection.boxFrontYOffset.initValue
             projection.materialName = self.getNameOfMaterialWithReferenceIndex(m3Projection.materialReferenceIndex)
 
+            projection.bl_update = True
 
+            blenderBoneName = self.boneNames[m3Projection.boneIndex]
+            projection.name = blenderBoneName[len(shared.star2ProjectionPrefix):]
+
+            bone = self.armature.bones[blenderBoneName]
+            bone.hide = not scene.m3_bone_visiblity_options.showProjections
 
     def createWarps(self):
         scene = bpy.context.scene
-        showWarps = scene.m3_bone_visiblity_options.showWarps
         print("Loading warps")
         for m3Warp in self.model.warps:
-            blenderWarpIndex = len(scene.m3_warps)
             warp = scene.m3_warps.add()
-            warp.updateBlenderBoneShapes = False
-            animPathPrefix = "m3_warps[%s]." % blenderWarpIndex
-            transferer = M3ToBlenderDataTransferer(self, scene,  animPathPrefix, blenderObject=warp, m3Object=m3Warp)
+            warp.bl_update = False
+
+            animPathPrefix = "m3_warps[%s]." % len(scene.m3_warps)
+            transferer = M3ToBlenderDataTransferer(self, scene, animPathPrefix, blenderObject=warp, m3Object=m3Warp)
             shared.transferWarp(transferer)
-            boneEntry = self.model.bones[m3Warp.boneIndex]
+
+            warp.bl_update = True
+
             blenderBoneName = self.boneNames[m3Warp.boneIndex]
-            if blenderBoneName.startswith(shared.warpPrefix):
-                warp.boneSuffix = blenderBoneName[len(shared.warpPrefix):]
-            else:
-                warp.boneSuffix = blenderBoneName
-            warp.boneName = blenderBoneName
+            warp.name = blenderBoneName[len(shared.star2WarpPrefix):]
 
             bone = self.armature.bones[blenderBoneName]
-            poseBone = self.armatureObject.pose.bones[blenderBoneName]
-            shared.updateBoneShapeOfWarp(warp, bone, poseBone)
-            bone.hide = not showWarps
-
+            bone.hide = not scene.m3_bone_visiblity_options.showWarps
 
     def createForces(self):
         scene = bpy.context.scene
-        showForces = scene.m3_bone_visiblity_options.showForces
         print("Loading forces")
         for m3Force in self.model.forces:
-            blenderForceIndex = len(scene.m3_forces)
             force = scene.m3_forces.add()
-            force.updateBlenderBoneShape = False
-            animPathPrefix = "m3_forces[%s]." % blenderForceIndex
+            force.bl_update = False
+
+            animPathPrefix = "m3_forces[%s]." % len(scene.m3_forces)
             transferer = M3ToBlenderDataTransferer(self, scene, animPathPrefix, blenderObject=force, m3Object=m3Force)
             shared.transferForce(transferer)
-            boneEntry = self.model.bones[m3Force.boneIndex]
+
+            force.bl_update = True
+
             blenderBoneName = self.boneNames[m3Force.boneIndex]
-            if blenderBoneName.startswith(shared.star2ForcePrefix):
-                force.boneSuffix = blenderBoneName[len(shared.star2ForcePrefix):]
-            else:
-                print("Warning: A force was bound to bone %s which does not start with %s" %(blenderBoneName, shared.star2ForcePrefix))
-                force.boneSuffix = blenderBoneName
-            force.boneName = blenderBoneName
+            force.name = blenderBoneName[len(shared.star2ForcePrefix):]
+
             bone = self.armature.bones[blenderBoneName]
-            poseBone = self.armatureObject.pose.bones[blenderBoneName]
-            shared.updateBoneShapeOfForce(force, bone, poseBone)
-            bone.hide = not showForces
-            force.updateBlenderBoneShape = True
+            bone.hide = not scene.m3_bone_visiblity_options.showForces
 
     def createRigidBodies(self):
         scene = bpy.context.scene
         print("Loading rigid bodies")
         for m3RigidBody in self.model.rigidBodies:
-            blenderRigidBodyIndex = len(scene.m3_rigid_bodies)
             rigid_body = scene.m3_rigid_bodies.add()
-            animPathPrefix = "m3_rigid_bodies[%s]." % blenderRigidBodyIndex
-            transferer = M3ToBlenderDataTransferer(self, scene, animPathPrefix, blenderObject=rigid_body, m3Object=m3RigidBody)
-            shared.transferRigidBody(transferer)
-            blenderBoneName = self.boneNames[m3RigidBody.boneIndex]
-            rigid_body.name = blenderBoneName
-            rigid_body.boneName = blenderBoneName
 
             for physicsShapeIndex, m3PhysicsShape in enumerate(m3RigidBody.physicsShapes):
                 physics_shape = rigid_body.physicsShapes.add()
-                physics_shape.updateBlenderBoneShapes = False
 
                 animPathPrefix = "m3_physics_shapes[%s]." % physicsShapeIndex
+                physics_shape.name = "%d" % (physicsShapeIndex + 1)
                 transferer = M3ToBlenderDataTransferer(self, scene, animPathPrefix, blenderObject=physics_shape, m3Object=m3PhysicsShape)
                 shared.transferPhysicsShape(transferer)
 
-                physics_shape.name = "%d" % (physicsShapeIndex + 1)
                 matrix = toBlenderMatrix(m3PhysicsShape.matrix)
                 offset, rotation, scale = matrix.decompose()
                 physics_shape.offset = offset
@@ -1133,7 +1111,7 @@ class Importer:
                         vertices = [(v.x, v.y, v.z) for v in m3PhysicsShape.vertices]
 
                         indices = range(0, len(m3PhysicsShape.faces), 3)
-                        faces = [m3PhysicsShape.faces[i : i+3] for i in indices]
+                        faces = [m3PhysicsShape.faces[i: i + 3] for i in indices]
                     else:
                         print("Warning: Physical shape data has not been imported as it is to new")
                         faces = []
@@ -1144,8 +1122,8 @@ class Importer:
                             raise Exception("A phsyical mesh is invalid")
 
                     mesh = bpy.data.meshes.new('PhysicsMesh')
-                    mesh.from_pydata(vertices = vertices, faces = faces, edges = [])
-                    mesh.update(calc_edges = True)
+                    mesh.from_pydata(vertices=vertices, faces=faces, edges=[])
+                    mesh.update(calc_edges=True)
                     mesh.m3_physics_mesh = True
 
                     meshObject = bpy.data.objects.new('PhysicsMeshObject', mesh)
@@ -1156,10 +1134,16 @@ class Importer:
 
                     physics_shape.meshObjectName = meshObject.name
 
-                physics_shape.updateBlenderBoneShapes = True
+            animPathPrefix = "m3_rigid_bodies[%s]." % len(scene.m3_rigid_bodies)
+            transferer = M3ToBlenderDataTransferer(self, scene, animPathPrefix, blenderObject=rigid_body, m3Object=m3RigidBody)
+            shared.transferRigidBody(transferer)
 
-            shared.updateBoneShapeOfRigidBody(scene, rigid_body)
-            bone = self.armature.bones[rigid_body.boneName]
+            blenderBoneName = self.boneNames[m3RigidBody.boneIndex]
+            rigid_body.nameOld = rigid_body.name = blenderBoneName
+
+            # shared.updateBoneShapeOfRigidBody(scene, rigid_body)
+
+            bone = self.armature.bones[rigid_body.name]
             bone.hide = not scene.m3_bone_visiblity_options.showPhysicsShapes
 
     def createLights(self):
@@ -1168,45 +1152,44 @@ class Importer:
         print("Loading lights")
         for m3Light in self.model.lights:
             # The index of the light in model.lights can't be used since some lights may already exist
-            blenderLightIndex = len(scene.m3_lights)
+            animPathPrefix = "m3_lights[%s]." % len(scene.m3_lights)
+
             light = scene.m3_lights.add()
-            light.updateBlenderBone = False
-            animPathPrefix = "m3_lights[%s]." % blenderLightIndex
+            light.bl_update = False
+
             transferer = M3ToBlenderDataTransferer(self, scene, animPathPrefix, blenderObject=light, m3Object=m3Light)
             shared.transferLight(transferer)
+
+            light.bl_update = True
+
             boneEntry = self.model.bones[m3Light.boneIndex]
             fullBoneName = boneEntry.name
             blenderBoneName = self.boneNames[m3Light.boneIndex]
-            lightPrefix =  shared.lightPrefixMap.get(str(m3Light.lightType))
+
+            lightPrefix = shared.lightPrefixMap.get(str(m3Light.lightType))
             if blenderBoneName.startswith(lightPrefix):
-                light.boneSuffix = blenderBoneName[len(lightPrefix):]
+                light.name = blenderBoneName[len(lightPrefix):]
             elif blenderBoneName.startswith("MR3_Light_"):
-                light.boneSuffix = blenderBoneName[len("MR3_Light_"):]
+                light.name = blenderBoneName[len("MR3_Light_"):]
             else:
-                print("Warning: A light was bound to bone %s which does not start with %s" %(fullBoneName, lightPrefix))
-                light.boneSuffix = blenderBoneName
-            # TODO ensure that boneSuffix/name is unique; unique bone is not always enough
+                print("Warning: A light was bound to bone %s which does not start with %s" % (fullBoneName, lightPrefix))
+                light.name = blenderBoneName
+
+            # TODO ensure that name is unique; unique bone is not always enough
             # needs to be fixed for other objects too
-            light.boneName = blenderBoneName
-            bone = self.armature.bones[blenderBoneName]
-            poseBone = self.armatureObject.pose.bones[blenderBoneName]
-            shared.updateBoneShapeOfLight(light, bone, poseBone)
+            bone = self.armature.bones[light.boneName]
             bone.hide = not showLights
-            light.updateBlenderBone = True
 
     def createBillboardBehaviors(self):
         scene = bpy.context.scene
         print("Loading billboard behaviors")
         for m3BillboardBehavior in self.model.billboardBehaviors:
-            # The index of the billboardBehavior in model.billboardBehaviors can't be used since some billboardBehaviors may already exist
-            blenderBillboardBehaviorIndex = len(scene.m3_billboard_behaviors)
             billboardBehavior = scene.m3_billboard_behaviors.add()
-            billboardBehavior.updateBlenderBone = False
-            animPathPrefix = "m3_billboard_behaviors[%s]." % blenderBillboardBehaviorIndex # unused
+
+            animPathPrefix = "m3_billboard_behaviors[%s]." % len(scene.m3_billboard_behaviors)
             transferer = M3ToBlenderDataTransferer(self, scene, animPathPrefix, blenderObject=billboardBehavior, m3Object=m3BillboardBehavior)
             shared.transferBillboardBehavior(transferer)
-            boneEntry = self.model.bones[m3BillboardBehavior.boneIndex]
-            fullBoneName = boneEntry.name
+
             blenderBoneName = self.boneNames[m3BillboardBehavior.boneIndex]
             billboardBehavior.name = blenderBoneName
 
@@ -1227,10 +1210,14 @@ class Importer:
 
         for attachmentPointIndex, m3AttachmentPoint in enumerate(self.model.attachmentPoints):
             boneIndex = m3AttachmentPoint.bone
+            boneEntry = self.model.bones[boneIndex]
+            boneNameInBlender = self.boneNames[boneIndex]
+
             attachmentPoint = scene.m3_attachment_points.add()
-            attachmentPoint.updateBlenderBone = False
+            attachmentPoint.bl_update = False
+
             m3AttchmentVolume = boneIndexToM3AttachmentVolumeMap.get(boneIndex)
-            if m3AttchmentVolume == None:
+            if m3AttchmentVolume is None:
                 attachmentPoint.volumeType = "-1"
             else:
                 attachmentPoint.volumeType = str(m3AttchmentVolume.type)
@@ -1238,33 +1225,21 @@ class Importer:
                 attachmentPoint.volumeSize1 = m3AttchmentVolume.size1
                 attachmentPoint.volumeSize2 = m3AttchmentVolume.size2
 
+            attachmentPoint.bl_update = True
+
             prefixedName = m3AttachmentPoint.name
             if not prefixedName.startswith(shared.attachmentPointPrefix):
-                print("Warning: The name of the attachment %s does not start with %s" %(prefixedName, shared.attachmentPointPrefix))
-            attachmentName = prefixedName[len(shared.attachmentPointPrefix):]
-
-            boneEntry = self.model.bones[boneIndex]
-            expectedBoneName = shared.boneNameForAttachmentPoint(attachmentPoint)
-
-            boneNameInBlender = self.boneNames[boneIndex]
-
-            #if boneEntry.name != expectedBoneName:
-            #    print("Warning: The attachment bone %s did not have the name %s as expected" %(boneEntry.name, expectedBoneName))
+                print("Warning: The name of the attachment %s does not start with %s" % (prefixedName, shared.attachmentPointPrefix))
 
             if boneEntry.name == boneNameInBlender:
-                attachmentPoint.boneSuffix = attachmentName
+                attachmentPoint.name = prefixedName[len(shared.attachmentPointPrefix):]
             else:
                 # If the bone name was to long, or when there was already a bone with that name
-                # Use the new boen name to determine the bone suffix
-                attachmentPoint.boneSuffix = shared.attachmentPointNameFromBoneName(boneNameInBlender)
-            attachmentPoint.boneName = boneNameInBlender
+                # Use the new bone name to determine the name
+                attachmentPoint.name = shared.attachmentPointNameFromBoneName(boneNameInBlender)
 
-
-            bone = self.armature.bones[boneNameInBlender]
-            poseBone = self.armatureObject.pose.bones[boneNameInBlender]
-            shared.updateBoneShapeOfAttachmentPoint(attachmentPoint, bone, poseBone)
+            bone = self.armature.bones[attachmentPoint.boneName]
             bone.hide = not showAttachmentPoints
-            attachmentPoint.updateBlenderBone = True
 
     def getNameOfMaterialWithReferenceIndex(self, materialReferenceIndex):
         return self.materialReferenceIndexToNameMap[materialReferenceIndex]
@@ -1292,7 +1267,7 @@ class Importer:
             divisionFaceIndices = division.faces
             for m3Object in division.objects:
                 region = division.regions[m3Object.regionIndex]
-                regionVertexIndices = range(region.firstVertexIndex,region.firstVertexIndex + region.numberOfVertices)
+                regionVertexIndices = range(region.firstVertexIndex, region.firstVertexIndex + region.numberOfVertices)
                 firstVertexIndexIndex = region.firstFaceVertexIndexIndex
                 lastVertexIndexIndex = firstVertexIndexIndex + region.numberOfFaceVertexIndices
                 vertexIndexIndex = firstVertexIndexIndex
@@ -1310,7 +1285,6 @@ class Importer:
                     face = (i0, i1, i2)
                     facesWithOldIndices.append(face)
                     vertexIndexIndex += 3
-
 
                 boneIndexLookup = model.boneLookup[region.firstBoneLookupIndex:region.firstBoneLookupIndex + region.numberOfBoneLookupIndices]
                 numberOfBones = len(boneIndexLookup)
@@ -1361,7 +1335,7 @@ class Importer:
                 for vertexIndex in regionVertexIndices:
                     idTuple = oldVertexIndexToTupleIdMap[vertexIndex]
                     newIndex = vertexIdTupleToNewIndexMap.get(idTuple)
-                    if newIndex == None:
+                    if newIndex is None:
                         newIndex = nextNewVertexIndex
                         nextNewVertexIndex += 1
                         m3Vertex = m3Vertices[vertexIndex]
@@ -1369,9 +1343,9 @@ class Importer:
                         vertexSign.append(m3Vertex.sign)
                         vertexIdTupleToNewIndexMap[idTuple] = newIndex
                     oldVertexIndexToNewVertexIndexMap[vertexIndex] = newIndex
-                    #store which old vertex indices where merged to a new one:
+                    # store which old vertex indices where merged to a new one:
                     oldVertexIndices = newVertexIndexToOldVertexIndicesMap.get(newIndex)
-                    if oldVertexIndices == None:
+                    if oldVertexIndices is None:
                         oldVertexIndices = set()
                         newVertexIndexToOldVertexIndicesMap[newIndex] = oldVertexIndices
                     oldVertexIndices.add(vertexIndex)
@@ -1406,7 +1380,7 @@ class Importer:
                             oldIndices = tranglesWithOldIndices[faceIndex]
                             for i in range(3):
                                 uvLayer.data[polygon.loop_start + i].uv = toBlenderUVCoordinate(
-                                    getattr(m3Vertices[oldIndices[i]],vertexUVAttribute),
+                                    getattr(m3Vertices[oldIndices[i]], vertexUVAttribute),
                                     uvwMult,
                                     uvwOffset
                                 )
@@ -1421,13 +1395,12 @@ class Importer:
                         if boneName in meshObject.vertex_groups:
                             vertexGroup = meshObject.vertex_groups[boneName]
                         else:
-                            vertexGroup =  meshObject.vertex_groups.new(name = boneName)
+                            vertexGroup = meshObject.vertex_groups.new(name=boneName)
                         vertexGroupLookup.append(vertexGroup)
-                    for vertexIndex in range(region.firstVertexIndex,region.firstVertexIndex + region.numberOfVertices):
+                    for vertexIndex in range(region.firstVertexIndex, region.firstVertexIndex + region.numberOfVertices):
                         m3Vertex = m3Vertices[vertexIndex]
                         boneWeightsAsInt = [m3Vertex.boneWeight0, m3Vertex.boneWeight1, m3Vertex.boneWeight2, m3Vertex.boneWeight3]
-                        boneLookupIndices = [m3Vertex.boneLookupIndex0, m3Vertex.boneLookupIndex1,  m3Vertex.boneLookupIndex2,  m3Vertex.boneLookupIndex3]
-                        boneWeights = []
+                        boneLookupIndices = [m3Vertex.boneLookupIndex0, m3Vertex.boneLookupIndex1, m3Vertex.boneLookupIndex2, m3Vertex.boneLookupIndex3]
                         for boneWeightAsInt, boneLookupIndex in zip(boneWeightsAsInt, boneLookupIndices):
                             if boneWeightAsInt != 0:
                                 vertexGroup = vertexGroupLookup[boneLookupIndex]
@@ -1439,7 +1412,7 @@ class Importer:
                 self.scene.view_layers[0].objects.active = meshObject
                 meshObject.select_set(True)
                 bpy.ops.object.mode_set(mode='EDIT')
-            
+
                 bm = bmesh.from_edit_mesh(mesh)
                 layer = bm.faces.layers.int.new("m3sign")
                 for face in bm.faces:
@@ -1447,7 +1420,6 @@ class Importer:
                         if vertexSign[vert.index] == 1.0:
                             face[layer] = 1
                             break
-                            
 
                 # Need to set mode back to object so that bmesh is cleared and does not interfere with the rest of the operations
                 bpy.ops.object.mode_set(mode='OBJECT')
@@ -1463,7 +1435,6 @@ class Importer:
                     bpy.ops.object.mode_set(mode='EDIT')
                     bpy.ops.mesh.select_all(action='SELECT')
                     bpy.ops.mesh.remove_doubles()
-
 
                 self.setOriginToCenter(meshObject)
 
@@ -1486,7 +1457,6 @@ class Importer:
         self.scene.view_layers[0].objects.active = meshObject
         meshObject.select_set(True)
         bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY', center='MEDIAN')
-
 
     def markBordersEdgesSharp(self, mesh):
 
@@ -1520,9 +1490,9 @@ class Importer:
 
         for edgeObject in mesh.edges:
             if edgeObject.vertices[0] < edgeObject.vertices[1]:
-                edge = (edgeObject.vertices[0],edgeObject.vertices[1])
+                edge = (edgeObject.vertices[0], edgeObject.vertices[1])
             else:
-                edge = (edgeObject.vertices[1],edgeObject.vertices[0])
+                edge = (edgeObject.vertices[1], edgeObject.vertices[0])
             if edge in uniqueEdges:
                 edgeObject.use_edge_sharp = True
         # mesh.show_edge_sharp = True
@@ -1542,13 +1512,6 @@ class Importer:
             relEditBoneMatrices.append(relEditBoneMatrix)
         return relEditBoneMatrices
 
-
-    def containsToLongNames(nameList):
-        for name in nameList:
-            if len(name) > 31:
-                return True
-        return false
-
     def determineBoneNameList(self, m3Bones):
         uniqueNameFinder = shared.UniqueNameFinder()
         for currentObject in self.scene.objects:
@@ -1566,7 +1529,10 @@ class Importer:
         return names
 
     def createEditBones(self, m3Bones, heads, tails, rolls, bindScales):
-        self.boneNames = self.determineBoneNameList(m3Bones)
+
+        for m3Bone in m3Bones:
+            self.boneNames.append(m3Bone.name)
+
         editBones = []
         for index, boneEntry in enumerate(m3Bones):
             editBone = self.armature.edit_bones.new(self.boneNames[index])
@@ -1613,14 +1579,12 @@ class Importer:
 
         return animIdToTimeValueMap
 
-
     def createOrGetActionFor(self, ob, animationTempData):
         scene = bpy.context.scene
         animation = scene.m3_animations[animationTempData.animationIndex]
 
-        if ob.animation_data == None:
+        if ob.animation_data is None:
             ob.animation_data_create()
-        animationData = ob.animation_data
 
         actionName = ob.name + animation.name
         action = bpy.data.actions[actionName] if actionName in bpy.data.actions else bpy.data.actions.new(actionName)
@@ -1633,7 +1597,7 @@ class Importer:
         # Hack:
         # So far only seen models where Evt_Simulate and Evt_End are in the same animId element.
         # Check through all stc.sdev entries directly instead?
-        timeValueMap = animIdToTimeValueMap.get(0x65bd3215,{})
+        timeValueMap = animIdToTimeValueMap.get(0x65bd3215, {})
 
         for frame, key, in frameValuePairs(timeValueMap):
             if key.name == "Evt_Simulate":
@@ -1641,9 +1605,8 @@ class Importer:
 
         return False, 0
 
-
     def createAnimations(self):
-        print ("Creating actions(animation sequences)")
+        print("Creating actions(animation sequences)")
         scene = bpy.context.scene
         model = self.model
         numberOfSequences = len(model.sequences)
@@ -1661,12 +1624,13 @@ class Importer:
                 raise Exception("Name of sequence and it's transformation group does not match")
             animationIndex = len(scene.m3_animations)
             animation = scene.m3_animations.add()
-            animation.name = uniqueNameFinder.findNameAndMarkAsUsedLike(sequence.name)
-            animation.nameOld = animation.name
-            animation.startFrame = msToFrame(sequence.animStartInMS)
-            animation.exlusiveEndFrame = msToFrame(sequence.animEndInMS)
             transferer = M3ToBlenderDataTransferer(self, None, None, blenderObject=animation, m3Object=sequence)
             shared.transferAnimation(transferer)
+
+            animation.nameOld = animation.name
+            animation.name = uniqueNameFinder.findNameAndMarkAsUsedLike(sequence.name)
+            animation.startFrame = msToFrame(sequence.animStartInMS)
+            animation.exlusiveEndFrame = msToFrame(sequence.animEndInMS)
 
             animIdToTimeValueMap = {}
             for m3STCIndex in stg.stcIndices:
@@ -1693,14 +1657,13 @@ class Importer:
                 self.sequenceNameAndSTCIndexToAnimIdSet[sequence.name, animationSTCIndex] = animIdsOfSTC
 
                 # stc.seqIndex seems to be wrong:
-                #sequence = model.sequences[stc.seqIndex]
+                # sequence = model.sequences[stc.seqIndex]
                 if len(stc.animIds) != len(stc.animRefs):
                     raise Exception("len(stc.animids) != len(stc.animrefs)")
 
             animation.useSimulateFrame, animation.simulateFrame = self.findSimulateFrame(animIdToTimeValueMap)
 
             self.animations.append(AnimationTempData(animIdToTimeValueMap, animationIndex))
-
 
     def initSTCsOfAnimations(self):
         unsupportedAnimIds = set()
@@ -1709,7 +1672,7 @@ class Importer:
             stc = self.scene.m3_animations[sequenceName].transformationCollections[stcIndex]
             for animId in animIds:
                 longAnimId = self.animIdToLongAnimIdMap.get(animId)
-                if longAnimId != None:
+                if longAnimId is not None:
                     animatedProperty = stc.animatedProperties.add()
                     animatedProperty.longAnimId = longAnimId
                 else:
@@ -1718,28 +1681,28 @@ class Importer:
         if animationEndEventAnimId in unsupportedAnimIds:
             unsupportedAnimIds.remove(animationEndEventAnimId)
         else:
-            print("Warning: Model contained no animation with animId %d which are usually used for marking the end of an animation" % animationEndEventAnimId )
+            print("Warning: Model contained no animation with animId %d which are usually used for marking the end of an animation" % animationEndEventAnimId)
 
         if len(unsupportedAnimIds) > 0:
             animIdToPathMap = {}
             self.addAnimIdPathToMap("model", self.model, animIdToPathMap)
             for unsupportedAnimId in unsupportedAnimIds:
                 path = animIdToPathMap.get(unsupportedAnimId, "<unknown path>")
-                print("Warning: Ignoring unsupported animated property with animId %s and path %s" %(hex(unsupportedAnimId), path))
+                print("Warning: Ignoring unsupported animated property with animId %s and path %s" % (hex(unsupportedAnimId), path))
 
     def addAnimIdPathToMap(self, path, m3Object, animIdToPathMap):
         if hasattr(m3Object, "header") and type(m3Object.header) == m3.AnimationReferenceHeader:
             header = m3Object.header
             if header.animFlags == shared.animFlagsForAnimatedProperty:
                 animIdToPathMap[header.animId] = path
-        if hasattr(type(m3Object),"fields"):
+        if hasattr(type(m3Object), "fields"):
             for fieldName in m3Object.fields:
-                fieldValue = getattr(m3Object,fieldName)
-                if fieldValue == None:
+                fieldValue = getattr(m3Object, fieldName)
+                if fieldValue is None:
                     pass
                 elif fieldValue.__class__ == list:
                     for entryIndex, entry in enumerate(fieldValue):
-                        entryPath = "%s.%s[%d]" % (path, fieldName, entryIndex )
+                        entryPath = "%s.%s[%d]" % (path, fieldName, entryIndex)
                         self.addAnimIdPathToMap(entryPath, entry, animIdToPathMap)
                 else:
                     fieldPath = path + "." + fieldName
@@ -1748,19 +1711,18 @@ class Importer:
     def actionAndTimeValueMapPairsFor(self, animId):
         for animationTempData in self.animations:
             timeValueMap = animationTempData.animIdToTimeValueMap.get(animId)
-            if timeValueMap != None:
+            if timeValueMap is not None:
                 action = self.createOrGetActionFor(self.scene, animationTempData)
                 yield (action, timeValueMap)
 
-
     def animateFloat(self, objectWithAnimationData, path, animId, defaultValue):
-        #TODO let animateFloat take objectId as argument
+        # TODO let animateFloat take objectId as argument
         defaultAction = shared.getOrCreateDefaultActionFor(objectWithAnimationData)
         shared.setDefaultValue(defaultAction, path, 0, defaultValue)
 
         self.addAnimIdData(animId, objectId=shared.animObjectIdScene, animPath=path)
         for action, timeValueMap in self.actionAndTimeValueMapPairsFor(animId):
-            curve = action.fcurves.new(path, index = 0)
+            curve = action.fcurves.new(path, index=0)
             for frame, value in frameValuePairs(timeValueMap):
                 insertLinearKeyFrame(curve, frame, value)
 
@@ -1771,17 +1733,17 @@ class Importer:
         self.addAnimIdData(animId, objectId=shared.animObjectIdScene, animPath=path)
         if field == "partEmit":
             for action, timeValueMap in self.actionAndTimeValueMapPairsFor(animId):
-                curve = action.fcurves.new(path, index = 0)
+                curve = action.fcurves.new(path, index=0)
                 for frame, value in frameValuePairs(timeValueMap):
                     insertConstantKeyFrame(curve, frame, value)
                     if value != 0:
                         insertConstantKeyFrame(curve, frame + 1, 0)
         else:
             for action, timeValueMap in self.actionAndTimeValueMapPairsFor(animId):
-                curve = action.fcurves.new(path, index = 0)
+                curve = action.fcurves.new(path, index=0)
                 for frame, value in frameValuePairs(timeValueMap):
                     insertConstantKeyFrame(curve, frame, value)
-					
+
     def animateVector3(self, objectWithAnimationData, path, animId, defaultValue):
         defaultAction = shared.getOrCreateDefaultActionFor(objectWithAnimationData)
         shared.setDefaultValue(defaultAction, path, 0, defaultValue.x)
@@ -1790,17 +1752,14 @@ class Importer:
 
         self.addAnimIdData(animId, objectId=shared.animObjectIdScene, animPath=path)
         for action, timeValueMap in self.actionAndTimeValueMapPairsFor(animId):
-            xCurve = action.fcurves.new(path, index = 0)
-            yCurve = action.fcurves.new(path, index = 1)
-            zCurve = action.fcurves.new(path, index = 2)
+            xCurve = action.fcurves.new(path, index=0)
+            yCurve = action.fcurves.new(path, index=1)
+            zCurve = action.fcurves.new(path, index=2)
 
             for frame, value in frameValuePairs(timeValueMap):
                 insertLinearKeyFrame(xCurve, frame, value.x)
                 insertLinearKeyFrame(yCurve, frame, value.y)
                 insertLinearKeyFrame(zCurve, frame, value.z)
-
-
-
 
     def animateVector2(self, objectWithAnimationData, path, animId, defaultValue):
         defaultAction = shared.getOrCreateDefaultActionFor(objectWithAnimationData)
@@ -1809,8 +1768,8 @@ class Importer:
 
         self.addAnimIdData(animId, objectId=shared.animObjectIdScene, animPath=path)
         for action, timeValueMap in self.actionAndTimeValueMapPairsFor(animId):
-            xCurve = action.fcurves.new(path, index = 0)
-            yCurve = action.fcurves.new(path, index = 1)
+            xCurve = action.fcurves.new(path, index=0)
+            yCurve = action.fcurves.new(path, index=1)
 
             for frame, value in frameValuePairs(timeValueMap):
                 insertLinearKeyFrame(xCurve, frame, value.x)
@@ -1824,10 +1783,10 @@ class Importer:
 
         self.addAnimIdData(animId, objectId=shared.animObjectIdScene, animPath=path)
         for action, timeValueMap in self.actionAndTimeValueMapPairsFor(animId):
-            redCurve = action.fcurves.new(path, index = 0)
-            greenCurve = action.fcurves.new(path, index = 1)
-            blueCurve = action.fcurves.new(path, index = 2)
-            alphaCurve = action.fcurves.new(path, index = 3)
+            redCurve = action.fcurves.new(path, index=0)
+            greenCurve = action.fcurves.new(path, index=1)
+            blueCurve = action.fcurves.new(path, index=2)
+            alphaCurve = action.fcurves.new(path, index=3)
 
             for frame, value in frameValuePairs(timeValueMap):
                 v = toBlenderColorVector(value)
@@ -1837,7 +1796,7 @@ class Importer:
                 insertLinearKeyFrame(alphaCurve, frame, v[3])
 
     def animateBoundings(self, objectWithAnimationData, animPathMinBorder, animPathMaxBorder, animPathRadius, animId, minBorderDefault, maxBorderDefault, radiusDefault):
-        #Store default values in an action:
+        # Store default values in an action:
         defaultAction = shared.getOrCreateDefaultActionFor(objectWithAnimationData)
         for i in range(3):
             shared.setDefaultValue(defaultAction, animPathMinBorder, i, minBorderDefault[i])
@@ -1847,17 +1806,17 @@ class Importer:
 
         shared.setDefaultValue(defaultAction, animPathRadius, 0, radiusDefault)
 
-        #Which path we pass to addAnimIdData does not matter,
+        # Which path we pass to addAnimIdData does not matter,
         # since they all would result in the same longAnimId (see getLongAnimIdOf):
         self.addAnimIdData(animId, objectId=shared.animObjectIdScene, animPath=animPathMinBorder)
         for action, timeValueMap in self.actionAndTimeValueMapPairsFor(animId):
-            minXCurve = action.fcurves.new(animPathMinBorder, index = 0)
-            minYCurve = action.fcurves.new(animPathMinBorder, index = 1)
-            minZCurve = action.fcurves.new(animPathMinBorder, index = 2)
-            maxXCurve = action.fcurves.new(animPathMaxBorder, index = 0)
-            maxYCurve = action.fcurves.new(animPathMaxBorder, index = 1)
-            maxZCurve = action.fcurves.new(animPathMaxBorder, index = 2)
-            radiusCurve = action.fcurves.new(animPathRadius, index = 0)
+            minXCurve = action.fcurves.new(animPathMinBorder, index=0)
+            minYCurve = action.fcurves.new(animPathMinBorder, index=1)
+            minZCurve = action.fcurves.new(animPathMinBorder, index=2)
+            maxXCurve = action.fcurves.new(animPathMaxBorder, index=0)
+            maxYCurve = action.fcurves.new(animPathMaxBorder, index=1)
+            maxZCurve = action.fcurves.new(animPathMaxBorder, index=2)
+            radiusCurve = action.fcurves.new(animPathRadius, index=0)
 
             for frame, value in frameValuePairs(timeValueMap):
                 insertLinearKeyFrame(minXCurve, frame, value.minBorder.x)
@@ -1873,7 +1832,7 @@ def boneRotMatrix(head, tail, roll):
     """unused: python port of the Blender C Function vec_roll_to_mat3 """
     v = tail - head
     v.normalize()
-    target = mathutils.Vector((0,1,0))
+    target = mathutils.Vector((0, 1, 0))
     axis = target.cross(v)
     if axis.dot(axis) > 0.000001:
         axis.normalize()
@@ -1891,7 +1850,7 @@ def boneRotMatrix(head, tail, roll):
             (0, 0, 1)))
 
     rMatrix = mathutils.Matrix.Rotation(roll, 3, v)
-    return rMatrix @bMatrix
+    return rMatrix @ bMatrix
 
 def boneMatrix(head, tail, roll):
     """unused: how blender calculates the matrix of a bone """
