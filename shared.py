@@ -35,11 +35,6 @@ lodEnum = [("0", "None", "LOD has no effect"),
            ("3", "High", "LOD cutoff or reduction takes effect if graphics are High"),
            ("4", "Ultra", "LOD cutoff or reduction takes effect if graphics are Ultra")]
 
-ribbonCullType = [
-    ("0", "Lifespan", "Ribbon elements are destroyed after having existed for the specified lifespan."),
-    ("1", "Length Based", "Ribbon elements are destroyed after reaching the specified maximum length"),
-]
-
 materialNames = [
     "No Material",
     "Standard",
@@ -153,13 +148,6 @@ layerFieldNameToNameMap = {
 exportAmountAllAnimations = "ALL_ANIMATIONS"
 exportAmountCurrentAnimation = "CURRENT_ANIMATION"
 exportAmountNoAnimations = "NO_ANIMATIONS"
-
-
-class ExportError(Exception):
-    def __init__(self, message: str):
-        super().__init__(message)
-        self.message = message
-
 
 def getLayerNameFromFieldName(fieldName):
     name = layerFieldNameToNameMap.get(fieldName)

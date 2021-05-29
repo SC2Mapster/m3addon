@@ -585,25 +585,25 @@ class Importer:
 
         particleIndices = []
         for item in model.particles:
-            particleIndices.append(item.bone)
+            particleIndices.append(item.boneIndex)
             for copy in item.copyIndices:
                 particleIndices.append(copy)
 
         ribbonIndices = []
         for item in model.ribbons:
-            ribbonIndices.append(item.bone)
+            ribbonIndices.append(item.boneIndex)
 
         forceIndices = []
         for item in model.forces:
-            forceIndices.append(item.bone)
+            forceIndices.append(item.boneIndex)
 
         projectionIndices = []
         for item in model.projections:
-            projectionIndices.append(item.bone)
+            projectionIndices.append(item.boneIndex)
 
         warpIndices = []
         for item in model.warps:
-            warpIndices.append(item.bone)
+            warpIndices.append(item.boneIndex)
 
         for ii, bone in enumerate(model.bones):
 
@@ -926,7 +926,7 @@ class Importer:
 
         m3IndexToParticleSystemMap = {}
         for particleSystemIndex, m3ParticleSystem in enumerate(self.model.particles):
-            blenderBoneName = self.boneNames[m3ParticleSystem.bone]
+            blenderBoneName = self.boneNames[m3ParticleSystem.boneIndex]
             wantedName = blenderBoneName[len(shared.star2ParticlePrefix):]
             name = uniqueNameFinder.findNameAndMarkAsUsedLike(wantedName)
             m3IndexToParticleSystemMap[particleSystemIndex] = name
@@ -935,7 +935,7 @@ class Importer:
             particleSystem = scene.m3_particle_systems.add()
             particleSystem.bl_update = False
 
-            blenderBoneName = self.boneNames[m3ParticleSystem.bone]
+            blenderBoneName = self.boneNames[m3ParticleSystem.boneIndex]
 
             animPathPrefix = "m3_particle_systems[%s]." % len(scene.m3_particle_systems)
             transferer = M3ToBlenderDataTransferer(self, scene, animPathPrefix, blenderObject=particleSystem, m3Object=m3ParticleSystem)
@@ -993,7 +993,7 @@ class Importer:
                 transferer = M3ToBlenderDataTransferer(self, scene, copyAnimPathPrefix, blenderObject=copy, m3Object=m3Copy)
                 shared.transferParticleSystemCopy(transferer)
 
-                blenderBoneName = self.boneNames[m3Copy.bone]
+                blenderBoneName = self.boneNames[m3Copy.boneIndex]
                 wantedName = blenderBoneName[len(shared.star2ParticlePrefix):]
                 copy.name = uniqueNameFinder.findNameAndMarkAsUsedLike(wantedName)
 
@@ -1209,7 +1209,7 @@ class Importer:
             boneIndexToM3AttachmentVolumeMap[boneIndex] = m3AttchmentVolume
 
         for attachmentPointIndex, m3AttachmentPoint in enumerate(self.model.attachmentPoints):
-            boneIndex = m3AttachmentPoint.bone
+            boneIndex = m3AttachmentPoint.boneIndex
             boneEntry = self.model.bones[boneIndex]
             boneNameInBlender = self.boneNames[boneIndex]
 

@@ -31,12 +31,20 @@ bl_info = {
     "tracker_url": "https://github.com/SC2Mapster/m3addon/issues"
 }
 
-# force reload of imported modules on second load of __init__.py
-# that is when `Reload Scripts` action is used in the blender interface
-if "bpy" in locals() and "mlog" in locals():
+import bpy
+import bpy.types as bt
+import math
+import bmesh
+from .common import mlog
+from . import shared
+from .shared import selectBone, removeBone, selectOrCreateBone, selectBoneIfItExists
+from . import cm
+from . import ui
+
+
+if "bpy" in locals():
     import imp
     localModules = [
-        ["shared"],
         ["cm", "base"],
         ["cm", "material"],
         ["cm", "projection"],
@@ -49,6 +57,7 @@ if "bpy" in locals() and "mlog" in locals():
         ["m3"],
         ["m3import"],
         ["m3export"],
+        ["shared"],
     ]
     mlog.debug("Reloading modules....")
     for plist in localModules:
@@ -64,17 +73,6 @@ if "bpy" in locals() and "mlog" in locals():
                 submod = submod.__dict__[currName]
         except KeyError as e:
             mlog.debug("Failed to reload %s" % e)
-    mlog.debug("Reloaded modules!")
-
-import bpy
-import bpy.types as bt
-import math
-import bmesh
-from .common import mlog
-from . import shared
-from .shared import selectBone, removeBone, selectOrCreateBone, selectBoneIfItExists
-from . import cm
-from . import ui
 
 
 def boneNameSet():
@@ -1433,7 +1431,6 @@ class M3Ribbon(bpy.types.PropertyGroup):
     cullType: bpy.props.EnumProperty(options=set(), default="0", items=ribbonCullType)
     lifespan: bpy.props.FloatProperty(default=0.5)
     starRatio: bpy.props.FloatProperty(options=set(), default=0.5, min=0, max=1, subtype="FACTOR")
-
 
 
 class M3Force(bpy.types.PropertyGroup):

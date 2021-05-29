@@ -1272,7 +1272,7 @@
         <fields>
             <field name="unknown" type="int32" expected-value="-1" />
             <field name="name" type="Reference" refTo="CHAR" />
-            <field name="bone" type="uint32" />
+            <field name="boneIndex" type="uint32" />
         </fields>
     </structure>
 
@@ -1839,7 +1839,7 @@
             <version number="24" size="1496" />
         </versions>
         <fields>
-            <field name="bone" type="uint32" />
+            <field name="boneIndex" type="uint32" />
             <field name="materialReferenceIndex" type="uint32" />
             <field name="additionalFlags" type="uint32" default-value="4" since-version="17" >
                 <bits>
@@ -2066,7 +2066,7 @@
         <fields>
             <field name="emissionRate" type="FloatAnimationReference" />
             <field name="partEmit" type="Int16AnimationReference" />
-            <field name="bone" type="uint32" />
+            <field name="boneIndex" type="uint32" />
         </fields>
     </structure>
 
