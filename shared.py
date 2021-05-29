@@ -149,6 +149,13 @@ exportAmountAllAnimations = "ALL_ANIMATIONS"
 exportAmountCurrentAnimation = "CURRENT_ANIMATION"
 exportAmountNoAnimations = "NO_ANIMATIONS"
 
+
+class ExportError(Exception):
+    def __init__(self, message: str):
+        super().__init__(message)
+        self.message = message
+
+
 def getLayerNameFromFieldName(fieldName):
     name = layerFieldNameToNameMap.get(fieldName)
     if name is None:
