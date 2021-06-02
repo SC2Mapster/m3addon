@@ -609,12 +609,12 @@ class Importer:
 
             adjustM3BoneNameForType(bone, particleIndices, shared.star2ParticlePrefix, ["P_", "MR3_Particle_"])
             adjustM3BoneNameForType(bone, ribbonIndices, shared.star2RibbonPrefix, ["SC2SplRbn"])
-            adjustM3BoneNameForType(bone, forceIndices, shared.star2ForcePrefix, [])
+            adjustM3BoneNameForType(bone, forceIndices, shared.star2ForcePrefix, ["_Force"])
             adjustM3BoneNameForType(bone, projectionIndices, shared.star2ProjectionPrefix, [])
             adjustM3BoneNameForType(bone, warpIndices, shared.star2WarpPrefix, [])
 
             if bone.name == "":
-                bone.name = "null"
+                bone.name = "null{num}".format(num=ii)
 
     def adjustPoseBones(self, m3Bones, relEditBoneMatrices, bindScaleMatrices):
         index = 0
@@ -1014,10 +1014,16 @@ class Importer:
             blenderBoneName = self.boneNames[m3Ribbon.boneIndex]
             ribbon.name = blenderBoneName[len(shared.star2RibbonPrefix):]
 
-            for m3EndPoint in m3Ribbon.endPoints:
+            for ii, m3EndPoint in enumerate(m3Ribbon.endPoints):
                 endPoint = ribbon.endPoints.add()
                 endPoint.name = self.boneNames[m3EndPoint.boneIndex]
-                # TODO import properties
+
+                endPointAnimPathPrefix = animPathPrefix + "endPoints[%d]" % ii
+                transferer = M3ToBlenderDataTransferer(self, scene, endPointAnimPathPrefix, blenderObject=endPoint, m3Object=m3EndPoint)
+                shared.transferRibbonEndPoint(transferer)
+
+                bone = self.armature.bones[endPoint.name]
+                bone.hide = not showRibbons
 
             bone = self.armature.bones[blenderBoneName]
             bone.hide = not showRibbons

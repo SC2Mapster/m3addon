@@ -946,6 +946,13 @@ ribbonCullType = [
     ("1", "Length Based", "Ribbon elements are destroyed after reaching the specified maximum length"),
 ]
 
+ribbonSplineVariationType = [
+    ("0", "None", "Variation for this field is off"),
+    ("1", "Linear", "Variation for this field causes the value to oscillate linearly"),
+    ("2", "Smooth", "Variation for this field causes the value to oscillate smoothly"),
+    ("3", "Constant", "Variation for this filed modifies the value by the given amount and then immediately return")
+]
+
 forceTypeList = [("0", "Directional", "The particles get accelerated into one direction"),
                  ("1", "Radial", "Particles get accelerated ayway from the force source"),
                  ("2", "Dampening", "This is a drag operation that resists the movement of particles"),
@@ -1370,6 +1377,21 @@ class M3ParticleSystem(bpy.types.PropertyGroup):
 class M3RibbonEndPoint(bpy.types.PropertyGroup):
     # name is also bone name
     name: bpy.props.StringProperty(options=set())
+    tangent1: bpy.props.FloatProperty(options=set())
+    tangent2: bpy.props.FloatProperty(options=set())
+    tangent3: bpy.props.FloatProperty(options=set())
+    yaw: bpy.props.FloatProperty(subtype="ANGLE")
+    pitch: bpy.props.FloatProperty(subtype="ANGLE")
+    length: bpy.props.FloatProperty(default=1)
+    yawVariationType: bpy.props.EnumProperty(options=set(), items=ribbonSplineVariationType)
+    yawVariationAmplitude: bpy.props.FloatProperty(default=0)
+    yawVariationFrequency: bpy.props.FloatProperty(default=0)
+    pitchVariationType: bpy.props.EnumProperty(options=set(), items=ribbonSplineVariationType)
+    pitchVariationAmplitude: bpy.props.FloatProperty(default=0)
+    pitchVariationFrequency: bpy.props.FloatProperty(default=0)
+    lengthVariationType: bpy.props.EnumProperty(options=set(), items=ribbonSplineVariationType)
+    lengthVariationAmplitude: bpy.props.FloatProperty(default=0)
+    lengthVariationFrequency: bpy.props.FloatProperty(default=0)
 
 
 class M3Ribbon(bpy.types.PropertyGroup):
@@ -1397,20 +1419,20 @@ class M3Ribbon(bpy.types.PropertyGroup):
     ribbonDivisions: bpy.props.FloatProperty(options=set(), default=20)
     ribbonSides: bpy.props.IntProperty(options=set(), default=5, subtype="UNSIGNED")
     ribbonLength: bpy.props.FloatProperty(default=1, options={"ANIMATABLE"})
-    directionVariationBool: bpy.props.BoolProperty(options=set(), default=False)
-    directionVariationAmount: bpy.props.FloatProperty(default=0, options={"ANIMATABLE"})
-    directionVariationFrequency: bpy.props.FloatProperty(default=0, options={"ANIMATABLE"})
-    amplitudeVariationBool: bpy.props.BoolProperty(options=set(), default=False)
-    amplitudeVariationAmount: bpy.props.FloatProperty(default=0, options={"ANIMATABLE"})
-    amplitudeVariationFrequency: bpy.props.FloatProperty(default=0, options={"ANIMATABLE"})
-    lengthVariationBool: bpy.props.BoolProperty(options=set(), default=False)
-    lengthVariationAmount: bpy.props.FloatProperty(default=0, options={"ANIMATABLE"})
+    yawVariationType: bpy.props.EnumProperty(options=set(), items=ribbonSplineVariationType)
+    yawVariationAmplitude: bpy.props.FloatProperty(default=0, options={"ANIMATABLE"})
+    yawVariationFrequency: bpy.props.FloatProperty(default=0, options={"ANIMATABLE"})
+    pitchVariationType: bpy.props.EnumProperty(options=set(), items=ribbonSplineVariationType)
+    pitchVariationAmplitude: bpy.props.FloatProperty(default=0, options={"ANIMATABLE"})
+    pitchVariationFrequency: bpy.props.FloatProperty(default=0, options={"ANIMATABLE"})
+    lengthVariationType: bpy.props.EnumProperty(options=set(), items=ribbonSplineVariationType)
+    lengthVariationAmplitude: bpy.props.FloatProperty(default=0, options={"ANIMATABLE"})
     lengthVariationFrequency: bpy.props.FloatProperty(default=0, options={"ANIMATABLE"})
-    radiusVariationBool: bpy.props.BoolProperty(options=set(), default=False)
-    radiusVariationAmount: bpy.props.FloatProperty(default=0, options={"ANIMATABLE"})
+    radiusVariationType: bpy.props.EnumProperty(options=set(), items=ribbonSplineVariationType)
+    radiusVariationAmplitude: bpy.props.FloatProperty(default=0, options={"ANIMATABLE"})
     radiusVariationFrequency: bpy.props.FloatProperty(default=0, options={"ANIMATABLE"})
-    alphaVariationBool: bpy.props.BoolProperty(options=set(), default=False)
-    alphaVariationAmount: bpy.props.FloatProperty(default=0, options={"ANIMATABLE"})
+    alphaVariationType: bpy.props.EnumProperty(options=set(), items=ribbonSplineVariationType)
+    alphaVariationAmplitude: bpy.props.FloatProperty(default=0, options={"ANIMATABLE"})
     alphaVariationFrequency: bpy.props.FloatProperty(default=0, options={"ANIMATABLE"})
     collideWithTerrain: bpy.props.BoolProperty(options=set(), default=False)
     collideWithObjects: bpy.props.BoolProperty(options=set(), default=False)
@@ -3118,9 +3140,21 @@ class RibbonPropertiesPanel(bpy.types.Panel):
         col = layout.column(align=True)
         col.prop(ribbon, "stretchAmount", text="Stretch Amount")
         col.prop(ribbon, "stretchLimit", text="Stretch Limit")
-        col = layout.column(align=True)
+        row = layout.row()
+        col = row.column(align=True)
         col.prop(ribbon, "yaw", text="Yaw")
+        col.prop(ribbon, "yawVariationType", text="Variation")
+        sub = col.column(align=True)
+        sub.active = ribbon.yawVariationType != "0"
+        sub.prop(ribbon, "yawVariationAmplitude", text="Amplitude")
+        sub.prop(ribbon, "yawVariationFrequency", text="Frequency")
+        col = row.column(align=True)
         col.prop(ribbon, "pitch", text="Pitch")
+        col.prop(ribbon, "pitchVariationType", text="Variation")
+        sub = col.column(align=True)
+        sub.active = ribbon.pitchVariationType != "0"
+        sub.prop(ribbon, "pitchVariationAmplitude", text="Amplitude")
+        sub.prop(ribbon, "pitchVariationFrequency", text="Frequency")
         col = layout.column(align=True)
         col.label(text="Twist:")
         col.prop(ribbon, "twist", index=0, text="Start")
@@ -3162,10 +3196,10 @@ class RibbonColorPanel(bpy.types.Panel):
         col.prop(ribbon, "colorAnimationMiddle", text="Color Animation Middle")
         col.prop(ribbon, "alphaAnimationMiddle", text="Alpha Animation Middle")
         col = layout.column(align=True)
-        col.prop(ribbon, "alphaVariationBool", text="Alpha Variation:")
+        col.prop(ribbon, "alphaVariationType", text="Alpha Variation")
         sub = col.column(align=True)
-        sub.active = ribbon.alphaVariationBool
-        sub.prop(ribbon, "alphaVariationAmount", text="Amount")
+        sub.active = ribbon.alphaVariationType != "0"
+        sub.prop(ribbon, "alphaVariationAmplitude", text="Amplitude")
         sub.prop(ribbon, "alphaVariationFrequency", text="Frequency")
 
 
@@ -3195,38 +3229,29 @@ class RibbonScalePanel(bpy.types.Panel):
         col.label(text="Length:")
         col.prop(ribbon, "ribbonLength", index=0, text="Length")
         col.prop(ribbon, "waveLength", index=1, text="Wave Length")
+        col.prop(ribbon, "lengthVariationType", text="Variation")
+        sub = col.column(align=True)
+        sub.active = ribbon.lengthVariationType != "0"
+        sub.prop(ribbon, "lengthVariationAmplitude", text="Amplitude")
+        sub.prop(ribbon, "lengthVariationFrequency", text="Frequency")
+        col = row.column(align=True)
         col.label(text="Radius:")
         col.prop(ribbon, "radiusScale", index=0, text="Start")
         col.prop(ribbon, "radiusScale", index=1, text="Middle")
         col.prop(ribbon, "radiusScale", index=2, text="End")
+        col.prop(ribbon, "radiusVariationType", text="Variation")
+        sub = col.column(align=True)
+        sub.active = ribbon.radiusVariationType != "0"
+        sub.prop(ribbon, "radiusVariationAmplitude", text="Amplitude")
+        sub.prop(ribbon, "radiusVariationFrequency", text="Frequency")
+        col = layout.column(align=True)
+        col.prop(ribbon, "centerBias", text="Radius Animation Middle")
+        col = layout.column(align=True)
         col.label(text="Noise:")
         col.prop(ribbon, "surfaceNoiseAmplitude", text="Amplitude")
         col.prop(ribbon, "surfaceNoiseNumberOfWaves", text="Waves")
         col.prop(ribbon, "surfaceNoiseFrequency", text="Frequency")
         col.prop(ribbon, "surfaceNoiseScale", text="Scale")
-        col = row.column(align=True)
-        col.prop(ribbon, "radiusVariationBool", text="Radius Variation:")
-        sub = col.column(align=True)
-        sub.active = ribbon.radiusVariationBool
-        sub.prop(ribbon, "radiusVariationAmount", text="Amount")
-        sub.prop(ribbon, "radiusVariationFrequency", text="Frequency")
-        col.prop(ribbon, "lengthVariationBool", text="Length Variation:")
-        sub = col.column(align=True)
-        sub.active = ribbon.lengthVariationBool
-        sub.prop(ribbon, "lengthVariationAmount", text="Amount")
-        sub.prop(ribbon, "lengthVariationFrequency", text="Frequency")
-        col.prop(ribbon, "amplitudeVariationBool", text="Amplitude Variation:")
-        sub = col.column(align=True)
-        sub.active = ribbon.amplitudeVariationBool
-        sub.prop(ribbon, "amplitudeVariationAmount", text="Amount")
-        sub.prop(ribbon, "amplitudeVariationFrequency", text="Frequency")
-        col.prop(ribbon, "directionVariationBool", text="Direction Variation:")
-        sub = col.column(align=True)
-        sub.active = ribbon.directionVariationBool
-        sub.prop(ribbon, "directionVariationAmount", text="Amount")
-        sub.prop(ribbon, "directionVariationFrequency", text="Frequency")
-        col = layout.column(align=True)
-        col.prop(ribbon, "centerBias", text="Radius Animation Middle")
 
 
 class RibbonFlagsPanel(bpy.types.Panel):
@@ -3264,7 +3289,7 @@ class RibbonFlagsPanel(bpy.types.Panel):
 
 class RibbonEndPointsPanel(bpy.types.Panel):
     bl_idname = "OBJECT_PT_M3_ribbon_end_points"
-    bl_label = "End Point"
+    bl_label = "Splines"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "scene"
@@ -3299,8 +3324,37 @@ class RibbonEndPointsPanel(bpy.types.Panel):
             col.operator("m3.ribbon_end_points_move", icon="TRIA_DOWN", text="").shift = 1
 
         endPointIndex = ribbon.endPointIndex
-        endPoint = ribbon.endPoints[endPointIndex]
-        layout.prop(endPoint, "name", text="Bone Name")
+        if ribbon.endPointIndex >= 0:
+            endPoint = ribbon.endPoints[endPointIndex]
+            layout.prop(endPoint, "name", text="Bone Name")
+            col = layout.column(align=True)
+            col.prop(endPoint, "tangent1", text="Tangent 1")
+            col.prop(endPoint, "tangent2", text="Tangent 2")
+            col.prop(endPoint, "tangent3", text="Tangent 3")
+            layout.separator()
+            col = layout.column(align=True)
+            col.prop(endPoint, "yaw", text="Yaw")
+            col.prop(endPoint, "yawVariationType", text="Variation Type")
+            sub = col.column(align=True)
+            sub.active = endPoint.yawVariationType != "0"
+            sub.prop(endPoint, "yawVariationAmplitude", text="Amplitude")
+            sub.prop(endPoint, "yawVariationFrequency", text="Frequency")
+            layout.separator()
+            col = layout.column(align=True)
+            col.prop(endPoint, "pitch", text="Pitch")
+            col.prop(endPoint, "pitchVariationType", text="Variation Type")
+            sub = col.column(align=True)
+            sub.active = endPoint.pitchVariationType != "0"
+            sub.prop(endPoint, "pitchVariationAmplitude", text="Amplitude")
+            sub.prop(endPoint, "pitchVariationFrequency", text="Frequency")
+            layout.separator()
+            col = layout.column(align=True)
+            col.prop(endPoint, "length", text="Length")
+            col.prop(endPoint, "lengthVariationType", text="Variation Type")
+            sub = col.column(align=True)
+            sub.active = endPoint.lengthVariationType != "0"
+            sub.prop(endPoint, "lengthVariationAmplitude", text="Amplitude")
+            sub.prop(endPoint, "lengthVariationFrequency", text="Frequency")
 
 
 class ForcePanel(bpy.types.Panel):

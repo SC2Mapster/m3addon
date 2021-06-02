@@ -1554,7 +1554,7 @@ class Exporter:
             else:
                 m3Ribbon.noEndPoints = 1
 
-            for endPoint in ribbon.endPoints:
+            for ii, endPoint in enumerate(ribbon.endPoints):
                 m3EndPoint = self.createInstanceOf("SRIB")
                 boneName = endPoint.name
                 boneIndex = self.boneNameToBoneIndexMap.get(boneName)
@@ -1562,18 +1562,13 @@ class Exporter:
                     raise ExportError("The bone %s of an end point from ribbon %s does not exist" % (boneName, ribbon.name))
                 m3EndPoint.boneIndex = boneIndex
 
-                # TODO export properties
-                # below are necessary animation property placeholder:
-                m3EndPoint.unknownffde53e1 = self.createNullFloatAnimationReference(initValue=1.0, nullValue=0.0)
-                m3EndPoint.unknowneae076ef = self.createNullFloatAnimationReference(initValue=1.0, nullValue=0.0)
-                m3EndPoint.unknownb40b972e = self.createNullFloatAnimationReference(initValue=0.0, nullValue=0.0)
-                m3EndPoint.unknown3af8b42c = self.createNullFloatAnimationReference(initValue=0.0, nullValue=0.0)
-                m3EndPoint.unknownceca9ac0 = self.createNullFloatAnimationReference(initValue=0.0, nullValue=0.0)
-                m3EndPoint.unknownf155acc8 = self.createNullFloatAnimationReference(initValue=0.0, nullValue=0.0)
-                m3EndPoint.unknown211e7ec5 = self.createNullAnimHeader(interpolationType=1)
-                m3EndPoint.unknownf2bce2c7 = self.createNullAnimHeader(interpolationType=1)
-                m3EndPoint.unknown534e55c8 = self.createNullAnimHeader(interpolationType=1)
-                m3EndPoint.unknown974d3fd5 = self.createNullAnimHeader(interpolationType=1)
+                endPointAnimPathPrefix = animPathPrefix + "endPoints[%d]" % ii
+                transferer = BlenderToM3DataTransferer(exporter=self, m3Object=m3EndPoint, blenderObject=endPoint, animPathPrefix=endPointAnimPathPrefix, rootObject=self.scene)
+                shared.transferRibbonEndPoint(transferer)
+
+                m3EndPoint.unknown3 = self.createNullFloatAnimationReference(initValue=1.0, nullValue=0.0)
+                m3EndPoint.unknown4 = self.createNullFloatAnimationReference(initValue=1.0, nullValue=0.0)
+
                 m3Ribbon.endPoints.append(m3EndPoint)
 
     def initProjections(self, model):

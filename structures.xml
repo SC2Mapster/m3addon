@@ -194,7 +194,7 @@
             <field name="header" type="AnimationReferenceHeader" />
             <field name="initValue" type="VEC3V0" />
             <field name="nullValue" type="VEC3V0" />
-            <field name="unknown" type="int32" default-value="-1"  />
+            <field name="unknown" type="int32" default-value="0"  />
         </fields>
     </structure>
         <structure name="SVC3" >
@@ -217,7 +217,7 @@
             <field name="header" type="AnimationReferenceHeader" />
             <field name="initValue" type="VEC2V0" />
             <field name="nullValue" type="VEC2V0" />
-            <field name="unknown" type="int32" default-value="-1"  />
+            <field name="unknown" type="int32" default-value="0"  />
         </fields>
     </structure>
     <structure name="QuaternionAnimationReference">
@@ -229,7 +229,7 @@
             <field name="header" type="AnimationReferenceHeader" />
             <field name="initValue" type="QUATV0" />
             <field name="nullValue" type="QUATV0" />
-            <field name="unknown" type="int32" default-value="-1"  />
+            <field name="unknown" type="int32" default-value="0"  />
         </fields>
     </structure>
     <structure name="UInt32AnimationReference">
@@ -241,7 +241,7 @@
             <field name="header" type="AnimationReferenceHeader" />
             <field name="initValue" type="uint32" />
             <field name="nullValue" type="uint32" />
-            <field name="unknown" type="int32" default-value="-1"  />
+            <field name="unknown" type="int32" default-value="0"  />
         </fields>
     </structure>
     <structure name="UInt16AnimationReference">
@@ -253,7 +253,7 @@
             <field name="header" type="AnimationReferenceHeader" />
             <field name="initValue" type="uint16" />
             <field name="nullValue" type="uint16" />
-            <field name="unknown" type="int32" default-value="-1"  />
+            <field name="unknown" type="int32" default-value="0"  />
         </fields>
     </structure>
     <structure name="Int16AnimationReference">
@@ -265,7 +265,7 @@
             <field name="header" type="AnimationReferenceHeader" />
             <field name="initValue" type="int16" />
             <field name="nullValue" type="int16" />
-            <field name="unknown" type="int32" default-value="-1"  />
+            <field name="unknown" type="int32" default-value="0"  />
         </fields>
     </structure>
     <structure name="UInt8AnimationReference">
@@ -277,7 +277,7 @@
             <field name="header" type="AnimationReferenceHeader" />
             <field name="initValue" type="uint8" />
             <field name="nullValue" type="uint8" />
-            <field name="unknown" type="int32" default-value="-1"  />
+            <field name="unknown" type="int32" default-value="0"  />
         </fields>
     </structure>
     <structure name="FloatAnimationReference">
@@ -289,7 +289,7 @@
             <field name="header" type="AnimationReferenceHeader" />
             <field name="initValue" type="float" />
             <field name="nullValue" type="float" />
-            <field name="unknown" type="int32" default-value="-1"  />
+            <field name="unknown" type="int32" default-value="0"  />
         </fields>
     </structure>
     <structure name="Unknown4ByteAnimationReference">
@@ -301,7 +301,7 @@
             <field name="header" type="AnimationReferenceHeader" />
             <field name="initValue" size="4" default-value="0x00000000" />
             <field name="nullValue" size="4" default-value="0x00000000" />
-            <field name="unknown" type="int32" default-value="-1"  />
+            <field name="unknown" type="int32" default-value="0"  />
         </fields>
     </structure>
     <structure name="ColorAnimationReference">
@@ -313,7 +313,7 @@
             <field name="header" type="AnimationReferenceHeader" />
             <field name="initValue" type="COLV0" />
             <field name="nullValue" type="COLV0" />
-            <field name="unknown" type="int32" default-value="-1"  />
+            <field name="unknown" type="int32" default-value="0"  />
         </fields>
     </structure>
     <structure name="FlagAnimationReference">
@@ -325,7 +325,7 @@
             <field name="header" type="AnimationReferenceHeader" />
             <field name="initValue" type="uint32" />
             <field name="nullValue" type="uint32" />
-            <field name="unknown" type="int32" default-value="-1"  />
+            <field name="unknown" type="int32" default-value="0"  />
         </fields>
     </structure>
     <structure name="BNDSV0AnimationReference">
@@ -337,7 +337,7 @@
             <field name="header" type="AnimationReferenceHeader" />
             <field name="initValue" type="BNDSV0" />
             <field name="nullValue" type="BNDSV0" />
-            <field name="unknown" type="int32" default-value="-1"  />
+            <field name="unknown" type="int32" default-value="0"  />
         </fields>
     </structure>
     <structure name="REAL">
@@ -2503,20 +2503,20 @@
             <field name="unknown1" type="uint32" default-value="0" />
             <field name="unknown2" size="16" expected-value="0x00000000000000000000000000000000" />
             <field name="tangent1" type="float"/>
-            <field name="speed" type="FloatAnimationReference"/>
+            <field name="length" type="FloatAnimationReference"/>
             <field name="unknowneee1a711" type="uint32"/>
             <field name="boneIndex" type="uint32"/>
             <field name="unknown3" type="FloatAnimationReference"/>
             <field name="unknown4" type="FloatAnimationReference"/>
-            <field name="yawNoiseInterpolationType" type="uint32"/>
-            <field name="yawNoiseAmplitude" type="FloatAnimationReference"/>
-            <field name="yawNoiseFrequency" type="FloatAnimationReference"/>
-            <field name="pitchNoiseInterpolationType" type="uint32"/>
-            <field name="pitchNoiseAmplitude" type="FloatAnimationReference"/>
-            <field name="pitchNoiseFrequency" type="FloatAnimationReference"/>
-            <field name="speedNoiseInterpolationType" type="uint32"/>
-            <field name="speedNoiseAmplitude" type="FloatAnimationReference"/>
-            <field name="speedNoiseFrequency" type="FloatAnimationReference"/>
+            <field name="yawVariationType" type="uint32"/>
+            <field name="yawVariationAmplitude" type="FloatAnimationReference"/>
+            <field name="yawVariationFrequency" type="FloatAnimationReference"/>
+            <field name="pitchVariationType" type="uint32"/>
+            <field name="pitchVariationAmplitude" type="FloatAnimationReference"/>
+            <field name="pitchVariationFrequency" type="FloatAnimationReference"/>
+            <field name="lengthVariationType" type="uint32"/>
+            <field name="lengthVariationAmplitude" type="FloatAnimationReference"/>
+            <field name="lengthVariationFrequency" type="FloatAnimationReference"/>
             <field name="yaw" type="FloatAnimationReference"/>
             <field name="pitch" type="FloatAnimationReference"/>
             <field name="tangent2" type="float"/>
@@ -2621,20 +2621,20 @@
             <field name="lodReduce" type="uint32" default-value="2"/>
             <field name="lodCut" type="uint32" default-value="0"/>
             <field name="unknownbccd0332" size="8" since-version="8" />
-            <field name="directionVariationBool" type="uint32" />
-            <field name="directionVariationAmount" type="FloatAnimationReference" />
-            <field name="directionVariationFrequency" type="FloatAnimationReference" />
-            <field name="amplitudeVariationBool" type="uint32" />
-            <field name="amplitudeVariationAmount" type="FloatAnimationReference" />
-            <field name="amplitudeVariationFrequency" type="FloatAnimationReference" />
-            <field name="lengthVariationBool" type="uint32" />
-            <field name="lengthVariationAmount" type="FloatAnimationReference" />
+            <field name="yawVariationType" type="uint32" />
+            <field name="yawVariationAmplitude" type="FloatAnimationReference" />
+            <field name="yawVariationFrequency" type="FloatAnimationReference" />
+            <field name="pitchVariationType" type="uint32" />
+            <field name="pitchVariationAmplitude" type="FloatAnimationReference" />
+            <field name="pitchVariationFrequency" type="FloatAnimationReference" />
+            <field name="lengthVariationType" type="uint32" />
+            <field name="lengthVariationAmplitude" type="FloatAnimationReference" />
             <field name="lengthVariationFrequency" type="FloatAnimationReference" />
-            <field name="radiusVariationBool" type="uint32" />
-            <field name="radiusVariationAmount" type="FloatAnimationReference" />
+            <field name="radiusVariationType" type="uint32" />
+            <field name="radiusVariationAmplitude" type="FloatAnimationReference" />
             <field name="radiusVariationFrequency" type="FloatAnimationReference" />
-            <field name="alphaVariationBool" type="uint32" default-value="0"/>
-            <field name="alphaVariationAmount" type="FloatAnimationReference" />
+            <field name="alphaVariationType" type="uint32" default-value="0"/>
+            <field name="alphaVariationAmplitude" type="FloatAnimationReference" />
             <field name="alphaVariationFrequency" type="FloatAnimationReference" />
             <field name="unknown9a4a649a" type="FloatAnimationReference" />
             <field name="unknown76569e33" type="FloatAnimationReference" />
