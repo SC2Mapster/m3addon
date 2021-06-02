@@ -458,6 +458,7 @@ class Importer:
             self.createRigidBodies()
             self.createLights()
             self.createBillboardBehaviors()
+            self.createInverseKinematicChains()
             self.createAttachmentPoints()
             self.createProjections()
             self.createWarps()
@@ -1198,6 +1199,20 @@ class Importer:
 
             blenderBoneName = self.boneNames[m3BillboardBehavior.boneIndex]
             billboardBehavior.name = blenderBoneName
+
+    def createInverseKinematicChains(self):
+        scene = bpy.context.scene
+        print("Loading inverse kinematic chains")
+        for m3IkChain in self.model.inverseKinematicChains:
+            ik = scene.m3_ik_chains.add()
+
+            animPathPrefix = "m3_ik_chain[%s]" % len(scene.m3_ik_chains)
+            transferer = M3ToBlenderDataTransferer(self, scene, animPathPrefix, blenderObject=ik, m3Object=m3IkChain)
+            shared.transferIkChain(transferer)
+
+            ik.name = "ikChain%s" % len(scene.m3_ik_chains)
+            ik.boneName1 = self.boneNames[m3IkChain.boneIndex1]
+            ik.boneName2 = self.boneNames[m3IkChain.boneIndex2]
 
     def createAttachmentPoints(self):
         print("Loading attachment points and volumes")

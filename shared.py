@@ -1646,19 +1646,19 @@ def transferRibbon(transferer):
     transferer.transferInt("ribbonSides")
     transferer.transferAnimatableFloat("ribbonLength")
     transferer.transferEnum("yawVariationType")
-    transferer.transferAnimatableFloat("yawVariationAmount")
+    transferer.transferAnimatableFloat("yawVariationAmplitude")
     transferer.transferAnimatableFloat("yawVariationFrequency")
     transferer.transferEnum("pitchVariationType")
-    transferer.transferAnimatableFloat("pitchVariationAmount")
+    transferer.transferAnimatableFloat("pitchVariationAmplitude")
     transferer.transferAnimatableFloat("pitchVariationFrequency")
     transferer.transferEnum("lengthVariationType")
-    transferer.transferAnimatableFloat("lengthVariationAmount")
+    transferer.transferAnimatableFloat("lengthVariationAmplitude")
     transferer.transferAnimatableFloat("lengthVariationFrequency")
     transferer.transferEnum("radiusVariationType")
-    transferer.transferAnimatableFloat("radiusVariationAmount")
+    transferer.transferAnimatableFloat("radiusVariationAmplitude")
     transferer.transferAnimatableFloat("radiusVariationFrequency")
     transferer.transferEnum("alphaVariationType")
-    transferer.transferAnimatableFloat("alphaVariationAmount")
+    transferer.transferAnimatableFloat("alphaVariationAmplitude")
     transferer.transferAnimatableFloat("alphaVariationFrequency")
     transferer.transferBit("flags", "collideWithTerrain")
     transferer.transferBit("flags", "collideWithObjects")
@@ -1952,6 +1952,12 @@ def transferLight(transferer):
 
 def transferBillboardBehavior(transferer):
     transferer.transferEnum("billboardType")
+
+def transferIkChain(transferer):
+    transferer.transferFloat("maxSearchUp")
+    transferer.transferFloat("maxSearchDown")
+    transferer.transferFloat("maxSpeed")
+    transferer.transferFloat("goalPosThreshold")
 
 def transferBufferMaterial(transferer):
     pass

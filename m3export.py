@@ -175,6 +175,7 @@ class Exporter:
         self.structureVersionMap["STBM"] = 0
         self.structureVersionMap["SDFG"] = 0
         self.structureVersionMap["SDU3"] = 0
+        self.structureVersionMap["IKJT"] = 0
 
     def getVersionOf(self, structureName):
         return self.structureVersionMap[structureName]
@@ -214,6 +215,7 @@ class Exporter:
         self.initRigidBodies(model)
         self.initLights(model)
         self.initBillboardBehaviors(model)
+        self.initIkChains(model)
         self.initVisibilityTest(model)
         # TODO remove call and method:
         # self.initBoundings(model)
@@ -1717,6 +1719,25 @@ class Exporter:
                 transferer = BlenderToM3DataTransferer(exporter=self, m3Object=m3BillboardBehavior, blenderObject=billboardBehavior, animPathPrefix=animPathPrefix, rootObject=self.scene)
                 shared.transferBillboardBehavior(transferer)
                 model.billboardBehaviors.append(m3BillboardBehavior)
+
+    def initIkChains(self, model):
+        scene = self.scene
+        for ikChainIndex, ikChain in enumerate(scene.m3_ik_chains):
+            boneName1 = ikChain.boneName1
+            boneName2 = ikChain.boneName2
+            boneIndex1 = self.boneNameToBoneIndexMap.get(boneName1)
+            boneIndex2 = self.boneNameToBoneIndexMap.get(boneName2)
+            # Export only if used:
+            if boneIndex1 is not None or boneIndex2 is not None:
+                m3IkChain = self.createInstanceOf("IKJT")
+                m3IkChain.boneIndex1 = boneIndex1
+                m3IkChain.boneIndex2 = boneIndex2
+                animPathPrefix = "m3_ik_chains[%s]." % ikChainIndex
+                transferer = BlenderToM3DataTransferer(exporter=self, m3Object=m3IkChain, blenderObject=ikChain, animPathPrefix=animPathPrefix, rootObject=self.scene)
+                shared.transferIkChain(transferer)
+                model.inverseKinematicChains.append(m3IkChain)
+            else:
+                print("m3_ik_chains[%s] contains incorrect bone reference" % ikChainIndex)
 
     def initAttachmentPoints(self, model):
         scene = self.scene

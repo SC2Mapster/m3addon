@@ -2649,15 +2649,15 @@
             <version number="0" size="32" />
         </versions>
         <fields>
-            <field name="unknown1" type="uint32" default-value="0"/>
-            <field name="unknown2" type="uint32" default-value="0"/>
-            <field name="unknown3" type="uint32" default-value="-1"/>
+            <field name="unknown1" type="int32" default-value="0"/>
+            <field name="unknown2" type="int32" default-value="0"/>
+            <field name="unknown3" type="int32" default-value="-1"/>
             <field name="boneIndex1" type="uint16" />
             <field name="boneIndex2" type="uint16" />
             <field name="maxSearchUp" type="float" />
             <field name="maxSearchDown" type="float" />
             <field name="maxSpeed" type="float" />
-            <field name="IKGoalPosThreshold" type="float" />
+            <field name="goalPosThreshold" type="float" />
         </fields>
     </structure>
 
@@ -2844,7 +2844,7 @@
             <field name="clothBehavior" type="Reference" refTo="PHCL" since-version="28" />
             <field name="unknownMaybeRef4" type="Reference" />
             <field name="unknownbd5657bd" size="12" since-version="25" />
-            <field name="ikjtData" type="Reference" refTo="IKJT"/>
+            <field name="inverseKinematicChains" type="Reference" refTo="IKJT"/>
             <field name="unknownMaybeRef5" type="Reference" />
             <field name="partsOfTurrentBehaviors" type="Reference" refTo="PATU" />
             <field name="turrentBehaviors" type="Reference" refTo="TRGD" />

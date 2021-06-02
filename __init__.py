@@ -1599,6 +1599,16 @@ class M3BillboardBehavior(bpy.types.PropertyGroup):
     billboardType: bpy.props.EnumProperty(options=set(), default="6", items=billboardBehaviorTypeList)
 
 
+class M3InverseKinematicChain(bpy.types.PropertyGroup):
+    name: bpy.props.StringProperty(options=set())
+    boneName1: bpy.props.StringProperty(options=set())
+    boneName2: bpy.props.StringProperty(options=set())
+    maxSearchUp: bpy.props.FloatProperty(options=set())
+    maxSearchDown: bpy.props.FloatProperty(options=set())
+    maxSpeed: bpy.props.FloatProperty(options=set(), min=0)
+    goalPosThreshold: bpy.props.FloatProperty(options=set(), min=0)
+
+
 class BoneVisibilityPanel(bpy.types.Panel):
     bl_idname = "OBJECT_PT_M3_bone_visibility"
     bl_label = "M3 Bone Visibility"
@@ -3759,6 +3769,50 @@ class BillboardBehaviorPanel(bpy.types.Panel):
             layout.prop(billboardBehavior, "billboardType", text="Billboard Type")
 
 
+class InverseKinematicChainPanel(bpy.types.Panel):
+    bl_idname = "OBJECT_PT_M3_ik_chain"
+    bl_label = "M3 Inverse Kinematic Chains"
+    bl_space_type = "PROPERTIES"
+    bl_region_type = "WINDOW"
+    bl_context = "scene"
+    bl_options = {"DEFAULT_CLOSED"}
+
+    def draw(self, context):
+        layout = self.layout
+        scene = context.scene
+        iks = len(scene.m3_ik_chains)
+
+        rows = 2
+        if iks > 1:
+            rows = 4
+
+        row = layout.row()
+        col = row.column()
+        col.template_list("UI_UL_list", "m3_ik_chains", scene, "m3_ik_chains", scene, "m3_ik_chain_index", rows=rows)
+        col = row.column(align=True)
+        col.operator("m3.ik_chains_add", icon="ADD", text="")
+        col.operator("m3.ik_chains_remove", icon="REMOVE", text="")
+
+        if iks > 1:
+            col.separator()
+            col.operator("m3.ik_chains_move", icon="TRIA_UP", text="").shift = -1
+            col.operator("m3.ik_chains_move", icon="TRIA_DOWN", text="").shift = 1
+
+        currentIndex = scene.m3_ik_chain_index
+        if currentIndex >= 0:
+            ik = scene.m3_ik_chains[currentIndex]
+            layout.separator()
+            layout.prop(ik, "name", text="Chain Name")
+            col = layout.column(align=True)
+            col.prop(ik, "boneName1", text="Bone Base")
+            col.prop(ik, "boneName2", text="Bone Foot")
+            col = layout.column(align=True)
+            col.prop(ik, "maxSearchUp", text="Max Search Up")
+            col.prop(ik, "maxSearchDown", text="Max Search Down")
+            col.prop(ik, "maxSpeed", text="Max Search Speed")
+            col.prop(ik, "goalPosThreshold", text="Goal Position Threshold")
+
+
 class WarpPanel(bpy.types.Panel):
     bl_idname = "OBJECT_PT_M3_warps"
     bl_label = "M3 Warp Fields"
@@ -5306,7 +5360,7 @@ class M3_BILLBOARD_BEHAVIORS_OT_remove(bpy.types.Operator):
 
 
 class M3_BILLBOARD_BEHAVIORS_OT_move(bpy.types.Operator):
-    bl_idname = "m3.billboard_behavior_move"
+    bl_idname = "m3.billboard_behaviors_move"
     bl_label = "Move Billboard Behavior"
     bl_description = "Moves the active M3 billboard behavior"
     bl_options = {"UNDO"}
@@ -5321,6 +5375,61 @@ class M3_BILLBOARD_BEHAVIORS_OT_move(bpy.types.Operator):
             scene.m3_billboard_behaviors.move(ii, ii + self.shift)
             swapActionSceneM3Keyframes("m3_billboard_behaviors", ii, self.shift)
             scene.m3_billboard_behavior_index += self.shift
+
+        return {"FINISHED"}
+
+
+class M3_INVERSE_KINEMATIC_CHAINS_OT_add(bpy.types.Operator):
+    bl_idname      = "m3.ik_chains_add"
+    bl_label       = "Add M3 Inverse Kinematic Chain"
+    bl_description = "Adds an M3 inverse kinematic chain"
+    bl_options = {"UNDO"}
+
+    def invoke(self, context, event):
+        scene = context.scene
+        behavior = scene.m3_ik_chains.add()
+
+        behavior.name = shared.findUnusedPropItemName(scene, propGroups=[scene.m3_ik_chains])
+
+        # The following selection causes a new bone to be created:
+        scene.m3_ik_chain_index = len(scene.m3_ik_chains) - 1
+
+        return {"FINISHED"}
+
+
+class M3_INVERSE_KINEMATIC_CHAINS_OT_remove(bpy.types.Operator):
+    bl_idname      = "m3.ik_chains_remove"
+    bl_label       = "Remove M3 Inverse Kinematic Chain"
+    bl_description = "Removes the active M3 inverse kinematic chain"
+    bl_options = {"UNDO"}
+
+    def invoke(self, context, event):
+        scene = context.scene
+        if scene.m3_ik_chain_index >= 0:
+            scene.m3_ik_chains.remove(scene.m3_ik_chain_index)
+
+            if scene.m3_ik_chain_index != 0 or len(scene.m3_ik_chains) == 0:
+                scene.m3_ik_chain_index -= 1
+
+        return {"FINISHED"}
+
+
+class M3_INVERSE_KINEMATIC_CHAINS_OT_move(bpy.types.Operator):
+    bl_idname = "m3.ik_chains_move"
+    bl_label = "Move M3 Inverse Kinematic Chain"
+    bl_description = "Moves the active M3 inverse kinematic chain"
+    bl_options = {"UNDO"}
+
+    shift: bpy.props.IntProperty(name="shift", default=0)
+
+    def invoke(self, context, event):
+        scene = context.scene
+        ii = scene.m3_ik_chain_index
+
+        if (ii < len(scene.m3_ik_chains) - self.shift and ii >= -self.shift):
+            scene.m3_ik_chains.move(ii, ii + self.shift)
+            swapActionSceneM3Keyframes("m3_ik_chains", ii, self.shift)
+            scene.m3_ik_chain_index += self.shift
 
         return {"FINISHED"}
 
@@ -5817,6 +5926,7 @@ classes = (
     M3RigidBody,
     M3Light,
     M3BillboardBehavior,
+    M3InverseKinematicChain,
     cm.M3GroupProjection,
     M3Warp,
     M3AttachmentPoint,
@@ -5882,6 +5992,7 @@ classes = (
     LightMenu,
     LightPanel,
     BillboardBehaviorPanel,
+    InverseKinematicChainPanel,
     ui.ProjectionMenu,
     ui.ProjectionPanel,
     WarpMenu,
@@ -5951,6 +6062,9 @@ classes = (
     M3_BILLBOARD_BEHAVIORS_OT_add,
     M3_BILLBOARD_BEHAVIORS_OT_remove,
     M3_BILLBOARD_BEHAVIORS_OT_move,
+    M3_INVERSE_KINEMATIC_CHAINS_OT_add,
+    M3_INVERSE_KINEMATIC_CHAINS_OT_remove,
+    M3_INVERSE_KINEMATIC_CHAINS_OT_move,
     ui.M3_PROJECTIONS_OT_add,
     ui.M3_PROJECTIONS_OT_remove,
     ui.M3_PROJECTIONS_OT_move,
@@ -6009,6 +6123,8 @@ def register():
     bpy.types.Scene.m3_light_index = bpy.props.IntProperty(update=handleLightIndexChanged, default=-1)
     bpy.types.Scene.m3_billboard_behaviors = bpy.props.CollectionProperty(type=M3BillboardBehavior)
     bpy.types.Scene.m3_billboard_behavior_index = bpy.props.IntProperty(update=handleBillboardBehaviorIndexChanged, default=-1)
+    bpy.types.Scene.m3_ik_chains = bpy.props.CollectionProperty(type=M3InverseKinematicChain)
+    bpy.types.Scene.m3_ik_chain_index = bpy.props.IntProperty(default=-1)
     bpy.types.Scene.m3_projections = bpy.props.CollectionProperty(type=cm.M3GroupProjection)
     bpy.types.Scene.m3_projection_index = bpy.props.IntProperty(update=cm.handleProjectionIndexChanged, default=-1)
     bpy.types.Scene.m3_warps = bpy.props.CollectionProperty(type=M3Warp)
