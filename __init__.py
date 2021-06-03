@@ -1108,6 +1108,9 @@ class M3StandardMaterial(bpy.types.PropertyGroup):
     cutoutThresh: bpy.props.IntProperty(options=set(), min=0, max=255, default=0)
     specMult: bpy.props.FloatProperty(options=set(), default=1)
     emisMult: bpy.props.FloatProperty(options=set(), default=1)
+    envConstMult: bpy.props.FloatProperty(options=set(), default=1.0)
+    envDiffMult: bpy.props.FloatProperty(options=set(), default=0.0)
+    envSpecMult: bpy.props.FloatProperty(options=set(), default=0.0)
     layerBlendType: bpy.props.EnumProperty(options=set(), items=matLayerAndEmisBlendModeList, default="2")
     emisBlendType: bpy.props.EnumProperty(options=set(), items=matLayerAndEmisBlendModeList, default="3")
     specType: bpy.props.EnumProperty(options=set(), items=matSpecularTypeList, default="0")
@@ -1978,6 +1981,11 @@ def displayMaterialPropertiesUI(scene: bt.Scene, layout: bt.UILayout, materialRe
         sub.prop(material, "depthBlendFalloff", text="")
         col.prop(material, "priority")
         col.prop(material, "cutoutThresh", text="Cutout Thresh.", slider=True)
+
+        col = layout.column(align=True, heading="Environment map multipliers")
+        col.prop(material, "envConstMult")
+        col.prop(material, "envDiffMult")
+        col.prop(material, "envSpecMult")
 
     elif materialType == shared.displacementMaterialTypeIndex:
         material = scene.m3_displacement_materials[materialIndex]

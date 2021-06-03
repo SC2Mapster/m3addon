@@ -1574,7 +1574,9 @@
             <field name="unknownAt41" size="3" expected-value="0x000000" />
             <field name="specMult" type="float" default-value="1.0" />
             <field name="emisMult" type="float" default-value="1.0" />
-            <field name="unknown15e494" size="12" since-version="20" default-value="0xCDCC4C3ECDCC4C3F" />
+            <field name="envConstMult" type="float" since-version="20" default-value="1.0" />
+            <field name="envDiffMult" type="float" since-version="20" default-value="0.0" />
+            <field name="envSpecMult" type="float" since-version="20" default-value="0.0" />
             <field name="diffuseLayer" type="Reference" refTo="LAYR" />
             <field name="decalLayer" type="Reference" refTo="LAYR" />
             <field name="specularLayer" type="Reference" refTo="LAYR" />
