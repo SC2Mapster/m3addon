@@ -2548,10 +2548,8 @@
             <version number="9" size="760" />
         </versions>
         <fields>
-            <field name="boneIndex" type="uint8" />
-            <field name="short1" type="uint8" expected-value="0"/>
-            <field name="short2" type="uint8" expected-value="0"/>
-            <field name="short3" type="uint8" expected-value="0"/>
+            <field name="boneIndex" type="uint16" />
+            <field name="unknown13c070e5" type="uint16" expected-value="0"/> <!-- unused? or it might belong to boneIndex -->
             <field name="materialReferenceIndex" type="uint32" />
             <field name="unknown1f9302c9" type="uint32" default-value="0" since-version="8" />
             <field name="waveLength" type="FloatAnimationReference" />
