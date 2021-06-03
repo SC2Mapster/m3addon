@@ -1114,6 +1114,7 @@ class M3StandardMaterial(bpy.types.PropertyGroup):
     layerBlendType: bpy.props.EnumProperty(options=set(), items=matLayerAndEmisBlendModeList, default="2")
     emisBlendType: bpy.props.EnumProperty(options=set(), items=matLayerAndEmisBlendModeList, default="3")
     specType: bpy.props.EnumProperty(options=set(), items=matSpecularTypeList, default="0")
+    parallaxHeight: bpy.props.FloatProperty(options={"ANIMATABLE"}, default=0.0)
     unfogged: bpy.props.BoolProperty(options=set(), default=True)
     twoSided: bpy.props.BoolProperty(options=set(), default=False)
     unshaded: bpy.props.BoolProperty(options=set(), default=False)
@@ -1981,6 +1982,9 @@ def displayMaterialPropertiesUI(scene: bt.Scene, layout: bt.UILayout, materialRe
         sub.prop(material, "depthBlendFalloff", text="")
         col.prop(material, "priority")
         col.prop(material, "cutoutThresh", text="Cutout Thresh.", slider=True)
+
+        col = layout.column(align=True)
+        col.prop(material, "parallaxHeight")
 
         col = layout.column(align=True, heading="Environment map multipliers")
         col.prop(material, "envConstMult")

@@ -340,15 +340,13 @@
             <field name="unknown" type="int32" default-value="0"  />
         </fields>
     </structure>
-    <structure name="SR32" >
-        <description>
-            ???
-        </description>
+    <structure name="SR32">
+        <description>Float animation reference</description>
         <versions>
             <version number="0" size="20" />
         </versions>
         <fields>
-            <field name="unknown45e83bea" type="FloatAnimationReferenceV0" />
+            <field name="value" type="FloatAnimationReferenceV0" />
         </fields>
     </structure>
     <structure name="REAL">
@@ -1591,18 +1589,19 @@
             <field name="heightLayer" type="Reference" refTo="LAYR" />
             <field name="lightMapLayer" type="Reference" refTo="LAYR" />
             <field name="ambientOcclussionLayer" type="Reference" refTo="LAYR" />
-            <field name="unknownLayer1" type="Reference" refTo="LAYR" since-version="19" />
-            <field name="unknownLayer2" type="Reference" refTo="LAYR" since-version="19" />
-            <field name="unknownLayer3" type="Reference" refTo="LAYR" since-version="19" />
-            <field name="unknownLayer4" type="Reference" refTo="LAYR" since-version="19" />
-            <field name="unknown3" type="uint32" default-value="0"/>
+            <field name="normalBlendMask1" type="Reference" refTo="LAYR" since-version="19" />
+            <field name="normalBlendMask2" type="Reference" refTo="LAYR" since-version="19" />
+            <field name="normalBlendNormal1" type="Reference" refTo="LAYR" since-version="19" />
+            <field name="normalBlendNormal2" type="Reference" refTo="LAYR" since-version="19" />
+            <field name="unknown2481ae8a" type="uint32" default-value="0"/>
             <field name="layerBlendType" type="uint32" />
             <field name="emisBlendType" type="uint32" />
             <field name="emisMode" type="uint32" default-value="2" />
             <field name="specType" type="uint32" />
-            <field name="unknownAnimationRef1" type="FloatAnimationReference" />
+            <field name="parallaxHeight" type="FloatAnimationReference" />
             <field name="unknownAnimationRef2" type="UInt32AnimationReference" />
-            <field name="unknown2410d9f0" type="Reference" refTo="SR32" since-version="19" />
+            <field name="normalBlendMaskFactor" type="Reference" refTo="SR32" since-version="19" />
+            <!-- ^ one element per each color channel of normalBlendMask1 and normalBlendMask2 - a maximum expected amount of elements is 8 (2 masks x RGBA) -->
         </fields>
     </structure>
 

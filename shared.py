@@ -131,10 +131,10 @@ layerFieldNameToNameMap = {
     "normalLayer": "Normal",
     "heightLayer": "Height",
     "colorDefiningLayer": "Color Defining Layer",
-    "unknownLayer1": "Unknown Layer 1",
-    "unknownLayer2": "Unknown Layer 2",
-    "unknownLayer3": "Unknown Layer 3",
-    "unknownLayer4": "Unknown Layer 4",
+    "normalBlendMask1": "Normal Blending Mask 1",
+    "normalBlendMask2": "Normal Blending Mask 2",
+    "normalBlendNormal1": "Normal Blending Normal 1",
+    "normalBlendNormal2": "Normal Blending Normal 2",
     "lightMapLayer": "Light Map",
     "ambientOcclussionLayer": "Ambient Occlussion",
     "strengthLayer": "Strength",
@@ -142,7 +142,9 @@ layerFieldNameToNameMap = {
     "colorLayer": "Color",
     "noise1Layer": "Noise 1",
     "noise2Layer": "Noise 2",
-    "creepLayer": "Creep"
+    "creepLayer": "Creep",
+    "unknownLayer1": "Unknown Layer 1",
+    "unknownLayer2": "Unknown Layer 2",
 }
 
 exportAmountAllAnimations = "ALL_ANIMATIONS"
@@ -1830,6 +1832,7 @@ def transferStandardMaterial(transferer):
     transferer.transferEnum("layerBlendType")
     transferer.transferEnum("emisBlendType")
     transferer.transferEnum("specType")
+    transferer.transferAnimatableFloat("parallaxHeight")
 
 def transferDisplacementMaterial(transferer):
     transferer.transferAnimatableFloat("strengthFactor")
