@@ -1320,51 +1320,50 @@
     </structure>
 
     <structure name="PATU">
-        <description>Part of Turrent</description>
+        <description>Part of Turret</description>
         <versions>
             <version number="4" size="152" />
         </versions>
         <fields>
-            <field name="unknown5c3999e5" type="float" default-value="1.0" />
-            <field name="unknowna3674aee" type="float" default-value="0.0" />
-            <field name="unknowndd0cc5f1" type="float" default-value="0.0" />
-            <field name="unknown6dee953c" type="float" default-value="0.0" />
-            <field name="unknowne3e2341f" type="float" default-value="0.0" />
-            <field name="unknown36188266" type="float" default-value="1.0" />
-            <field name="unknownf95a6198" type="float" default-value="0.0" />
-            <field name="unknown11a1536b" type="float" default-value="0.0" />
-            <field name="unknown1975afed" type="float" default-value="0.0" />
-            <field name="unknownde3466a8" type="float" default-value="0.0" />
-            <field name="unknownf69102f9" type="float" default-value="1.0" />
-            <field name="unknown71538f05" size="16" expected-value="0x00000000000000000000000000000000" />
-            <field name="unknowna38ff662" type="float" default-value="1.0" />
-            <field name="unknownb2fb85a2" type="float" default-value="0.0" />
-            <field name="unknownaaff49cf" type="float" default-value="0.0" />
-            <field name="unknownfdfde349" type="float" default-value="0.0" />
-            <field name="unknown978ba241" type="float" default-value="1.0" />
-            <field name="unknownChen" type="float" default-value="0.0" />
-            <field name="unknowne2d91749" size="4" default-value="0x00000000" />
-            <field name="unknown4fc95268" size="4" default-value="0x00000000" />
-            <field name="unknown61840ebc" type="float" default-value="1.0" />
-            <field name="boneIndex" type="uint32" />
-            <field name="unknown142bb958" type="uint32" default-value="2" />
-            <field name="unknownea9c2019" type="float" default-value="0.0" />
-            <field name="unknownc40c57a4" type="float" default-value="0.0" />
-            <field name="unknown698c931b" type="float" default-value="0.0" />
-            <field name="unknown175074c7" type="uint32" default-value="2" />
-            <field name="unknownd3d84176" type="float" default-value="0.0" />
-            <field name="unknown466cb20b" type="float" default-value="0.0" />
-            <field name="unknowna9a5325e" type="float" default-value="0.0" />
-            <field name="unknown19c50495" type="float" default-value="0.0" />
-            <field name="unknownaaefeecf" type="float" default-value="0.0" />
-            <field name="unknown63b2ca3b" type="float" default-value="0.0" />
-            <field name="unknown19193ff0" type="float" default-value="0.0"  />
-            <field name="unknownd32f6ee7" type="float" default-value="0.0"  />
+            <field name="forwardX" type="VEC4V0"/>
+            <field name="forwardY" type="VEC4V0"/>
+            <field name="forwardZ" type="VEC4V0"/>
+            <field name="upX" type="VEC4V0"/>
+            <field name="upY" type="VEC4V0"/>
+            <field name="upZ" type="VEC4V0"/>
+            <field name="boneIndex" type="uint16" />
+            <field name="flags" type="uint16" default-value="0x100">
+                <bits>
+                    <bit mask="0x1" name="mainTurretBone"/>
+                    <bit mask="0x100" name="unknownFlag"/>
+                </bits>
+            </field>
+            <field name="yawFlags" type="uint32" default-value="0x2">
+                <bits>
+                    <bit mask="0x2" name="yawLimited"/>
+                </bits>
+            </field>
+            <field name="yawMin" type="float" default-value="0.0" />
+            <field name="yawMax" type="float" default-value="0.0" />
+            <field name="yawWeight" type="float" default-value="0.0" />
+            <field name="pitchFlags" type="uint32" default-value="0x2">
+                <bits>
+                    <bit mask="0x2" name="pitchLimited"/>
+                </bits>
+            </field>
+            <field name="pitchMin" type="float" default-value="0.0" />
+            <field name="pitchMax" type="float" default-value="0.0" />
+            <field name="pitchWeight" type="float" default-value="0.0" />
+            <field name="unknownAt132" type="float" default-value="0.0" />
+            <field name="unknownAt136" type="float" default-value="0.0" />
+            <field name="unknownAt140" type="float" default-value="0.0" />
+            <field name="unknownAt144" type="float" default-value="0.0" />
+            <field name="unknownAt148" type="float" default-value="0.0" />
         </fields>
     </structure>
 
     <structure name="TRGD">
-        <description>Turrent Behavior</description>
+        <description>Turret Behavior</description>
         <versions>
             <version number="0" size="24" />
         </versions>
@@ -2846,8 +2845,8 @@
             <field name="unknownbd5657bd" size="12" since-version="25" />
             <field name="inverseKinematicChains" type="Reference" refTo="IKJT"/>
             <field name="unknownMaybeRef5" type="Reference" />
-            <field name="partsOfTurrentBehaviors" type="Reference" refTo="PATU" />
-            <field name="turrentBehaviors" type="Reference" refTo="TRGD" />
+            <field name="turretBehaviorParts" type="Reference" refTo="PATU" />
+            <field name="turretBehaviors" type="Reference" refTo="TRGD" />
             <field name="absoluteInverseBoneRestPositions" type="Reference" refTo="IREF" />
             <field name="tightHitTest" type="SSGSV1" />
             <field name="fuzzyHitTestObjects" type="Reference" refTo="SSGS" />

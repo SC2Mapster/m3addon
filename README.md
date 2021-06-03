@@ -56,6 +56,7 @@ Currently the following content can be exported and imported:
 * M3 projections
 * M3 ribbons
 * M3 billbord behaviors
+* M3 turret behaviors
 * M3 inverse kinematic chains
 
 The script m3ToXml.py can also be used to convert a m3 file into a XML file. It

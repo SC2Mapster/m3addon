@@ -459,6 +459,7 @@ class Importer:
             self.createLights()
             self.createBillboardBehaviors()
             self.createInverseKinematicChains()
+            self.createTurretBehaviors()
             self.createAttachmentPoints()
             self.createProjections()
             self.createWarps()
@@ -1213,6 +1214,46 @@ class Importer:
             ik.name = "ikChain%s" % len(scene.m3_ik_chains)
             ik.boneName1 = self.boneNames[m3IkChain.boneIndex1]
             ik.boneName2 = self.boneNames[m3IkChain.boneIndex2]
+
+    def createTurretBehaviors(self):
+        scene = bpy.context.scene
+        print("Loading turret behaviors")
+        for m3TurretBehavior in self.model.turretBehaviors:
+            turret = scene.m3_turret_behaviors.add()
+            turret.name = m3TurretBehavior.name
+
+            for m3TurretBehaviorPartIndex in m3TurretBehavior.partIndex:
+                m3TurretBehaviorPart = self.model.turretBehaviorParts[m3TurretBehaviorPartIndex]
+                part = turret.parts.add()
+                animPathPrefix = "m3_turret_behavior[%s].parts[%s]" % (len(scene.m3_turret_behaviors), len(turret.parts))
+                transferer = M3ToBlenderDataTransferer(self, scene, animPathPrefix, blenderObject=part, m3Object=m3TurretBehaviorPart)
+                shared.transferTurretBehaviorPart(transferer)
+
+                part.name = self.boneNames[m3TurretBehaviorPart.boneIndex]
+                part.forwardX[0] = m3TurretBehaviorPart.forwardX.x
+                part.forwardX[1] = m3TurretBehaviorPart.forwardX.y
+                part.forwardX[2] = m3TurretBehaviorPart.forwardX.z
+                part.forwardX[3] = m3TurretBehaviorPart.forwardX.w
+                part.forwardY[0] = m3TurretBehaviorPart.forwardY.x
+                part.forwardY[1] = m3TurretBehaviorPart.forwardY.y
+                part.forwardY[2] = m3TurretBehaviorPart.forwardY.z
+                part.forwardY[3] = m3TurretBehaviorPart.forwardY.w
+                part.forwardZ[0] = m3TurretBehaviorPart.forwardZ.x
+                part.forwardZ[1] = m3TurretBehaviorPart.forwardZ.y
+                part.forwardZ[2] = m3TurretBehaviorPart.forwardZ.z
+                part.forwardZ[3] = m3TurretBehaviorPart.forwardZ.w
+                part.upX[0] = m3TurretBehaviorPart.upX.x
+                part.upX[1] = m3TurretBehaviorPart.upX.y
+                part.upX[2] = m3TurretBehaviorPart.upX.z
+                part.upX[3] = m3TurretBehaviorPart.upX.w
+                part.upY[0] = m3TurretBehaviorPart.upY.x
+                part.upY[1] = m3TurretBehaviorPart.upY.y
+                part.upY[2] = m3TurretBehaviorPart.upY.z
+                part.upY[3] = m3TurretBehaviorPart.upY.w
+                part.upZ[0] = m3TurretBehaviorPart.upZ.x
+                part.upZ[1] = m3TurretBehaviorPart.upZ.y
+                part.upZ[2] = m3TurretBehaviorPart.upZ.z
+                part.upZ[3] = m3TurretBehaviorPart.upZ.w
 
     def createAttachmentPoints(self):
         print("Loading attachment points and volumes")

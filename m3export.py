@@ -176,6 +176,8 @@ class Exporter:
         self.structureVersionMap["SDFG"] = 0
         self.structureVersionMap["SDU3"] = 0
         self.structureVersionMap["IKJT"] = 0
+        self.structureVersionMap["TRGD"] = 0
+        self.structureVersionMap["PATU"] = 4
 
     def getVersionOf(self, structureName):
         return self.structureVersionMap[structureName]
@@ -216,6 +218,7 @@ class Exporter:
         self.initLights(model)
         self.initBillboardBehaviors(model)
         self.initIkChains(model)
+        self.initTurretBehaviors(model)
         self.initVisibilityTest(model)
         # TODO remove call and method:
         # self.initBoundings(model)
@@ -1738,6 +1741,60 @@ class Exporter:
                 model.inverseKinematicChains.append(m3IkChain)
             else:
                 print("m3_ik_chains[%s] contains incorrect bone reference" % ikChainIndex)
+
+    def initTurretBehaviors(self, model):
+        scene = self.scene
+        for ii, turret in enumerate(scene.m3_turret_behaviors):
+            m3TurretBehavior = self.createInstanceOf("TRGD")
+            m3TurretBehavior.name = turret.name
+
+            # There must only be one part per turret behavior that is marked as the main bone
+            # It should also be before the other parts of the turret behavior in the model's PATU reference list
+            hasMainTurretBone = False
+            for jj, part in enumerate(turret.parts):
+                if hasMainTurretBone:
+                    part.mainTurretBone = False
+                elif part.mainTurretBone:
+                    turret.parts.move(jj, 0)
+                    hasMainTurretBone = True
+
+            for jj, part in enumerate(turret.parts):
+                m3TurretBehaviorPart = self.createInstanceOf("PATU")
+                m3TurretBehaviorPart.boneIndex = self.boneNameToBoneIndexMap.get(part.name)
+
+                animPathPrefix = "m3_turret_behaviors[%s].parts[%s]" % (ii, jj)
+                transferer = BlenderToM3DataTransferer(exporter=self, m3Object=m3TurretBehaviorPart, blenderObject=part, animPathPrefix=animPathPrefix, rootObject=self.scene)
+                shared.transferTurretBehaviorPart(transferer)
+
+                m3TurretBehaviorPart.forwardX.x = part.forwardX[0]
+                m3TurretBehaviorPart.forwardX.y = part.forwardX[1]
+                m3TurretBehaviorPart.forwardX.z = part.forwardX[2]
+                m3TurretBehaviorPart.forwardX.w = part.forwardX[3]
+                m3TurretBehaviorPart.forwardY.x = part.forwardY[0]
+                m3TurretBehaviorPart.forwardY.y = part.forwardY[1]
+                m3TurretBehaviorPart.forwardY.z = part.forwardY[2]
+                m3TurretBehaviorPart.forwardY.w = part.forwardY[3]
+                m3TurretBehaviorPart.forwardZ.x = part.forwardZ[0]
+                m3TurretBehaviorPart.forwardZ.y = part.forwardZ[1]
+                m3TurretBehaviorPart.forwardZ.z = part.forwardZ[2]
+                m3TurretBehaviorPart.forwardZ.w = part.forwardZ[3]
+                m3TurretBehaviorPart.upX.x = part.upX[0]
+                m3TurretBehaviorPart.upX.y = part.upX[1]
+                m3TurretBehaviorPart.upX.z = part.upX[2]
+                m3TurretBehaviorPart.upX.w = part.upX[3]
+                m3TurretBehaviorPart.upY.x = part.upY[0]
+                m3TurretBehaviorPart.upY.y = part.upY[1]
+                m3TurretBehaviorPart.upY.z = part.upY[2]
+                m3TurretBehaviorPart.upY.w = part.upY[3]
+                m3TurretBehaviorPart.upZ.x = part.upZ[0]
+                m3TurretBehaviorPart.upZ.y = part.upZ[1]
+                m3TurretBehaviorPart.upZ.z = part.upZ[2]
+                m3TurretBehaviorPart.upZ.w = part.upZ[3]
+
+                m3TurretBehavior.partIndex.append(len(model.turretBehaviorParts))
+                model.turretBehaviorParts.append(m3TurretBehaviorPart)
+
+            model.turretBehaviors.append(m3TurretBehavior)
 
     def initAttachmentPoints(self, model):
         scene = self.scene

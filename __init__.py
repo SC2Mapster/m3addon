@@ -1609,6 +1609,35 @@ class M3InverseKinematicChain(bpy.types.PropertyGroup):
     goalPosThreshold: bpy.props.FloatProperty(options=set(), min=0)
 
 
+class M3TurretBehaviorPart(bpy.types.PropertyGroup):
+    name: bpy.props.StringProperty(options=set())
+    forwardX: bpy.props.FloatVectorProperty(options=set(), size=4, default=(0, -1, 0, 0))
+    forwardY: bpy.props.FloatVectorProperty(options=set(), size=4, default=(1, 0, 0, 0))
+    forwardZ: bpy.props.FloatVectorProperty(options=set(), size=4, default=(0, 0, 1, 0))
+    upX: bpy.props.FloatVectorProperty(options=set(), size=4, default=(1, 0, 0, 0))
+    upY: bpy.props.FloatVectorProperty(options=set(), size=4, default=(1, 0, 0, 0))
+    upZ: bpy.props.FloatVectorProperty(options=set(), size=4, default=(1, 0, 0, 0))
+    mainTurretBone: bpy.props.BoolProperty(options=set())
+    unknownFlag: bpy.props.BoolProperty(options=set(), default=True)
+    yawWeight: bpy.props.FloatProperty(options=set(), min=0, max=1, default=1, subtype="FACTOR")
+    yawLimited: bpy.props.BoolProperty(options=set())
+    yawMin: bpy.props.FloatProperty(options=set(), subtype="ANGLE")
+    yawMax: bpy.props.FloatProperty(options=set(), subtype="ANGLE")
+    pitchWeight: bpy.props.FloatProperty(options=set(), min=0, max=1, default=1, subtype="FACTOR")
+    pitchLimited: bpy.props.BoolProperty(options=set())
+    pitchMin: bpy.props.FloatProperty(options=set(), subtype="ANGLE")
+    pitchMax: bpy.props.FloatProperty(options=set(), subtype="ANGLE")
+    unknownAt140: bpy.props.FloatProperty(options=set())
+    unknownAt144: bpy.props.FloatProperty(options=set())
+    unknownAt148: bpy.props.FloatProperty(options=set())
+
+
+class M3TurretBehavior(bpy.types.PropertyGroup):
+    name: bpy.props.StringProperty(options=set())
+    parts: bpy.props.CollectionProperty(type=M3TurretBehaviorPart)
+    part_index: bpy.props.IntProperty(default=-1)
+
+
 class BoneVisibilityPanel(bpy.types.Panel):
     bl_idname = "OBJECT_PT_M3_bone_visibility"
     bl_label = "M3 Bone Visibility"
@@ -3813,6 +3842,99 @@ class InverseKinematicChainPanel(bpy.types.Panel):
             col.prop(ik, "goalPosThreshold", text="Goal Position Threshold")
 
 
+class TurretBehaviorPanel(bpy.types.Panel):
+    bl_idname = "OBJECT_PT_M3_turret_behavior"
+    bl_label = "M3 Turret Behaviors"
+    bl_space_type = "PROPERTIES"
+    bl_region_type = "WINDOW"
+    bl_context = "scene"
+    bl_options = {"DEFAULT_CLOSED"}
+
+    def draw(self, context):
+        layout = self.layout
+        scene = context.scene
+        turrets = len(scene.m3_turret_behaviors)
+
+        rows = 2
+        if turrets > 1:
+            rows = 4
+
+        row = layout.row()
+        col = row.column()
+        col.template_list("UI_UL_list", "m3_turret_behaviors", scene, "m3_turret_behaviors", scene, "m3_turret_behavior_index", rows=rows)
+        col = row.column(align=True)
+        col.operator("m3.turret_behaviors_add", icon="ADD", text="")
+        col.operator("m3.turret_behaviors_remove", icon="REMOVE", text="")
+
+        if turrets > 1:
+            col.separator()
+            col.operator("m3.turret_behaviors_move", icon="TRIA_UP", text="").shift = -1
+            col.operator("m3.turret_behaviors_move", icon="TRIA_DOWN", text="").shift = 1
+
+        currentIndex = scene.m3_turret_behavior_index
+        if currentIndex >= 0:
+            turret = scene.m3_turret_behaviors[currentIndex]
+            layout.separator()
+            layout.prop(turret, "name", text="Turret ID")
+            turret = scene.m3_turret_behaviors[currentIndex]
+            parts = len(turret.parts)
+
+            rows = 2
+            if parts > 1:
+                rows = 4
+
+            row = layout.row()
+            col = row.column()
+            col.template_list("UI_UL_list", "parts", turret, "parts", turret, "part_index", rows=rows)
+            col = row.column(align=True)
+            col.operator("m3.turret_behavior_parts_add", icon="ADD", text="")
+            col.operator("m3.turret_behavior_parts_remove", icon="REMOVE", text="")
+
+            if parts > 1:
+                col.separator()
+                col.operator("m3.turret_behavior_parts_move", icon="TRIA_UP", text="").shift = -1
+                col.operator("m3.turret_behavior_parts_move", icon="TRIA_DOWN", text="").shift = 1
+
+            if turret.part_index >= 0:
+                part = turret.parts[turret.part_index]
+                col = layout.column(align=True)
+                col.prop(part, "name", text="Bone Name")
+                col.prop(part, "mainTurretBone", text="Main Turret Bone")
+                row = layout.row()
+                col = row.column(align=True)
+                col.prop(part, "forwardX", text="Forward Vector X")
+                col = row.column(align=True)
+                col.prop(part, "forwardY", text="Y")
+                col = row.column(align=True)
+                col.prop(part, "forwardZ", text="Z")
+                row = layout.row()
+                col = row.column(align=True)
+                col.prop(part, "upX", text="Upward Vector X")
+                col = row.column(align=True)
+                col.prop(part, "upY", text="Y")
+                col = row.column(align=True)
+                col.prop(part, "upZ", text="Z")
+                row = layout.row()
+                col = row.column(align=True)
+                col.prop(part, "yawWeight", text="Yaw Weight")
+                col.prop(part, "yawLimited", text="Limited")
+                sub = col.column(align=True)
+                sub.active = part.yawLimited
+                sub.prop(part, "yawMin", text="Minimum")
+                sub.prop(part, "yawMax", text="Maximum")
+                col = row.column(align=True)
+                col.prop(part, "pitchWeight", text="Pitch Weight")
+                col.prop(part, "pitchLimited", text="Limited")
+                sub = col.column(align=True)
+                sub.active = part.pitchLimited
+                sub.prop(part, "pitchMin", text="Minimum")
+                sub.prop(part, "pitchMax", text="Maximum")
+                col = layout.column(align=True)
+                col.prop(part, "unknownAt140")
+                col.prop(part, "unknownAt144")
+                col.prop(part, "unknownAt148")
+
+
 class WarpPanel(bpy.types.Panel):
     bl_idname = "OBJECT_PT_M3_warps"
     bl_label = "M3 Warp Fields"
@@ -5387,9 +5509,9 @@ class M3_INVERSE_KINEMATIC_CHAINS_OT_add(bpy.types.Operator):
 
     def invoke(self, context, event):
         scene = context.scene
-        behavior = scene.m3_ik_chains.add()
+        ik = scene.m3_ik_chains.add()
 
-        behavior.name = shared.findUnusedPropItemName(scene, propGroups=[scene.m3_ik_chains])
+        ik.name = shared.findUnusedPropItemName(scene, propGroups=[scene.m3_ik_chains])
 
         # The following selection causes a new bone to be created:
         scene.m3_ik_chain_index = len(scene.m3_ik_chains) - 1
@@ -5430,6 +5552,119 @@ class M3_INVERSE_KINEMATIC_CHAINS_OT_move(bpy.types.Operator):
             scene.m3_ik_chains.move(ii, ii + self.shift)
             swapActionSceneM3Keyframes("m3_ik_chains", ii, self.shift)
             scene.m3_ik_chain_index += self.shift
+
+        return {"FINISHED"}
+
+
+class M3_TURRET_BEHAVIORS_OT_add(bpy.types.Operator):
+    bl_idname      = "m3.turret_behaviors_add"
+    bl_label       = "Add M3 Turret Behavior"
+    bl_description = "Adds an M3 turret behavior"
+    bl_options = {"UNDO"}
+
+    def invoke(self, context, event):
+        scene = context.scene
+        turret = scene.m3_turret_behaviors.add()
+
+        turret.name = shared.findUnusedPropItemName(scene, propGroups=[scene.m3_turret_behaviors])
+
+        # The following selection causes a new bone to be created:
+        scene.m3_turret_behavior_index = len(scene.m3_turret_behaviors) - 1
+
+        return {"FINISHED"}
+
+
+class M3_TURRET_BEHAVIORS_OT_remove(bpy.types.Operator):
+    bl_idname      = "m3.turret_behaviors_remove"
+    bl_label       = "Remove M3 Turret Behavior"
+    bl_description = "Removes the active M3 turret behavior"
+    bl_options = {"UNDO"}
+
+    def invoke(self, context, event):
+        scene = context.scene
+        if scene.m3_turret_behavior_index >= 0:
+            scene.m3_turret_behaviors.remove(scene.m3_turret_behavior_index)
+
+            if scene.m3_turret_behavior_index != 0 or len(scene.m3_turret_behaviors) == 0:
+                scene.m3_turret_behavior_index -= 1
+
+        return {"FINISHED"}
+
+
+class M3_TURRET_BEHAVIORS_OT_move(bpy.types.Operator):
+    bl_idname = "m3.turret_behaviors_move"
+    bl_label = "Move M3 Turret Behavior"
+    bl_description = "Moves the active M3 turret behavior"
+    bl_options = {"UNDO"}
+
+    shift: bpy.props.IntProperty(name="shift", default=0)
+
+    def invoke(self, context, event):
+        scene = context.scene
+        ii = scene.m3_turret_behavior_index
+
+        if (ii < len(scene.m3_turret_behaviors) - self.shift and ii >= -self.shift):
+            scene.m3_turret_behaviors.move(ii, ii + self.shift)
+            swapActionSceneM3Keyframes("m3_turret_behaviors", ii, self.shift)
+            scene.m3_turret_behavior_index += self.shift
+
+        return {"FINISHED"}
+
+
+class M3_TURRET_BEHAVIOR_PARTS_OT_add(bpy.types.Operator):
+    bl_idname      = "m3.turret_behavior_parts_add"
+    bl_label       = "Add M3 Turret Behavior Part"
+    bl_description = "Adds an M3 turret behavior part"
+    bl_options = {"UNDO"}
+
+    def invoke(self, context, event):
+        scene = context.scene
+        turret = scene.m3_turret_behaviors[scene.m3_turret_behavior_index]
+        part = turret.parts.add()
+
+        part.name = shared.findUnusedPropItemName(scene, propGroups=[turret.parts])
+
+        # The following selection causes a new bone to be created:
+        turret.parts_index = len(turret.parts) - 1
+
+        return {"FINISHED"}
+
+
+class M3_TURRET_BEHAVIOR_PARTS_OT_remove(bpy.types.Operator):
+    bl_idname      = "m3.turret_behavior_parts_remove"
+    bl_label       = "Remove M3 Turret Behavior"
+    bl_description = "Removes the active M3 turret behavior"
+    bl_options = {"UNDO"}
+
+    def invoke(self, context, event):
+        scene = context.scene
+        turret = scene.m3_turret_behaviors[scene.m3_turret_behavior_index]
+        if turret.part_index >= 0:
+            turret.parts.remove(turret.part_index)
+
+            if turret.part_index != 0 or len(turret.parts) == 0:
+                turret.part_index -= 1
+
+        return {"FINISHED"}
+
+
+class M3_TURRET_BEHAVIOR_PARTS_OT_move(bpy.types.Operator):
+    bl_idname = "m3.turret_behavior_parts_move"
+    bl_label = "Move M3 Turret Behavior"
+    bl_description = "Moves the active M3 turret behavior"
+    bl_options = {"UNDO"}
+
+    shift: bpy.props.IntProperty(name="shift", default=0)
+
+    def invoke(self, context, event):
+        scene = context.scene
+        turret = scene.m3_turret_behaviors[scene.m3_turret_behavior_index]
+        ii = turret.part_index
+
+        if (ii < len(turret.parts) - self.shift and ii >= -self.shift):
+            turret.parts.move(ii, ii + self.shift)
+            swapActionSceneM3Keyframes("m3_turret_behaviors", ii, self.shift)
+            turret.part_index += self.shift
 
         return {"FINISHED"}
 
@@ -5927,6 +6162,8 @@ classes = (
     M3Light,
     M3BillboardBehavior,
     M3InverseKinematicChain,
+    M3TurretBehaviorPart,
+    M3TurretBehavior,
     cm.M3GroupProjection,
     M3Warp,
     M3AttachmentPoint,
@@ -5993,6 +6230,7 @@ classes = (
     LightPanel,
     BillboardBehaviorPanel,
     InverseKinematicChainPanel,
+    TurretBehaviorPanel,
     ui.ProjectionMenu,
     ui.ProjectionPanel,
     WarpMenu,
@@ -6065,6 +6303,12 @@ classes = (
     M3_INVERSE_KINEMATIC_CHAINS_OT_add,
     M3_INVERSE_KINEMATIC_CHAINS_OT_remove,
     M3_INVERSE_KINEMATIC_CHAINS_OT_move,
+    M3_TURRET_BEHAVIORS_OT_add,
+    M3_TURRET_BEHAVIORS_OT_remove,
+    M3_TURRET_BEHAVIORS_OT_move,
+    M3_TURRET_BEHAVIOR_PARTS_OT_add,
+    M3_TURRET_BEHAVIOR_PARTS_OT_remove,
+    M3_TURRET_BEHAVIOR_PARTS_OT_move,
     ui.M3_PROJECTIONS_OT_add,
     ui.M3_PROJECTIONS_OT_remove,
     ui.M3_PROJECTIONS_OT_move,
@@ -6125,6 +6369,8 @@ def register():
     bpy.types.Scene.m3_billboard_behavior_index = bpy.props.IntProperty(update=handleBillboardBehaviorIndexChanged, default=-1)
     bpy.types.Scene.m3_ik_chains = bpy.props.CollectionProperty(type=M3InverseKinematicChain)
     bpy.types.Scene.m3_ik_chain_index = bpy.props.IntProperty(default=-1)
+    bpy.types.Scene.m3_turret_behaviors = bpy.props.CollectionProperty(type=M3TurretBehavior)
+    bpy.types.Scene.m3_turret_behavior_index = bpy.props.IntProperty(default=-1)
     bpy.types.Scene.m3_projections = bpy.props.CollectionProperty(type=cm.M3GroupProjection)
     bpy.types.Scene.m3_projection_index = bpy.props.IntProperty(update=cm.handleProjectionIndexChanged, default=-1)
     bpy.types.Scene.m3_warps = bpy.props.CollectionProperty(type=M3Warp)
