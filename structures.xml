@@ -2627,9 +2627,9 @@
             </field>
             <field name="unknown30e0264e" type="uint32" default-value="0"/>
             <field name="unknown40ffe7f5" type="float" default-value="0.0"/>
+            <field name="unknownbccd0332" size="8" since-version="8" />
             <field name="lodReduce" type="uint32" default-value="2"/>
             <field name="lodCut" type="uint32" default-value="0"/>
-            <field name="unknownbccd0332" size="8" since-version="8" />
             <field name="yawVariationType" type="uint32" />
             <field name="yawVariationAmplitude" type="FloatAnimationReference" />
             <field name="yawVariationFrequency" type="FloatAnimationReference" />
