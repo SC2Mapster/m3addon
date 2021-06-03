@@ -571,52 +571,26 @@ class Importer:
 
     def adjustM3BoneNames(self, model):
 
-        def adjustM3BoneNameForType(bone, arr, prefix, unwantedPrefixes):
-            for item in arr:
-                if bone.name.startswith(prefix): return
-                for unwantedPrefix in unwantedPrefixes:
-                    if not bone.name.startswith(unwantedPrefix): return
+        def adjustM3BoneNamePrefix(bone, prefix, unwantedPrefixes):
+            if bone.name.startswith(prefix): return
+            for unwantedPrefix in unwantedPrefixes:
+                if not bone.name.startswith(unwantedPrefix): return
 
-                    bone.name = bone.name[len(unwantedPrefix):]
+                bone.name = bone.name[len(unwantedPrefix):]
+                if bone.name == "":
+                    bone.name == "Null"
 
-                    if bone.name == "":
-                        bone.name == "Null"
-
-                    bone.name = prefix + bone.name
-                    break
-
-        particleIndices = []
-        for item in model.particles:
-            particleIndices.append(item.boneIndex)
-            for copy in item.copyIndices:
-                particleIndices.append(copy)
-
-        ribbonIndices = []
-        for item in model.ribbons:
-            ribbonIndices.append(item.boneIndex)
-
-        forceIndices = []
-        for item in model.forces:
-            forceIndices.append(item.boneIndex)
-
-        projectionIndices = []
-        for item in model.projections:
-            projectionIndices.append(item.boneIndex)
-
-        warpIndices = []
-        for item in model.warps:
-            warpIndices.append(item.boneIndex)
+                bone.name = prefix + bone.name
+                return
 
         for ii, bone in enumerate(model.bones):
-
-            adjustM3BoneNameForType(bone, particleIndices, shared.star2ParticlePrefix, ["P_", "MR3_Particle_"])
-            adjustM3BoneNameForType(bone, ribbonIndices, shared.star2RibbonPrefix, ["SC2SplRbn"])
-            adjustM3BoneNameForType(bone, forceIndices, shared.star2ForcePrefix, ["_Force"])
-            adjustM3BoneNameForType(bone, projectionIndices, shared.star2ProjectionPrefix, [])
-            adjustM3BoneNameForType(bone, warpIndices, shared.star2WarpPrefix, [])
-
-            if bone.name == "":
-                bone.name = "null{num}".format(num=ii)
+            adjustM3BoneNamePrefix(bone, shared.star2ParticlePrefix, ["P_", "MR3_Particle_"])
+            adjustM3BoneNamePrefix(bone, shared.star2RibbonPrefix, ["SC2SplRbn"])
+            adjustM3BoneNamePrefix(bone, shared.lightPrefixMap["1"], ["SC2Omni"])
+            adjustM3BoneNamePrefix(bone, shared.lightPrefixMap["2"], ["SC2Spot"])
+            adjustM3BoneNamePrefix(bone, shared.star2ForcePrefix, ["_Force"])
+            adjustM3BoneNamePrefix(bone, shared.star2ProjectionPrefix, [])
+            adjustM3BoneNamePrefix(bone, shared.star2WarpPrefix, [])
 
     def adjustPoseBones(self, m3Bones, relEditBoneMatrices, bindScaleMatrices):
         index = 0
