@@ -28,6 +28,7 @@ import io
 import time
 import traceback
 import re
+from xml.sax.saxutils import escape
 
 def byteDataToHex(byteData):
     return '0x' + ''.join(["%02x" % x for x in byteData])
@@ -66,7 +67,10 @@ def printObject(out, level, name, value):
         return
 
     elif valueType == str:
+        # get rid of non ASCII characters
         value = re.sub('[^\x20-\x7F]', '.', str(value))
+        # escape special XML characters (such as "&" -> "&amp;")
+        value = escape(value)
         printXmlElement(out, level, name, value)
         return
 
