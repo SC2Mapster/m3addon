@@ -197,7 +197,7 @@
             <field name="unknown" type="int32" default-value="0"  />
         </fields>
     </structure>
-        <structure name="SVC3" >
+    <structure name="SVC3" >
         <description>
             Vector 3 animation reference
         </description>
@@ -338,6 +338,17 @@
             <field name="initValue" type="BNDSV0" />
             <field name="nullValue" type="BNDSV0" />
             <field name="unknown" type="int32" default-value="0"  />
+        </fields>
+    </structure>
+    <structure name="SR32" >
+        <description>
+            ???
+        </description>
+        <versions>
+            <version number="0" size="20" />
+        </versions>
+        <fields>
+            <field name="unknown45e83bea" type="FloatAnimationReferenceV0" />
         </fields>
     </structure>
     <structure name="REAL">
@@ -1589,7 +1600,7 @@
             <field name="specType" type="uint32" />
             <field name="unknownAnimationRef1" type="FloatAnimationReference" />
             <field name="unknownAnimationRef2" type="UInt32AnimationReference" />
-            <field name="unknown2410d9f0" size="12" since-version="19" expected-value="0x000000000000000000000000" />
+            <field name="unknown2410d9f0" type="Reference" refTo="SR32" since-version="19" />
         </fields>
     </structure>
 
