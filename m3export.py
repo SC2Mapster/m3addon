@@ -1554,11 +1554,6 @@ class Exporter:
                 raise ExportError("The ribbon %s uses '%s' as material, but no m3 material with that name exist!" % (ribbon.name, ribbon.materialName))
             m3Ribbon.materialReferenceIndex = materialReferenceIndex
 
-            if len(ribbon.endPoints) > 0:
-                m3Ribbon.noEndPoints = 0
-            else:
-                m3Ribbon.noEndPoints = 1
-
             for ii, endPoint in enumerate(ribbon.endPoints):
                 m3EndPoint = self.createInstanceOf("SRIB")
                 boneName = endPoint.name

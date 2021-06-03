@@ -2552,16 +2552,23 @@
             <field name="boneIndex" type="uint16" />
             <field name="unknown13c070e5" type="uint16" expected-value="0"/> <!-- unused? or it might belong to boneIndex -->
             <field name="materialReferenceIndex" type="uint32" />
-            <field name="unknown1f9302c9" type="uint32" default-value="0" since-version="8" />
+            <field name="additionalFlags" type="uint32" default-value="0x8" since-version="8">
+                <bits>
+                    <bit mask="0x8" name="worldSpace" />
+                </bits>
+            </field>
             <field name="waveLength" type="FloatAnimationReference" />
-            <field name="unkonwne773692a" type="AnimationReferenceHeader"/>
-            <field name="unkonwne53650fa" type="float" />
-            <field name="unkonwne9c6b307" type="float" />
-            <!-- unknown75e0b576 is the uninitalized field that terminated a animaation reference : -->
-            <field name="unknown75e0b576" type="uint32" default-value="0"/>
+            <field name="unknown75e0b576" type="FloatAnimationReference" />
             <field till-version="6" name="unknownd30655aa" type="int32" default-value="0"/>
-            <field name="yaw" type="FloatAnimationReference" />
-            <field name="pitch" type="FloatAnimationReference" />
+
+            <!-- till v6: pitch then yaw -->
+            <field name="pitch" type="FloatAnimationReference" till-version="6" />
+            <field name="yaw" type="FloatAnimationReference" till-version="6" />
+
+            <!-- since v8: yaw then pitch -->
+            <field name="yaw" type="FloatAnimationReference" since-version="8" />
+            <field name="pitch" type="FloatAnimationReference" since-version="8" />
+
             <field name="unknownee00ae0a" type="FloatAnimationReference" />
             <field name="unknown1686c0b7" type="FloatAnimationReference" />
             <field name="lifespan" type="FloatAnimationReference" />
@@ -2569,26 +2576,33 @@
             <field name="unknown26271cbe" type="uint32" expected-value="0"/>
             <field name="unknownda0542fa" type="uint32" expected-value="0" />
             <field name="unknown76f48851" type="float" expected-value="0"/>
-            <field name="unknownfe32e718" type="float" default-value="0"/>
-            <field name="tipOffsetZ" type="float" />
-            <field name="centerBias" type="float" /> <!--middle point position-->
-            <field name="colorAnimationMiddle" type="float" default-value="1.0" />
-            <field name="alphaAnimationMiddle" type="float" default-value="1.0" />
-            <field name="twistAnimationMiddle" type="float" default-value="1.0" />
-            <field name="unknownbca99a4e" size="12" since-version="8" />
-            <field name="radiusScale" type="Vector3AnimationReferenceV0" /> <!--X=Start, Y=Middle, Z=END-->
-            <field name="twist" type="Vector3AnimationReferenceV0" />
+            <field name="gravity" type="float" default-value="0"/>
+            <field name="sizeMiddleTime" type="float" default-value="0.5" />
+            <field name="colorMiddleTime" type="float" default-value="0.5" />
+            <field name="alphaMiddleTime" type="float" default-value="0.5" />
+            <field name="rotationMiddleTime" type="float" default-value="0.5" />
+            <field name="sizeMiddleHoldTime" type="float" default-value="0.0" since-version="8" />
+            <field name="colorMiddleHoldTime" type="float" default-value="0.0" since-version="8" />
+            <field name="alphaMiddleHoldTime" type="float" default-value="0.0" since-version="8" />
+            <field name="rotationMiddleHoldTime" type="float" default-value="0.0" />
+            <field name="size" type="Vector3AnimationReferenceV0" /> <!--X=Start, Y=Middle, Z=END-->
+            <field name="rotation" type="Vector3AnimationReferenceV0" />
             <field name="baseColoring" type="ColorAnimationReference" />
             <field name="centerColoring" type="ColorAnimationReference" />
             <field name="tipColoring" type="ColorAnimationReference" />
-            <field name="stretchAmount" type="float" />
-            <field till-version="6" name="unknownb41d7d03" type="float" expected-value="0.0"/>
-            <field name="unknownb41d7d03" type="float" default-value="1.0" since-version="8"/>
-            <field name="stretchLimit" type="float" />
+            <field name="drag" type="float" default-value="0.0" />
+
+            <field name="mass" type="float" default-value="1.0" since-version="8" />
+            <field name="massProbablyUnused" type="float" since-version="8" />
+
+            <field name="massProbablyUnused" type="float" till-version="6" />
+            <field name="mass" type="float" default-value="1.0" till-version="6" />
+
             <field name="unknownc7004d01" type="float" default-value="0.0"/>
-            <field name="unknown44a749fe" type="float" default-value="0.0"/>
-            <!-- noEndPoints must be 0 if there are endPoints (SRIB)-->
-            <field name="noEndPoints" type="uint32" default-value="1"/>
+            <field name="localForceChannels" type="uint16" default-value="0" />
+            <field name="worldForceChannels" type="uint16" default-value="0" />
+            <field name="forceChannelsFillerBytes" type="uint16" default-value="0" />
+            <field name="worldForceChannelsCopy" type="uint16" default-value="0" />
             <field till-version="6" name="unknown20683e1b" type="uint32" default-value="0"/> <!--overseer2-->
             <field till-version="6" name="unknowndf1a587b" type="uint32" default-value="0"/> <!--overseer2-->
             <field name="unknownfb168d8c" size="4" default-value="0x00000000" since-version="9"/>
@@ -2605,10 +2619,7 @@
             <field name="ribbonLength" type="FloatAnimationReference" />
             <field till-version="6"  name="filler1" type="int32" default-value="0"/>
             <field name="endPoints" type="Reference" refTo="SRIB" />
-            <field name="unknown7e341928" type="AnimationReferenceHeader" />
-            <field name="unknown34b7bf34" type="uint32" default-value="1"/>
-            <field name="unknownf2b8c436" type="int32" default-value="0"/>
-            <field name="unknown96098e64" type="uint32" default-value="0"/>
+            <field name="active" type="UInt32AnimationReference" />
             <field name="flags" type="uint32" default-value="0" >
                 <bits>
                     <bit mask="0x2" name="collideWithTerrain" />
@@ -2625,24 +2636,37 @@
                     <bit mask="0x1000" name="useLengthAndTime" />
                 </bits>
             </field>
-            <field name="unknown30e0264e" type="uint32" default-value="0"/>
-            <field name="unknown40ffe7f5" type="float" default-value="0.0"/>
-            <field name="unknownbccd0332" size="8" since-version="8" />
-            <field name="lodReduce" type="uint32" default-value="2"/>
-            <field name="lodCut" type="uint32" default-value="0"/>
-            <field name="yawVariationType" type="uint32" />
-            <field name="yawVariationAmplitude" type="FloatAnimationReference" />
-            <field name="yawVariationFrequency" type="FloatAnimationReference" />
-            <field name="pitchVariationType" type="uint32" />
-            <field name="pitchVariationAmplitude" type="FloatAnimationReference" />
-            <field name="pitchVariationFrequency" type="FloatAnimationReference" />
+            <!-- smoothing enums are the same as in particle system -->
+            <field name="sizeSmoothing" type="uint32" default-value="0 "/>
+            <field name="colorSmoothing" type="uint32" default-value="0 "/>
+            <field name="friction" type="float" default-value="1.0" since-version="8 "/>
+            <field name="bounce" type="float" default-value="0.0" since-version="8 "/>
+            <field name="lodReduce" type="uint32" default-value="2 "/>
+            <field name="lodCut" type="uint32" default-value="0 "/>
+
+            <!-- till v6: pitch then yaw -->
+            <field name="pitchVariationType" type="uint32" till-version="6 "/>
+            <field name="pitchVariationAmplitude" type="FloatAnimationReference" till-version="6 "/>
+            <field name="pitchVariationFrequency" type="FloatAnimationReference" till-version="6 "/>
+            <field name="yawVariationType" type="uint32" till-version="6 "/>
+            <field name="yawVariationAmplitude" type="FloatAnimationReference" till-version="6 "/>
+            <field name="yawVariationFrequency" type="FloatAnimationReference" till-version="6 "/>
+
+            <!-- since v8: yaw then pitch -->
+            <field name="yawVariationType" type="uint32" since-version="8 "/>
+            <field name="yawVariationAmplitude" type="FloatAnimationReference" since-version="8 "/>
+            <field name="yawVariationFrequency" type="FloatAnimationReference" since-version="8 "/>
+            <field name="pitchVariationType" type="uint32" since-version="8 "/>
+            <field name="pitchVariationAmplitude" type="FloatAnimationReference" since-version="8 "/>
+            <field name="pitchVariationFrequency" type="FloatAnimationReference" since-version="8 "/>
+
             <field name="lengthVariationType" type="uint32" />
             <field name="lengthVariationAmplitude" type="FloatAnimationReference" />
             <field name="lengthVariationFrequency" type="FloatAnimationReference" />
             <field name="radiusVariationType" type="uint32" />
             <field name="radiusVariationAmplitude" type="FloatAnimationReference" />
             <field name="radiusVariationFrequency" type="FloatAnimationReference" />
-            <field name="alphaVariationType" type="uint32" default-value="0"/>
+            <field name="alphaVariationType" type="uint32" />
             <field name="alphaVariationAmplitude" type="FloatAnimationReference" />
             <field name="alphaVariationFrequency" type="FloatAnimationReference" />
             <field name="unknown9a4a649a" type="FloatAnimationReference" />
