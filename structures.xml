@@ -1343,12 +1343,12 @@
             <field name="upY" type="VEC4V0"/>
             <field name="upZ" type="VEC4V0"/>
             <field name="boneIndex" type="uint16" />
-            <field name="flags" type="uint16" default-value="0x100">
+            <field name="flags" type="uint8" default-value="0x0">
                 <bits>
                     <bit mask="0x1" name="mainTurretBone"/>
-                    <bit mask="0x100" name="unknownFlag"/>
                 </bits>
             </field>
+            <field name="groupId" type="uint8" default-value="1" />
             <field name="yawFlags" type="uint32" default-value="0x2">
                 <bits>
                     <bit mask="0x2" name="yawLimited"/>

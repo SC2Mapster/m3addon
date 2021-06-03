@@ -1961,7 +1961,7 @@ def transferIkChain(transferer):
 
 def transferTurretBehaviorPart(transferer):
     transferer.transferBit("flags", "mainTurretBone")
-    transferer.transferBit("flags", "unknownFlag")
+    transferer.transferInt("groupId")
     transferer.transferBit("yawFlags", "yawLimited")
     transferer.transferFloat("yawMin")
     transferer.transferFloat("yawMax")
@@ -1970,6 +1970,8 @@ def transferTurretBehaviorPart(transferer):
     transferer.transferFloat("pitchMin")
     transferer.transferFloat("pitchMax")
     transferer.transferFloat("pitchWeight")
+    transferer.transferFloat("unknownAt132")
+    transferer.transferFloat("unknownAt136")
     transferer.transferFloat("unknownAt140")
     transferer.transferFloat("unknownAt144")
     transferer.transferFloat("unknownAt148")
