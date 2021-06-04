@@ -409,6 +409,31 @@ def selectBoneIfItExists(scene, boneName):
         currentBone.select = currentBone.name == boneName
 
 
+def selectBonesIfTheyExist(scene, boneNames):
+    if bpy.ops.object.mode_set.poll():
+        bpy.ops.object.mode_set(mode='OBJECT')
+    if bpy.ops.object.select_all.poll():
+        bpy.ops.object.select_all(action='DESELECT')
+    bones = []
+    armatureObjects = []
+    for ii, boneName in enumerate(boneNames):
+        r = findBoneWithArmatureObject(scene, boneName)
+        bones.append(r[0])
+        armatureObjects.append(r[1])
+    for ii, bone in enumerate(bones):
+        print(bone)
+        if bone is None: continue
+        armature = armatureObjects[ii].data
+        armatureObjects[ii].select_set(True)
+        scene.view_layers[0].objects.active = armatureObjects[ii]
+        if bpy.ops.object.mode_set.poll():
+            bpy.ops.object.mode_set(mode='POSE')
+        scene.view_layers[0].objects.active = armatureObjects[ii]
+        armatureObjects[ii].select_set(True)
+        for currentBone in armature.bones:
+            currentBone.select = currentBone.name in boneNames
+
+
 class UniqueNameFinder:
 
     def __init__(self):

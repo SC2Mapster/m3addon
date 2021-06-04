@@ -695,6 +695,22 @@ def handleBillboardBehaviorIndexChanged(self, context):
     selectBoneIfItExists(scene, billboardBehavior.name)
 
 
+def handleTurretBehaviorPartIndexChanged(self, context):
+    scene = context.scene
+    if scene.m3_turret_behavior_index < 0: return
+    turret = scene.m3_turret_behaviors[scene.m3_turret_behavior_index]
+    if turret.part_index < 0: return
+    part = turret.parts[turret.part_index]
+    selectBoneIfItExists(scene, part.name)
+
+
+def handleIkChainIndexChanged(self, context):
+    scene = context.scene
+    if scene.m3_ik_chain_index == -1: return
+    ik = scene.m3_ik_chains[scene.m3_ik_chain_index]
+    shared.selectBonesIfTheyExist(scene, [ik.boneName1, ik.boneName2])
+
+
 def handleWarpIndexChanged(self, context):
     scene = context.scene
     if scene.m3_warp_index == -1: return
@@ -1641,7 +1657,7 @@ class M3TurretBehaviorPart(bpy.types.PropertyGroup):
 class M3TurretBehavior(bpy.types.PropertyGroup):
     name: bpy.props.StringProperty(options=set())
     parts: bpy.props.CollectionProperty(type=M3TurretBehaviorPart)
-    part_index: bpy.props.IntProperty(default=-1)
+    part_index: bpy.props.IntProperty(default=-1, update=handleTurretBehaviorPartIndexChanged)
 
 
 class BoneVisibilityPanel(bpy.types.Panel):
@@ -6385,7 +6401,7 @@ def register():
     bpy.types.Scene.m3_billboard_behaviors = bpy.props.CollectionProperty(type=M3BillboardBehavior)
     bpy.types.Scene.m3_billboard_behavior_index = bpy.props.IntProperty(update=handleBillboardBehaviorIndexChanged, default=-1)
     bpy.types.Scene.m3_ik_chains = bpy.props.CollectionProperty(type=M3InverseKinematicChain)
-    bpy.types.Scene.m3_ik_chain_index = bpy.props.IntProperty(default=-1)
+    bpy.types.Scene.m3_ik_chain_index = bpy.props.IntProperty(default=-1, update=handleIkChainIndexChanged)
     bpy.types.Scene.m3_turret_behaviors = bpy.props.CollectionProperty(type=M3TurretBehavior)
     bpy.types.Scene.m3_turret_behavior_index = bpy.props.IntProperty(default=-1)
     bpy.types.Scene.m3_projections = bpy.props.CollectionProperty(type=cm.M3GroupProjection)
