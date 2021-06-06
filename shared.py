@@ -1903,7 +1903,7 @@ def transferMaterialLayer(transferer):
     transferer.transferBit("flags", "textureWrapY")
     transferer.transferBit("flags", "invertColor")
     transferer.transferBit("flags", "clampColor")
-    transferer.transferBit("flags", "colorEnabled")
+    transferer.transferBitEnum("flags", "colorEnabled")
     transferer.transferEnum("uvSource")
     transferer.transferEnum("colorChannelSetting")
     transferer.transferAnimatableFloat("brightMult")

@@ -2222,7 +2222,7 @@ def displayMaterialLayersUI(scene, layout, materialReference):
         layerIndex = scene.m3_material_layer_index
         if layerIndex >= 0 and layerIndex < len(material.layers):
             layer = material.layers[layerIndex]
-            layout.prop(layer, "imagePath", text="Image Path")
+            layout.prop(layer, "colorEnabled", text="Texture Map Type")
             layout.prop(layer, "unknownbd3f7b5d", text="Unknown (id: bd3f7b5d)")
 
 
@@ -2263,8 +2263,8 @@ class ObjectMaterialLayersPanel(bpy.types.Panel):
     def poll(cls, context):
         scene = context.scene
         ob = context.object
-        mat = scene.m3_material_references.get(ob.data.m3_material_name)
-        return context.object and mat is not None and mat.materialType != shared.compositeMaterialTypeIndex
+        matRef = scene.m3_material_references.get(ob.data.m3_material_name)
+        return context.object and matRef is not None and matRef.materialType != shared.compositeMaterialTypeIndex
 
     def draw(self, context):
         scene = context.scene
@@ -2277,26 +2277,24 @@ def displayMaterialLayersColor(scene, layout, materialReference):
     materialType = materialReference.materialType
     materialIndex = materialReference.materialIndex
     material = cm.getMaterial(scene, materialType, materialIndex)
-    row = layout.row()
-    col = row.column()
 
     layerIndex = scene.m3_material_layer_index
     if layerIndex >= 0 and layerIndex < len(material.layers):
         layer = material.layers[layerIndex]
-        layout.prop(layer, "colorChannelSetting", text="Color Channels")
-        row = layout.row()
-        col = row.column(align=True)
-        col.label(text="Brightness:")
-        col.prop(layer, "brightness", text="")
-        col.prop(layer, "brightMult", text="Multiplier")
-        col.prop(layer, "midtoneOffset", text="Midtone Offset")
-        col = row.column(align=True)
-        col.prop(layer, "invertColor", text="Invert Color")
-        col.prop(layer, "clampColor", text="Clamp Color")
-        col.prop(layer, "colorEnabled", text="Color:")
-        sub = col.column(align=True)
-        sub.active = layer.colorEnabled
-        sub.prop(layer, "color", text="")
+        if layer.colorEnabled == "0":
+            layout.prop(layer, "imagePath", text="Image Path")
+            layout.prop(layer, "colorChannelSetting", text="Color Channels")
+            row = layout.row()
+            row.prop(layer, "invertColor", text="Invert Color")
+            row.prop(layer, "clampColor", text="Clamp Color")
+            row = layout.row()
+            col = row.column(align=True)
+            col.label(text="Brightness:")
+            col.prop(layer, "brightness", text="")
+            col.prop(layer, "brightMult", text="Multiplier")
+            col.prop(layer, "midtoneOffset", text="Midtone Offset")
+        else:
+            layout.prop(layer, "color", text="Color")
 
 
 class MaterialLayersColorPanel(bpy.types.Panel):
@@ -2354,7 +2352,7 @@ def displayMaterialLayersUv(scene, layout, materialReference):
         layer = material.layers[layerIndex]
         layout.prop(layer, "uvSource", text="UV Source")
         isTriPlanarUVSource = layer.uvSource in ["16", "17", "18"]
-        if (isTriPlanarUVSource):
+        if isTriPlanarUVSource:
             row = layout.row()
             col = row.column(align=True)
             col.label(text="Tri Planar Offset:")
@@ -2399,6 +2397,13 @@ class MaterialLayersUvPanel(bpy.types.Panel):
     bl_options = {"DEFAULT_CLOSED"}
     bl_parent_id = "OBJECT_PT_M3_material_layers"
 
+    @classmethod
+    def poll(cls, context):
+        scene = context.scene
+        matRef = scene.m3_material_references[scene.m3_material_reference_index]
+        mat = cm.getMaterial(scene, matRef.materialType, matRef.materialIndex)
+        return mat.layers[scene.m3_material_layer_index].colorEnabled == "0"
+
     def draw(self, context):
         layout = self.layout
         scene = context.scene
@@ -2416,6 +2421,14 @@ class ObjectMaterialLayersUvPanel(bpy.types.Panel):
     bl_context = "material"
     bl_options = {"DEFAULT_CLOSED"}
     bl_parent_id = "OBJECT_PT_M3_object_material_layers"
+
+    @classmethod
+    def poll(cls, context):
+        scene = context.scene
+        ob = context.object
+        matRef = scene.m3_material_references.get(ob.data.m3_material_name)
+        mat = cm.getMaterial(scene, matRef.materialType, matRef.materialIndex)
+        return context.object and mat.layers[scene.m3_material_layer_index].colorEnabled == "0"
 
     def draw(self, context):
         layout = self.layout
@@ -2560,6 +2573,13 @@ class MaterialLayersRTTPanel(bpy.types.Panel):
     bl_options = {"DEFAULT_CLOSED"}
     bl_parent_id = "OBJECT_PT_M3_material_layers"
 
+    @classmethod
+    def poll(cls, context):
+        scene = context.scene
+        matRef = scene.m3_material_references[scene.m3_material_reference_index]
+        mat = cm.getMaterial(scene, matRef.materialType, matRef.materialIndex)
+        return mat.layers[scene.m3_material_layer_index].colorEnabled == "0"
+
     def draw(self, context):
         layout = self.layout
         scene = context.scene
@@ -2580,6 +2600,14 @@ class ObjectMaterialLayersRTTPanel(bpy.types.Panel):
     bl_context = "material"
     bl_options = {"DEFAULT_CLOSED"}
     bl_parent_id = "OBJECT_PT_M3_object_material_layers"
+
+    @classmethod
+    def poll(cls, context):
+        scene = context.scene
+        ob = context.object
+        matRef = scene.m3_material_references.get(ob.data.m3_material_name)
+        mat = cm.getMaterial(scene, matRef.materialType, matRef.materialIndex)
+        return context.object and mat.layers[scene.m3_material_layer_index].colorEnabled == "0"
 
     def draw(self, context):
         layout = self.layout

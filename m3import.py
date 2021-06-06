@@ -321,6 +321,13 @@ class M3ToBlenderDataTransferer:
             return
         setattr(self.blenderObject, bitName, self.m3Object.getNamedBit(m3FieldName, bitName))
 
+    def transferBitEnum(self, m3FieldName, bitName, sinceVersion=None):
+        if (sinceVersion is not None) and (self.m3Version < sinceVersion):
+            return
+        value = self.m3Object.getNamedBit(m3FieldName, bitName)
+        value = "0" if value is False else "1"
+        setattr(self.blenderObject, bitName, value)
+
     def transferMultipleBits(self, m3FieldName, bNameList=None):
         field = self.m3Object.structureDescription.nameToFieldMap[m3FieldName]
         if bNameList is None:
