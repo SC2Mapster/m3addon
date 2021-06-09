@@ -1001,7 +1001,7 @@ class Importer:
                 endPoint = ribbon.endPoints.add()
                 endPoint.name = self.boneNames[m3EndPoint.boneIndex]
 
-                endPointAnimPathPrefix = animPathPrefix + "endPoints[%d]" % ii
+                endPointAnimPathPrefix = animPathPrefix + "endPoints[%d]." % ii
                 transferer = M3ToBlenderDataTransferer(self, scene, endPointAnimPathPrefix, blenderObject=endPoint, m3Object=m3EndPoint)
                 shared.transferRibbonEndPoint(transferer)
 

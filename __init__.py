@@ -997,12 +997,13 @@ particleEmissionTypeList = [("0", "Constant", "Emitted particles fly towards a c
                             ("4", "Mesh Normal", "when using a Mesh Emitter Shape, uses the normal of the face being emitted from as the direction vector.")
                             ]
 
-particleAnimationSmoothTypeList = [("0", "Linear", "Linear transitions without usage of hold time"),
-                                   ("1", "Smooth", "Smooth transitions without usage of hold time"),
-                                   ("2", "Bezier", "Bezier transitions without usage of hold time"),
-                                   ("3", "Linear Hold", "Linear transitions with usage of hold time"),
-                                   ("4", "Bezier Hold", "Bezier transitions with usage of hold time")
-                                   ]
+animationSmoothTypeList = [
+    ("0", "Linear", "Linear transitions without usage of hold time"),
+    ("1", "Smooth", "Smooth transitions without usage of hold time"),
+    ("2", "Bezier", "Bezier transitions without usage of hold time"),
+    ("3", "Linear Hold", "Linear transitions with usage of hold time"),
+    ("4", "Bezier Hold", "Bezier transitions with usage of hold time")
+]
 
 attachmentVolumeTypeList = [(shared.attachmentVolumeNone, "None", "No Volume, it's a simple attachment point"),
                             (shared.attachmentVolumeCuboid, "Cuboid", "Volume with the shape of a cuboid with the given width, length and height"),
@@ -1310,9 +1311,9 @@ class M3ParticleSystem(bpy.types.PropertyGroup):
     colorHoldTime: bpy.props.FloatProperty(options=set(), default=0.3, min=0, max=1, subtype="FACTOR", description="Factor of particle lifetime to hold the middle color value")
     alphaHoldTime: bpy.props.FloatProperty(options=set(), default=0.3, min=0, max=1, subtype="FACTOR", description="Factor of particle lifetime to hold the middle alpha value")
     rotationHoldTime: bpy.props.FloatProperty(options=set(), default=0.3, min=0, max=1, subtype="FACTOR", description="Factor of particle lifetime to hold the middle rotation value")
-    sizeSmoothingType: bpy.props.EnumProperty(options=set(), default="0", items=particleAnimationSmoothTypeList, description="Determines the shape of the size curve based on the intial, middle , final and hold time value")
-    colorSmoothingType: bpy.props.EnumProperty(options=set(), default="0", items=particleAnimationSmoothTypeList, description="Determines the shape of the color curve based on the intial, middle , final and hold time value")
-    rotationSmoothingType: bpy.props.EnumProperty(options=set(), default="0", items=particleAnimationSmoothTypeList, description="Determines the shape of the rotation curve based on the intial, middle , final and hold time value")
+    sizeSmoothingType: bpy.props.EnumProperty(options=set(), default="0", items=animationSmoothTypeList, description="Determines the shape of the size curve based on the intial, middle , final and hold time value")
+    colorSmoothingType: bpy.props.EnumProperty(options=set(), default="0", items=animationSmoothTypeList, description="Determines the shape of the color curve based on the intial, middle , final and hold time value")
+    rotationSmoothingType: bpy.props.EnumProperty(options=set(), default="0", items=animationSmoothTypeList, description="Determines the shape of the rotation curve based on the intial, middle , final and hold time value")
     particleSizes1: bpy.props.FloatVectorProperty(default=(1, 1, 1), size=3, subtype="XYZ", options={"ANIMATABLE"}, description="The first two values are the initial and final size of particles")
     rotationValues1: bpy.props.FloatVectorProperty(default=(0, 0, 0), size=3, subtype="XYZ", options={"ANIMATABLE"}, description="The first value is the inital rotation and the second value is the rotation speed")
     initialColor1: bpy.props.FloatVectorProperty(default=(1, 1, 1, 1), min=0, max=1, size=4, subtype="COLOR", options={"ANIMATABLE"}, description="Color of the particle when it gets emitted")
@@ -1419,18 +1420,24 @@ class M3Ribbon(bpy.types.PropertyGroup):
     boneName: bpy.props.StringProperty(options=set())
     materialName: bpy.props.StringProperty(options=set())
     waveLength: bpy.props.FloatProperty(default=1, options={"ANIMATABLE"})
-    tipOffsetZ: bpy.props.FloatProperty(options=set(), default=0)
-    centerBias: bpy.props.FloatProperty(options=set(), default=0.5, min=0, max=1, subtype="FACTOR")
-    radiusScale: bpy.props.FloatVectorProperty(default=(1, 1, 1), size=3, subtype="XYZ", options={"ANIMATABLE"})
-    twist: bpy.props.FloatVectorProperty(default=(1, 1, 1), size=3, subtype="XYZ")
+    size: bpy.props.FloatVectorProperty(default=(1, 1, 1), size=3, subtype="XYZ", options={"ANIMATABLE"})
     baseColoring: bpy.props.FloatVectorProperty(default=(1, 1, 1, 1), min=0, max=1, size=4, subtype="COLOR", options={"ANIMATABLE"})
     centerColoring: bpy.props.FloatVectorProperty(default=(1, 1, 1, 1), min=0, max=1, size=4, subtype="COLOR", options={"ANIMATABLE"})
     tipColoring: bpy.props.FloatVectorProperty(default=(1, 1, 1, 1), min=0, max=1, size=4, subtype="COLOR", options={"ANIMATABLE"})
-    twistAnimationMiddle: bpy.props.FloatProperty(options=set(), default=0.3, min=0, max=1, subtype="FACTOR", description="Factor of particle liftime when it reaches the middle twist value")
-    colorAnimationMiddle: bpy.props.FloatProperty(options=set(), default=0.3, min=0, max=1, subtype="FACTOR", description="Factor of particle lifetime when it reaches the middle color value")
-    alphaAnimationMiddle: bpy.props.FloatProperty(options=set(), default=0.3, min=0, max=1, subtype="FACTOR", description="Factor of particle lifetime when it reaches the middle alpha value")
-    stretchAmount: bpy.props.FloatProperty(options=set(), default=1)
-    stretchLimit: bpy.props.FloatProperty(options=set(), default=1)
+    rotation: bpy.props.FloatVectorProperty(default=(1, 1, 1), size=3, subtype="XYZ")
+    sizeMiddleTime: bpy.props.FloatProperty(options=set(), default=0.5, min=0, max=1, subtype="FACTOR")
+    colorMiddleTime: bpy.props.FloatProperty(options=set(), default=0.5, min=0, max=1, subtype="FACTOR", description="Factor of particle lifetime when it reaches the middle color value")
+    alphaMiddleTime: bpy.props.FloatProperty(options=set(), default=0.5, min=0, max=1, subtype="FACTOR", description="Factor of particle lifetime when it reaches the middle alpha value")
+    rotationMiddleTime: bpy.props.FloatProperty(options=set(), default=0.5, min=0, max=1, subtype="FACTOR", description="Factor of particle liftime when it reaches the middle twist value")
+    sizeMiddleHoldTime: bpy.props.FloatProperty(options=set(), min=0, description="Amount of time the middle value will be held")
+    colorMiddleHoldTime: bpy.props.FloatProperty(options=set(), min=0, description="Amount of time the middle value will be held")
+    sizeSmoothing: bpy.props.EnumProperty(options=set(), default="0", items=animationSmoothTypeList, description="Determines the shape of the size curve based on the intial, middle , final and hold time value")
+    colorSmoothing: bpy.props.EnumProperty(options=set(), default="0", items=animationSmoothTypeList, description="Determines the shape of the color curve based on the intial, middle , final and hold time value")
+    gravity: bpy.props.FloatProperty(options=set())
+    drag: bpy.props.FloatProperty(options=set(), default=1)
+    bounce: bpy.props.FloatProperty(options=set(), min=0, max=1, subtype="FACTOR")
+    friction: bpy.props.FloatProperty(options=set(), min=0, max=1, subtype="FACTOR")
+    mass: bpy.props.FloatProperty(options=set())
     surfaceNoiseAmplitude: bpy.props.FloatProperty(options=set(), default=0)
     surfaceNoiseNumberOfWaves: bpy.props.FloatProperty(options=set(), default=0)
     surfaceNoiseFrequency: bpy.props.FloatProperty(options=set(), default=0)
@@ -1438,7 +1445,7 @@ class M3Ribbon(bpy.types.PropertyGroup):
     ribbonType: bpy.props.EnumProperty(options=set(), default="0", items=ribbonTypeList)
     ribbonDivisions: bpy.props.FloatProperty(options=set(), default=20)
     ribbonSides: bpy.props.IntProperty(options=set(), default=5, subtype="UNSIGNED")
-    ribbonLength: bpy.props.FloatProperty(default=1, options={"ANIMATABLE"})
+    length: bpy.props.FloatProperty(default=1, options={"ANIMATABLE"})
     yawVariationType: bpy.props.EnumProperty(options=set(), items=ribbonSplineVariationType)
     yawVariationAmplitude: bpy.props.FloatProperty(default=0, options={"ANIMATABLE"})
     yawVariationFrequency: bpy.props.FloatProperty(default=0, options={"ANIMATABLE"})
@@ -1448,12 +1455,15 @@ class M3Ribbon(bpy.types.PropertyGroup):
     lengthVariationType: bpy.props.EnumProperty(options=set(), items=ribbonSplineVariationType)
     lengthVariationAmplitude: bpy.props.FloatProperty(default=0, options={"ANIMATABLE"})
     lengthVariationFrequency: bpy.props.FloatProperty(default=0, options={"ANIMATABLE"})
-    radiusVariationType: bpy.props.EnumProperty(options=set(), items=ribbonSplineVariationType)
-    radiusVariationAmplitude: bpy.props.FloatProperty(default=0, options={"ANIMATABLE"})
-    radiusVariationFrequency: bpy.props.FloatProperty(default=0, options={"ANIMATABLE"})
+    sizeVariationType: bpy.props.EnumProperty(options=set(), items=ribbonSplineVariationType)
+    sizeVariationAmplitude: bpy.props.FloatProperty(default=0, options={"ANIMATABLE"})
+    sizeVariationFrequency: bpy.props.FloatProperty(default=0, options={"ANIMATABLE"})
     alphaVariationType: bpy.props.EnumProperty(options=set(), items=ribbonSplineVariationType)
     alphaVariationAmplitude: bpy.props.FloatProperty(default=0, options={"ANIMATABLE"})
     alphaVariationFrequency: bpy.props.FloatProperty(default=0, options={"ANIMATABLE"})
+    active: bpy.props.BoolProperty(default=True)
+    localForceChannels: bpy.props.BoolVectorProperty(options=set(), default=tuple(16 * [False]), size=16, subtype="LAYER", description="If a model internal force shares a local force channel with a ribbon then it affects it")
+    worldForceChannels: bpy.props.BoolVectorProperty(options=set(), default=tuple(16 * [False]), size=16, subtype="LAYER", description="If a force shares a force channel with a ribbon then it affects it")
     collideWithTerrain: bpy.props.BoolProperty(options=set(), default=False)
     collideWithObjects: bpy.props.BoolProperty(options=set(), default=False)
     edgeFalloff: bpy.props.BoolProperty(options=set(), default=False)
@@ -1466,6 +1476,7 @@ class M3Ribbon(bpy.types.PropertyGroup):
     useLocaleTime: bpy.props.BoolProperty(options=set(), default=False)
     simulateOnInitialization: bpy.props.BoolProperty(options=set(), default=False)
     useLengthAndTime: bpy.props.BoolProperty(options=set(), default=False)
+    worldSpace: bpy.props.BoolProperty(options=set())
     endPoints: bpy.props.CollectionProperty(options=set(), type=M3RibbonEndPoint)
     endPointIndex: bpy.props.IntProperty(options=set(), default=-1, update=handleRibbonEndPointIndexChanged)
     lodReduce: bpy.props.EnumProperty(options=set(), default="0", items=shared.lodEnum)
@@ -3217,7 +3228,11 @@ class RibbonPropertiesPanel(bpy.types.Panel):
             return
         ribbon = scene.m3_ribbons[ribbonIndex]
         layout.prop_search(ribbon, "materialName", scene, "m3_material_references", text="Material", icon="NONE")
-        layout.prop(ribbon, "ribbonType", text="Type")
+        row = layout.row()
+        row.prop(ribbon, "ribbonType", text="Type")
+        col = row.column()
+        col.active = len(ribbon.endPoints) == 0
+        col.prop(ribbon, "active", text="Active")
         sub = layout.column()
         sub.active = ribbon.ribbonType == "3"
         sub.prop(ribbon, "starRatio", text="Star Ratio")
@@ -3226,6 +3241,7 @@ class RibbonPropertiesPanel(bpy.types.Panel):
         row.prop(ribbon, "lodReduce", text="")
         row.prop(ribbon, "lodCut", text="")
         col = layout.column(align=True)
+        col.active = len(ribbon.endPoints) == 0
         col.prop(ribbon, "cullType", text="Lifespan Type")
         sub = col.column(align=True)
         sub.active = ribbon.cullType == "0"
@@ -3233,12 +3249,14 @@ class RibbonPropertiesPanel(bpy.types.Panel):
         col = layout.column(align=True)
         col.prop(ribbon, "ribbonDivisions", text="Divisions")
         col.prop(ribbon, "ribbonSides", text="Sides")
-        col.prop(ribbon, "tipOffsetZ", text="Tip Offset Z")
         col = layout.column(align=True)
-        col.prop(ribbon, "stretchAmount", text="Stretch Amount")
-        col.prop(ribbon, "stretchLimit", text="Stretch Limit")
+        col.active = len(ribbon.endPoints) == 0
+        col.prop(ribbon, "drag", text="Drag")
+        col.prop(ribbon, "friction", text="Friction")
+        col.prop(ribbon, "bounce", text="Bounce")
         row = layout.row()
         col = row.column(align=True)
+        col.active = len(ribbon.endPoints) == 0
         col.prop(ribbon, "yaw", text="Yaw")
         col.prop(ribbon, "yawVariationType", text="Variation")
         sub = col.column(align=True)
@@ -3246,6 +3264,7 @@ class RibbonPropertiesPanel(bpy.types.Panel):
         sub.prop(ribbon, "yawVariationAmplitude", text="Amplitude")
         sub.prop(ribbon, "yawVariationFrequency", text="Frequency")
         col = row.column(align=True)
+        col.active = len(ribbon.endPoints) == 0
         col.prop(ribbon, "pitch", text="Pitch")
         col.prop(ribbon, "pitchVariationType", text="Variation")
         sub = col.column(align=True)
@@ -3253,12 +3272,20 @@ class RibbonPropertiesPanel(bpy.types.Panel):
         sub.prop(ribbon, "pitchVariationAmplitude", text="Amplitude")
         sub.prop(ribbon, "pitchVariationFrequency", text="Frequency")
         col = layout.column(align=True)
-        col.label(text="Twist:")
-        col.prop(ribbon, "twist", index=0, text="Start")
-        col.prop(ribbon, "twist", index=1, text="Middle")
-        col.prop(ribbon, "twist", index=2, text="End")
+        col.active = len(ribbon.endPoints) == 0
+        col.label(text="Rotation:")
+        col.prop(ribbon, "rotation", index=0, text="Start")
+        col.prop(ribbon, "rotation", index=1, text="Middle")
+        col.prop(ribbon, "rotation", index=2, text="End")
         col = layout.column(align=True)
-        col.prop(ribbon, "twistAnimationMiddle", text="Twist Animation Middle")
+        col.active = len(ribbon.endPoints) == 0
+        col.prop(ribbon, "rotationMiddleTime", text="Rotation Middle Time")
+        col = layout.column(align=True)
+        col.label(text="Noise:")
+        col.prop(ribbon, "surfaceNoiseAmplitude", text="Amplitude")
+        col.prop(ribbon, "surfaceNoiseNumberOfWaves", text="Waves")
+        col.prop(ribbon, "surfaceNoiseFrequency", text="Frequency")
+        col.prop(ribbon, "surfaceNoiseScale", text="Scale")
 
 
 class RibbonColorPanel(bpy.types.Panel):
@@ -3290,8 +3317,10 @@ class RibbonColorPanel(bpy.types.Panel):
         col.prop(ribbon, "centerColoring", text="")
         col.prop(ribbon, "tipColoring", text="")
         col = layout.column(align=True)
-        col.prop(ribbon, "colorAnimationMiddle", text="Color Animation Middle")
-        col.prop(ribbon, "alphaAnimationMiddle", text="Alpha Animation Middle")
+        col.prop(ribbon, "colorSmoothing", text="Color Smoothing")
+        col.prop(ribbon, "colorMiddleTime", text="Color Middle Time")
+        col.prop(ribbon, "colorMiddleHoldTime", text="Color Middle Hold Time")
+        col.prop(ribbon, "alphaMiddleTime", text="Alpha Animation Middle")
         col = layout.column(align=True)
         col.prop(ribbon, "alphaVariationType", text="Alpha Variation")
         sub = col.column(align=True)
@@ -3323,32 +3352,29 @@ class RibbonScalePanel(bpy.types.Panel):
         ribbon = scene.m3_ribbons[ribbonIndex]
         row = layout.row()
         col = row.column(align=True)
+        col.active = len(ribbon.endPoints) == 0
         col.label(text="Length:")
-        col.prop(ribbon, "ribbonLength", index=0, text="Length")
-        col.prop(ribbon, "waveLength", index=1, text="Wave Length")
+        col.prop(ribbon, "length", text="Length")
+        col.prop(ribbon, "waveLength", text="Wave Length")
         col.prop(ribbon, "lengthVariationType", text="Variation")
         sub = col.column(align=True)
         sub.active = ribbon.lengthVariationType != "0"
         sub.prop(ribbon, "lengthVariationAmplitude", text="Amplitude")
         sub.prop(ribbon, "lengthVariationFrequency", text="Frequency")
         col = row.column(align=True)
-        col.label(text="Radius:")
-        col.prop(ribbon, "radiusScale", index=0, text="Start")
-        col.prop(ribbon, "radiusScale", index=1, text="Middle")
-        col.prop(ribbon, "radiusScale", index=2, text="End")
-        col.prop(ribbon, "radiusVariationType", text="Variation")
+        col.label(text="Size:")
+        col.prop(ribbon, "size", index=0, text="Start")
+        col.prop(ribbon, "size", index=1, text="Middle")
+        col.prop(ribbon, "size", index=2, text="End")
+        col.prop(ribbon, "sizeVariationType", text="Variation")
         sub = col.column(align=True)
-        sub.active = ribbon.radiusVariationType != "0"
-        sub.prop(ribbon, "radiusVariationAmplitude", text="Amplitude")
-        sub.prop(ribbon, "radiusVariationFrequency", text="Frequency")
+        sub.active = ribbon.sizeVariationType != "0"
+        sub.prop(ribbon, "sizeVariationAmplitude", text="Amplitude")
+        sub.prop(ribbon, "sizeVariationFrequency", text="Frequency")
         col = layout.column(align=True)
-        col.prop(ribbon, "centerBias", text="Radius Animation Middle")
-        col = layout.column(align=True)
-        col.label(text="Noise:")
-        col.prop(ribbon, "surfaceNoiseAmplitude", text="Amplitude")
-        col.prop(ribbon, "surfaceNoiseNumberOfWaves", text="Waves")
-        col.prop(ribbon, "surfaceNoiseFrequency", text="Frequency")
-        col.prop(ribbon, "surfaceNoiseScale", text="Scale")
+        col.prop(ribbon, "sizeSmoothing", text="Size Smoothing")
+        col.prop(ribbon, "sizeMiddleTime", text="Size Middle Time")
+        col.prop(ribbon, "sizeMiddleHoldTime", text="Size Middle Hold Time")
 
 
 class RibbonFlagsPanel(bpy.types.Panel):
@@ -3368,7 +3394,14 @@ class RibbonFlagsPanel(bpy.types.Panel):
         layout = self.layout
         scene = context.scene
         ribbon = scene.m3_ribbons[scene.m3_ribbon_index]
-
+        col = layout.column()
+        col.active = len(ribbon.endPoints) == 0
+        col.label(text="Local Force Channels:")
+        col.prop(ribbon, "localForceChannels", text="")
+        col = layout.column()
+        col.active = len(ribbon.endPoints) == 0
+        col.label(text="World Force Channels:")
+        col.prop(ribbon, "worldForceChannels", text="")
         col = layout.column_flow(columns=2)
         col.prop(ribbon, "collideWithTerrain", text="Collide With Terrain")
         col.prop(ribbon, "collideWithObjects", text="Collide With Objects")
@@ -3382,6 +3415,7 @@ class RibbonFlagsPanel(bpy.types.Panel):
         col.prop(ribbon, "useLocaleTime", text="Use Locale Time")
         col.prop(ribbon, "simulateOnInitialization", text="Simulate On Initialization")
         col.prop(ribbon, "useLengthAndTime", text="Use Length And Time")
+        col.prop(ribbon, "worldSpace", text="World Space")
 
 
 class RibbonEndPointsPanel(bpy.types.Panel):

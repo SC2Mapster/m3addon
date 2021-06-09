@@ -2585,7 +2585,7 @@
             <field name="colorMiddleHoldTime" type="float" default-value="0.0" since-version="8" />
             <field name="alphaMiddleHoldTime" type="float" default-value="0.0" since-version="8" />
             <field name="rotationMiddleHoldTime" type="float" default-value="0.0" />
-            <field name="size" type="Vector3AnimationReferenceV0" /> <!--X=Start, Y=Middle, Z=END-->
+            <field name="size" type="Vector3AnimationReferenceV0" />
             <field name="rotation" type="Vector3AnimationReferenceV0" />
             <field name="baseColoring" type="ColorAnimationReference" />
             <field name="centerColoring" type="ColorAnimationReference" />
@@ -2616,7 +2616,7 @@
             <field name="ribbonDivisions" type="float" />
             <field name="ribbonSides" type="uint32" />
             <field name="starRatio" type="float" default-value="0.5"/>
-            <field name="ribbonLength" type="FloatAnimationReference" />
+            <field name="length" type="FloatAnimationReference" />
             <field till-version="6"  name="filler1" type="int32" default-value="0"/>
             <field name="endPoints" type="Reference" refTo="SRIB" />
             <field name="active" type="UInt32AnimationReference" />
@@ -2639,33 +2639,33 @@
             <!-- smoothing enums are the same as in particle system -->
             <field name="sizeSmoothing" type="uint32" default-value="0 "/>
             <field name="colorSmoothing" type="uint32" default-value="0 "/>
-            <field name="friction" type="float" default-value="1.0" since-version="8 "/>
-            <field name="bounce" type="float" default-value="0.0" since-version="8 "/>
+            <field name="friction" type="float" default-value="1.0" since-version="8"/>
+            <field name="bounce" type="float" default-value="0.0" since-version="8"/>
             <field name="lodReduce" type="uint32" default-value="2 "/>
             <field name="lodCut" type="uint32" default-value="0 "/>
 
             <!-- till v6: pitch then yaw -->
-            <field name="pitchVariationType" type="uint32" till-version="6 "/>
-            <field name="pitchVariationAmplitude" type="FloatAnimationReference" till-version="6 "/>
-            <field name="pitchVariationFrequency" type="FloatAnimationReference" till-version="6 "/>
+            <field name="pitchVariationType" type="uint32" till-version="6"/>
+            <field name="pitchVariationAmplitude" type="FloatAnimationReference" till-version="6"/>
+            <field name="pitchVariationFrequency" type="FloatAnimationReference" till-version="6"/>
             <field name="yawVariationType" type="uint32" till-version="6 "/>
-            <field name="yawVariationAmplitude" type="FloatAnimationReference" till-version="6 "/>
-            <field name="yawVariationFrequency" type="FloatAnimationReference" till-version="6 "/>
+            <field name="yawVariationAmplitude" type="FloatAnimationReference" till-version="6"/>
+            <field name="yawVariationFrequency" type="FloatAnimationReference" till-version="6"/>
 
             <!-- since v8: yaw then pitch -->
-            <field name="yawVariationType" type="uint32" since-version="8 "/>
-            <field name="yawVariationAmplitude" type="FloatAnimationReference" since-version="8 "/>
-            <field name="yawVariationFrequency" type="FloatAnimationReference" since-version="8 "/>
-            <field name="pitchVariationType" type="uint32" since-version="8 "/>
-            <field name="pitchVariationAmplitude" type="FloatAnimationReference" since-version="8 "/>
-            <field name="pitchVariationFrequency" type="FloatAnimationReference" since-version="8 "/>
+            <field name="yawVariationType" type="uint32" since-version="8"/>
+            <field name="yawVariationAmplitude" type="FloatAnimationReference" since-version="8"/>
+            <field name="yawVariationFrequency" type="FloatAnimationReference" since-version="8"/>
+            <field name="pitchVariationType" type="uint32" since-version="8"/>
+            <field name="pitchVariationAmplitude" type="FloatAnimationReference" since-version="8"/>
+            <field name="pitchVariationFrequency" type="FloatAnimationReference" since-version="8"/>
 
             <field name="lengthVariationType" type="uint32" />
             <field name="lengthVariationAmplitude" type="FloatAnimationReference" />
             <field name="lengthVariationFrequency" type="FloatAnimationReference" />
-            <field name="radiusVariationType" type="uint32" />
-            <field name="radiusVariationAmplitude" type="FloatAnimationReference" />
-            <field name="radiusVariationFrequency" type="FloatAnimationReference" />
+            <field name="sizeVariationType" type="uint32" />
+            <field name="sizeVariationAmplitude" type="FloatAnimationReference" />
+            <field name="sizeVariationFrequency" type="FloatAnimationReference" />
             <field name="alphaVariationType" type="uint32" />
             <field name="alphaVariationAmplitude" type="FloatAnimationReference" />
             <field name="alphaVariationFrequency" type="FloatAnimationReference" />
