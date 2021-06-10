@@ -1547,7 +1547,8 @@ class Exporter:
             m3Ribbon.unknown9a4a649a = self.createNullFloatAnimationReference(initValue=0.0, nullValue=0.0)
             m3Ribbon.unknown76569e33 = self.createNullFloatAnimationReference(initValue=0.0, nullValue=0.0)
 
-            m3Ribbon.worldForceChannelsCopy = m3Ribbon.worldForceChannels
+            if len(ribbon.endPoints) == 0:
+                m3Ribbon.worldForceChannelsCopy = m3Ribbon.worldForceChannels
 
             model.ribbons.append(m3Ribbon)
 
