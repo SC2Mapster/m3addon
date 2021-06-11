@@ -2691,8 +2691,8 @@ class BlenderToM3DataTransferer:
         value = getattr(self.blenderObject, fieldName)
         setattr(self.m3Object, fieldName, value)
 
-    def transferBoolean(self, fieldName, tillVersion=None):
-        if (tillVersion is not None) and (self.m3Version > tillVersion):
+    def transferBoolean(self, fieldName, sinceVersion=None, tillVersion=None):
+        if (sinceVersion is not None and self.m3Version < sinceVersion) or (tillVersion is not None and self.m3Version > tillVersion):
             return
         booleanValue = getattr(self.blenderObject, fieldName)
         if booleanValue:
@@ -2701,8 +2701,8 @@ class BlenderToM3DataTransferer:
             intValue = 0
         setattr(self.m3Object, fieldName, intValue)
 
-    def transferBit(self, m3FieldName, bitName, sinceVersion=None):
-        if (sinceVersion is not None) and (self.m3Version < sinceVersion):
+    def transferBit(self, m3FieldName, bitName, sinceVersion=None, tillVersion=None):
+        if (sinceVersion is not None and self.m3Version < sinceVersion) or (tillVersion is not None and self.m3Version > tillVersion):
             return
         booleanValue = getattr(self.blenderObject, bitName)
         self.m3Object.setNamedBit(m3FieldName, bitName, booleanValue)

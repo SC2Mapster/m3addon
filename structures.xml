@@ -2601,7 +2601,7 @@
             <field name="unknownc7004d01" type="float" default-value="0.0" /> <!-- almost always 0.0 on Blizzard models, few occurences where it's 10.0 ; could be some multiplier related to mass?? -->
 
             <field name="unknown20683e1b" type="uint32" default-value="0" till-version="6" /> <!-- always 0 on Blizzard models expect 3 cases (LarvaPortrait.m3 OverlordPortrait.m3 HydraliskPortrait.m3) where it's 0x41200000 -->
-            <field name="unknowndf1a587b" type="uint32" default-value="1" till-version="6" /> <!-- 0x0 or 0x1 (off/on) on Blizz models ; could be related to additionalFlags -->
+            <field name="worldSpace" type="uint32" default-value="0" till-version="6" /> <!-- 0x0 or 0x1 (off/on) -->
             <field name="localForceChannels" type="uint16" default-value="0" />
             <field name="worldForceChannels" type="uint16" default-value="0" />
             <field name="localForceChannelsCopy" type="uint16" default-value="0" />
@@ -2632,10 +2632,11 @@
                     <bit mask="0x40" name="bezierSmoothSize" />
                     <bit mask="0x80" name="useVertexAlpha" />
                     <bit mask="0x100" name="scaleTimeByParent" />
-                    <bit mask="0x200" name="forceLegacy" />
+                    <bit mask="0x200" name="forceCPUSimulation" />
                     <bit mask="0x400" name="useLocaleTime" />
                     <bit mask="0x800" name="simulateOnInitialization" />
                     <bit mask="0x1000" name="useLengthAndTime" />
+                    <bit mask="0x2000" name="accurateGPUTangents" />
                 </bits>
             </field>
             <field name="sizeSmoothing" type="uint32" default-value="0" />
