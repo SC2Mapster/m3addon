@@ -850,7 +850,7 @@ class Importer:
         for m3Camera in self.model.cameras:
             camera = scene.m3_cameras.add()
 
-            animPathPrefix = "m3_cameras[%s]." % len(scene.m3_cameras)
+            animPathPrefix = "m3_cameras[%s]." % (len(scene.m3_cameras) - 1)
             transferer = M3ToBlenderDataTransferer(self, scene, animPathPrefix, blenderObject=camera, m3Object=m3Camera)
             shared.transferCamera(transferer)
 
@@ -925,7 +925,7 @@ class Importer:
 
             blenderBoneName = self.boneNames[m3ParticleSystem.boneIndex]
 
-            animPathPrefix = "m3_particle_systems[%s]." % len(scene.m3_particle_systems)
+            animPathPrefix = "m3_particle_systems[%s]." % (len(scene.m3_particle_systems) - 1)
             transferer = M3ToBlenderDataTransferer(self, scene, animPathPrefix, blenderObject=particleSystem, m3Object=m3ParticleSystem)
             shared.transferParticleSystem(transferer)
 
@@ -995,7 +995,7 @@ class Importer:
         for m3Ribbon in self.model.ribbons:
             ribbon = scene.m3_ribbons.add()
 
-            animPathPrefix = "m3_ribbons[%s]." % len(scene.m3_ribbons)
+            animPathPrefix = "m3_ribbons[%s]." % (len(scene.m3_ribbons) - 1)
             transferer = M3ToBlenderDataTransferer(self, scene, animPathPrefix, blenderObject=ribbon, m3Object=m3Ribbon)
             shared.transferRibbon(transferer)
 
@@ -1024,7 +1024,7 @@ class Importer:
             projection = scene.m3_projections.add()
             projection.bl_update = False
 
-            animPathPrefix = "m3_projections[%s]." % len(scene.m3_projections)
+            animPathPrefix = "m3_projections[%s]." % (len(scene.m3_projections) - 1)
             transferer = M3ToBlenderDataTransferer(self, scene, animPathPrefix, blenderObject=projection, m3Object=m3Projection)
             shared.transferProjection(transferer)
 
@@ -1048,7 +1048,7 @@ class Importer:
             warp = scene.m3_warps.add()
             warp.bl_update = False
 
-            animPathPrefix = "m3_warps[%s]." % len(scene.m3_warps)
+            animPathPrefix = "m3_warps[%s]." % (len(scene.m3_warps) - 1)
             transferer = M3ToBlenderDataTransferer(self, scene, animPathPrefix, blenderObject=warp, m3Object=m3Warp)
             shared.transferWarp(transferer)
 
@@ -1067,7 +1067,7 @@ class Importer:
             force = scene.m3_forces.add()
             force.bl_update = False
 
-            animPathPrefix = "m3_forces[%s]." % len(scene.m3_forces)
+            animPathPrefix = "m3_forces[%s]." % (len(scene.m3_forces) - 1)
             transferer = M3ToBlenderDataTransferer(self, scene, animPathPrefix, blenderObject=force, m3Object=m3Force)
             shared.transferForce(transferer)
 
@@ -1128,7 +1128,7 @@ class Importer:
 
                     physics_shape.meshObjectName = meshObject.name
 
-            animPathPrefix = "m3_rigid_bodies[%s]." % len(scene.m3_rigid_bodies)
+            animPathPrefix = "m3_rigid_bodies[%s]." % (len(scene.m3_rigid_bodies) - 1)
             transferer = M3ToBlenderDataTransferer(self, scene, animPathPrefix, blenderObject=rigid_body, m3Object=m3RigidBody)
             shared.transferRigidBody(transferer)
 
@@ -1146,7 +1146,7 @@ class Importer:
         print("Loading lights")
         for m3Light in self.model.lights:
             # The index of the light in model.lights can't be used since some lights may already exist
-            animPathPrefix = "m3_lights[%s]." % len(scene.m3_lights)
+            animPathPrefix = "m3_lights[%s]." % (len(scene.m3_lights) - 1)
 
             light = scene.m3_lights.add()
             light.bl_update = False
@@ -1180,7 +1180,7 @@ class Importer:
         for m3BillboardBehavior in self.model.billboardBehaviors:
             billboardBehavior = scene.m3_billboard_behaviors.add()
 
-            animPathPrefix = "m3_billboard_behaviors[%s]." % len(scene.m3_billboard_behaviors)
+            animPathPrefix = "m3_billboard_behaviors[%s]." % (len(scene.m3_billboard_behaviors) - 1)
             transferer = M3ToBlenderDataTransferer(self, scene, animPathPrefix, blenderObject=billboardBehavior, m3Object=m3BillboardBehavior)
             shared.transferBillboardBehavior(transferer)
 
@@ -1193,7 +1193,7 @@ class Importer:
         for m3IkChain in self.model.inverseKinematicChains:
             ik = scene.m3_ik_chains.add()
 
-            animPathPrefix = "m3_ik_chain[%s]." % len(scene.m3_ik_chains)
+            animPathPrefix = "m3_ik_chain[%s]." % (len(scene.m3_ik_chains) - 1)
             transferer = M3ToBlenderDataTransferer(self, scene, animPathPrefix, blenderObject=ik, m3Object=m3IkChain)
             shared.transferIkChain(transferer)
 
