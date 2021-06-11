@@ -206,7 +206,7 @@ if __name__ == "__main__":
     continueAtErrors = args.continue_at_errors
 
     t0 = time.time()
-    print("Converting files..")
+    print("Converting files.. %d" % len(args.path))
     for path in args.path:
         total, succeeded, failed = (0, 0, 0)
         if os.path.isfile(path):

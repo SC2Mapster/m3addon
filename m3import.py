@@ -371,7 +371,12 @@ class M3ToBlenderDataTransferer:
 
     def transferAnimatableColor(self, fieldName):
         animationReference = getattr(self.m3Object, fieldName)
-        setattr(self.blenderObject, fieldName, toBlenderColorVector(animationReference.initValue))
+        initValue = toBlenderColorVector(animationReference.initValue)
+        # without alpha
+        if len(getattr(self.blenderObject, fieldName)) == 3:
+            setattr(self.blenderObject, fieldName, [*initValue][:3])
+        else:
+            setattr(self.blenderObject, fieldName, initValue)
         animationHeader = animationReference.header
         animId = animationHeader.animId
         animPath = self.animPathPrefix + fieldName
@@ -1188,7 +1193,7 @@ class Importer:
         for m3IkChain in self.model.inverseKinematicChains:
             ik = scene.m3_ik_chains.add()
 
-            animPathPrefix = "m3_ik_chain[%s]" % len(scene.m3_ik_chains)
+            animPathPrefix = "m3_ik_chain[%s]." % len(scene.m3_ik_chains)
             transferer = M3ToBlenderDataTransferer(self, scene, animPathPrefix, blenderObject=ik, m3Object=m3IkChain)
             shared.transferIkChain(transferer)
 

@@ -1531,23 +1531,13 @@ class Exporter:
             animPathPrefix = "m3_ribbons[%s]." % ribbonIndex
             transferer = BlenderToM3DataTransferer(exporter=self, m3Object=m3Ribbon, blenderObject=ribbon, animPathPrefix=animPathPrefix, rootObject=self.scene)
             shared.transferRibbon(transferer)
-            m3Ribbon.unkonwne773692a = self.createNullAnimHeader(interpolationType=1)
 
-            m3Ribbon.unknown8940c27c = self.createNullFloatAnimationReference(initValue=0.0, nullValue=0.0)
-            m3Ribbon.unknownc2ab76c5 = self.createNullFloatAnimationReference(initValue=0.0, nullValue=0.0)
             m3Ribbon.unknownee00ae0a = self.createNullFloatAnimationReference(initValue=0.0, nullValue=0.0)
             m3Ribbon.unknown1686c0b7 = self.createNullFloatAnimationReference(initValue=0.0, nullValue=0.0)
-            m3Ribbon.unknowne48f8f84 = self.createNullFloatAnimationReference(initValue=0.0, nullValue=0.0)
             m3Ribbon.unknown9eba8df8 = self.createNullFloatAnimationReference(initValue=0.0, nullValue=0.0)
 
-            m3Ribbon.unknown7e341928 = self.createNullAnimHeader(interpolationType=1)
-
-            m3Ribbon.unknown4904046f = self.createNullFloatAnimationReference(initValue=0.0, nullValue=0.0)
-            m3Ribbon.unknowna69b9387 = self.createNullFloatAnimationReference(initValue=0.0, nullValue=0.0)
-            m3Ribbon.unknown9a4a649a = self.createNullFloatAnimationReference(initValue=0.0, nullValue=0.0)
-            m3Ribbon.unknown76569e33 = self.createNullFloatAnimationReference(initValue=0.0, nullValue=0.0)
-
             if len(ribbon.endPoints) == 0:
+                m3Ribbon.localForceChannelsCopy = m3Ribbon.localForceChannels
                 m3Ribbon.worldForceChannelsCopy = m3Ribbon.worldForceChannels
 
             model.ribbons.append(m3Ribbon)
@@ -1565,7 +1555,7 @@ class Exporter:
                     raise ExportError("The bone %s of an end point from ribbon %s does not exist" % (boneName, ribbon.name))
                 m3EndPoint.boneIndex = boneIndex
 
-                endPointAnimPathPrefix = animPathPrefix + "endPoints[%d]" % ii
+                endPointAnimPathPrefix = animPathPrefix + "endPoints[%d]." % ii
                 transferer = BlenderToM3DataTransferer(exporter=self, m3Object=m3EndPoint, blenderObject=endPoint, animPathPrefix=endPointAnimPathPrefix, rootObject=self.scene)
                 shared.transferRibbonEndPoint(transferer)
 
@@ -2404,8 +2394,8 @@ class BlenderToM3DataTransferer:
         animRef = self.exporter.createInstanceOf("ColorAnimationReference")
         animRef.header = self.exporter.createNullAnimHeader(animId=animId, interpolationType=1)
         currentColor = getattr(self.blenderObject, fieldName)
-        defaultColor = mathutils.Vector((0, 0, 0, 0))
-        for i in range(4):
+        defaultColor = mathutils.Vector((0, 0, 0, 1.0))
+        for i in range(len(currentColor)):
             defaultColor[i] = self.exporter.getDefaultValue(self.rootObject, animPath, i, currentColor[i])
         m3DefaultColor = self.exporter.toM3Color(defaultColor)
         animRef.initValue = m3DefaultColor

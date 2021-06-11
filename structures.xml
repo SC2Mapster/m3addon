@@ -1080,8 +1080,8 @@
                     <bit mask="0x40" name="billboard2" />
                     <bit mask="0x100" name="twoDProjection" />
                     <bit mask="0x200" name="animated" />
-                    <bit mask="0x400" name="inverseKinematics " />
-                    <bit mask="0x800 " name="skinned" />
+                    <bit mask="0x400" name="inverseKinematics" />
+                    <bit mask="0x800" name="skinned" />
                     <bit mask="0x2000" name="real" />
                 </bits>
             </field>
@@ -1955,7 +1955,7 @@
             <field name="unknownf8b3d529" type="uint32" default-value="0" />
             <field name="unknown5f54fb02" type="FloatAnimationReference"/>
             <field name="unknown84d843d6" type="FloatAnimationReference" />
-            <field name="unknown6b3b9f9" size="4" expected-value="0x00000000" />
+            <field name="unknown6b3b9f9" size="4" default-value="0x00000000" /> <!-- Spectre_Heavens_COOP_UltrasonicPulse.m3 -->
             <field name="unknown9cb3dd18" type="FloatAnimationReference" />
             <field name="unknown2e01be90" type="FloatAnimationReference" />
             <field name="unknowneff4c5be" type="uint32" default-value="0" />
@@ -1975,20 +1975,20 @@
             <field name="unknown4eefdfc1" type="FloatAnimationReference" />
             <field name="unknownb47e5f82" size="4" default-value="0x00000000" />
             <field name="unknownab37a1d5" type="AnimationReferenceHeader" />
-            <field name="initOfUnknownab37a1d5" size="4" expected-value="0x00000000" />
+            <field name="initOfUnknownab37a1d5" size="4" default-value="0x00000000" /> <!-- Elsecaro_Colonist_Hut_Death_01.m3 Elsecaro_Colonist_Hut_Death_02.m3 -->
             <field name="nullOfUnknownab37a1d5" size="4" expected-value="0x00000000" />
             <field name="endOfUnknownab37a1d5" size="4" default-value="0xffffffff" />
             <field name="unknownbef7f4d3" type="AnimationReferenceHeader" />
-            <field name="initOfUnknownbef7f4d3" size="4" expected-value="0x00000000" />
+            <field name="initOfUnknownbef7f4d3" size="4" default-value="0x00000000" /> <!-- Elsecaro_Colonist_Hut_Death_03.m3 -->
             <field name="nullOfUnknownbef7f4d3" size="4" expected-value="0x00000000" />
             <field name="endOfUnknownbef7f4d3" size="4" default-value="0xffffffff" />
             <field name="unknown8262f69c" size="4" default-value="0x00000000" />
             <field name="unknownb2dbf2f3" type="AnimationReferenceHeader"  />
-            <field name="initOfUnknownb2dbf2f3" size="4" expected-value="0x00000000" />
+            <field name="initOfUnknownb2dbf2f3" size="4" default-value="0x00000000" /> <!-- Elsecaro_Colonist_Hut_Death_00.m3 -->
             <field name="nullOfUnknownb2dbf2f3" size="4" expected-value="0x00000000" />
             <field name="endOfUnknownb2dbf2f3" size="4" default-value="0xffffffff" />
             <field name="unknown3c76d64c" type="AnimationReferenceHeader" />
-            <field name="initOfUnknown3c76d64c" size="4" expected-value="0x00000000" />
+            <field name="initOfUnknown3c76d64c" size="4" default-value="0x00000000" /> <!-- Elsecaro_Colonist_Hut_Death_00.m3 -->
             <field name="nullOfUnknown3c76d64c" size="4" expected-value="0x00000000" />
             <field name="endOfUnknown3c76d64c" size="4" default-value="0xffffffff" />
             <field name="unknownbc151e17" type="FloatAnimationReference" />
@@ -2053,7 +2053,7 @@
             <field name="lodReduce" type="uint32" default-value="2"/>
             <field name="lodCut" type="uint32" default-value="1"/>
             <field name="unknown21ca0cea" type="AnimationReferenceHeader" />
-            <field name="initOfUnknown21ca0cea" size="4" expected-value="0x00000000" />
+            <field name="initOfUnknown21ca0cea" size="4" default-value="0x00000000" /> <!-- Void_Narud_Beam.m3 -->
             <field name="nullOfUnknown21ca0cea" size="4" expected-value="0x00000000" />
             <field name="endOfUnknown21ca0cea" size="4" default-value="0xffffffff" />
             <field name="unknown1e97145f" type="FloatAnimationReference" /> <!-- default 1.0 -->
@@ -2512,7 +2512,7 @@
         </versions>
         <fields>
             <field name="unknown1" type="uint32" default-value="0" />
-            <field name="unknown2" size="16" expected-value="0x00000000000000000000000000000000" />
+            <field name="unknown2" size="16" default-value="0x00000000000000000000000000000000" /> <!-- PsiStorm.m3 -->
             <field name="tangent1" type="float"/>
             <field name="length" type="FloatAnimationReference"/>
             <field name="unknowneee1a711" type="uint32"/>
@@ -2525,9 +2525,9 @@
             <field name="pitchVariationType" type="uint32"/>
             <field name="pitchVariationAmplitude" type="FloatAnimationReference"/>
             <field name="pitchVariationFrequency" type="FloatAnimationReference"/>
-            <field name="lengthVariationType" type="uint32"/>
-            <field name="lengthVariationAmplitude" type="FloatAnimationReference"/>
-            <field name="lengthVariationFrequency" type="FloatAnimationReference"/>
+            <field name="speedVariationType" type="uint32"/>
+            <field name="speedVariationAmplitude" type="FloatAnimationReference"/>
+            <field name="speedVariationFrequency" type="FloatAnimationReference"/>
             <field name="yaw" type="FloatAnimationReference"/>
             <field name="pitch" type="FloatAnimationReference"/>
             <field name="tangent2" type="float"/>
@@ -2557,9 +2557,9 @@
                     <bit mask="0x8" name="worldSpace" />
                 </bits>
             </field>
-            <field name="waveLength" type="FloatAnimationReference" />
+            <field name="speed" type="FloatAnimationReference" />
             <field name="unknown75e0b576" type="FloatAnimationReference" />
-            <field till-version="6" name="unknownd30655aa" type="int32" default-value="0"/>
+            <field till-version="6" name="unknownd30655aa" type="uint32" expected-value="0" /> <!-- haven't seen a Blizzard model where this wouldn't be 0 -->
 
             <!-- till v6: pitch then yaw -->
             <field name="pitch" type="FloatAnimationReference" till-version="6" />
@@ -2573,18 +2573,19 @@
             <field name="unknown1686c0b7" type="FloatAnimationReference" />
             <field name="lifespan" type="FloatAnimationReference" />
             <field name="unknown9eba8df8" type="FloatAnimationReference" />
-            <field name="unknown26271cbe" type="uint32" expected-value="0"/>
+            <field name="unknown26271cbe" type="uint32" expected-value="0" />
             <field name="unknownda0542fa" type="uint32" expected-value="0" />
-            <field name="unknown76f48851" type="float" expected-value="0"/>
+            <field name="unknown76f48851" type="uint32" expected-value="0" />
+            <field name="unknown874bdc23" type="uint32" expected-value="0" till-version="6" />
             <field name="gravity" type="float" default-value="0"/>
-            <field name="sizeMiddleTime" type="float" default-value="0.5" />
-            <field name="colorMiddleTime" type="float" default-value="0.5" />
-            <field name="alphaMiddleTime" type="float" default-value="0.5" />
-            <field name="rotationMiddleTime" type="float" default-value="0.5" />
+            <field name="sizeMiddleTime" type="float" default-value="1.0" />
+            <field name="colorMiddleTime" type="float" default-value="1.0" />
+            <field name="alphaMiddleTime" type="float" default-value="1.0" />
+            <field name="rotationMiddleTime" type="float" default-value="1.0" />
             <field name="sizeMiddleHoldTime" type="float" default-value="0.0" since-version="8" />
             <field name="colorMiddleHoldTime" type="float" default-value="0.0" since-version="8" />
             <field name="alphaMiddleHoldTime" type="float" default-value="0.0" since-version="8" />
-            <field name="rotationMiddleHoldTime" type="float" default-value="0.0" />
+            <field name="rotationMiddleHoldTime" type="float" default-value="0.0" since-version="8" />
             <field name="size" type="Vector3AnimationReferenceV0" />
             <field name="rotation" type="Vector3AnimationReferenceV0" />
             <field name="baseColoring" type="ColorAnimationReference" />
@@ -2593,31 +2594,32 @@
             <field name="drag" type="float" default-value="0.0" />
 
             <field name="mass" type="float" default-value="1.0" since-version="8" />
-            <field name="massProbablyUnused" type="float" since-version="8" />
+            <field name="massProbablyUnused" type="float" default-value="0.0" since-version="8" />
 
-            <field name="massProbablyUnused" type="float" till-version="6" />
+            <field name="massProbablyUnused" type="float" default-value="0.0" till-version="6" />
             <field name="mass" type="float" default-value="1.0" till-version="6" />
+            <field name="unknownc7004d01" type="float" default-value="0.0" /> <!-- almost always 0.0 on Blizzard models, few occurences where it's 10.0 ; could be some multiplier related to mass?? -->
 
-            <field name="unknownc7004d01" type="float" default-value="0.0"/>
+            <field name="unknown20683e1b" type="uint32" default-value="0" till-version="6" /> <!-- always 0 on Blizzard models expect 3 cases (LarvaPortrait.m3 OverlordPortrait.m3 HydraliskPortrait.m3) where it's 0x41200000 -->
+            <field name="unknowndf1a587b" type="uint32" default-value="1" till-version="6" /> <!-- 0x0 or 0x1 (off/on) on Blizz models ; could be related to additionalFlags -->
             <field name="localForceChannels" type="uint16" default-value="0" />
             <field name="worldForceChannels" type="uint16" default-value="0" />
-            <field name="forceChannelsFillerBytes" type="uint16" default-value="0" />
+            <field name="localForceChannelsCopy" type="uint16" default-value="0" />
             <field name="worldForceChannelsCopy" type="uint16" default-value="0" />
-            <field till-version="6" name="unknown20683e1b" type="uint32" default-value="0"/> <!--overseer2-->
-            <field till-version="6" name="unknowndf1a587b" type="uint32" default-value="0"/> <!--overseer2-->
-            <field name="unknownfb168d8c" size="4" default-value="0x00000000" since-version="9"/>
+
+            <field name="unknownfb168d8c" type="uint32" expected-value="0" since-version="9" /> <!-- haven't seen a Blizzard model where this wouldn't be 0 -->
             <field name="surfaceNoiseAmplitude" type="float" />
             <field name="surfaceNoiseNumberOfWaves" type="float" />
             <field name="surfaceNoiseFrequency" type="float" />
             <field name="surfaceNoiseScale" type="float" />
-            <field name="unknownafa854b0" type="uint32" /> <!--corruptor3, corruption battlecruiser5-->
+            <field name="indexPlusHighestIndex" type="uint32" default-value="1" /> <!-- 1-255 value ; never seen to be 0 on Blizzard models ; shared with PAR_ ; probably determines the rendering priority of some sort ? -->
             <field name="ribbonType" type="uint32" />
             <field name="cullType" type="uint32" default-value="1"/>
             <field name="ribbonDivisions" type="float" />
             <field name="ribbonSides" type="uint32" />
             <field name="starRatio" type="float" default-value="0.5"/>
             <field name="length" type="FloatAnimationReference" />
-            <field till-version="6"  name="filler1" type="int32" default-value="0"/>
+            <field name="unknown3fbae7d6" type="int32" expected-value="0" till-version="6" /> <!-- haven't seen a Blizzard model where this wouldn't be 0 -->
             <field name="endPoints" type="Reference" refTo="SRIB" />
             <field name="active" type="UInt32AnimationReference" />
             <field name="flags" type="uint32" default-value="0" >
@@ -2636,41 +2638,40 @@
                     <bit mask="0x1000" name="useLengthAndTime" />
                 </bits>
             </field>
-            <!-- smoothing enums are the same as in particle system -->
-            <field name="sizeSmoothing" type="uint32" default-value="0 "/>
-            <field name="colorSmoothing" type="uint32" default-value="0 "/>
-            <field name="friction" type="float" default-value="1.0" since-version="8"/>
-            <field name="bounce" type="float" default-value="0.0" since-version="8"/>
-            <field name="lodReduce" type="uint32" default-value="2 "/>
-            <field name="lodCut" type="uint32" default-value="0 "/>
+            <field name="sizeSmoothing" type="uint32" default-value="0" />
+            <field name="colorSmoothing" type="uint32" default-value="0" />
+            <field name="friction" type="float" default-value="1.0" since-version="8" />
+            <field name="bounce" type="float" default-value="0.0" since-version="8" />
+            <field name="lodReduce" type="uint32" default-value="2" />
+            <field name="lodCut" type="uint32" default-value="0" />
 
             <!-- till v6: pitch then yaw -->
-            <field name="pitchVariationType" type="uint32" till-version="6"/>
-            <field name="pitchVariationAmplitude" type="FloatAnimationReference" till-version="6"/>
-            <field name="pitchVariationFrequency" type="FloatAnimationReference" till-version="6"/>
-            <field name="yawVariationType" type="uint32" till-version="6 "/>
-            <field name="yawVariationAmplitude" type="FloatAnimationReference" till-version="6"/>
-            <field name="yawVariationFrequency" type="FloatAnimationReference" till-version="6"/>
+            <field name="pitchVariationType" type="uint32" till-version="6" />
+            <field name="pitchVariationAmplitude" type="FloatAnimationReference" till-version="6" />
+            <field name="pitchVariationFrequency" type="FloatAnimationReference" till-version="6" />
+            <field name="yawVariationType" type="uint32" till-version="6" />
+            <field name="yawVariationAmplitude" type="FloatAnimationReference" till-version="6" />
+            <field name="yawVariationFrequency" type="FloatAnimationReference" till-version="6" />
 
             <!-- since v8: yaw then pitch -->
-            <field name="yawVariationType" type="uint32" since-version="8"/>
-            <field name="yawVariationAmplitude" type="FloatAnimationReference" since-version="8"/>
-            <field name="yawVariationFrequency" type="FloatAnimationReference" since-version="8"/>
-            <field name="pitchVariationType" type="uint32" since-version="8"/>
-            <field name="pitchVariationAmplitude" type="FloatAnimationReference" since-version="8"/>
-            <field name="pitchVariationFrequency" type="FloatAnimationReference" since-version="8"/>
+            <field name="yawVariationType" type="uint32" since-version="8" />
+            <field name="yawVariationAmplitude" type="FloatAnimationReference" since-version="8" />
+            <field name="yawVariationFrequency" type="FloatAnimationReference" since-version="8" />
+            <field name="pitchVariationType" type="uint32" since-version="8" />
+            <field name="pitchVariationAmplitude" type="FloatAnimationReference" since-version="8" />
+            <field name="pitchVariationFrequency" type="FloatAnimationReference" since-version="8" />
 
-            <field name="lengthVariationType" type="uint32" />
-            <field name="lengthVariationAmplitude" type="FloatAnimationReference" />
-            <field name="lengthVariationFrequency" type="FloatAnimationReference" />
+            <field name="speedVariationType" type="uint32" />
+            <field name="speedVariationAmplitude" type="FloatAnimationReference" />
+            <field name="speedVariationFrequency" type="FloatAnimationReference" />
             <field name="sizeVariationType" type="uint32" />
             <field name="sizeVariationAmplitude" type="FloatAnimationReference" />
             <field name="sizeVariationFrequency" type="FloatAnimationReference" />
             <field name="alphaVariationType" type="uint32" />
             <field name="alphaVariationAmplitude" type="FloatAnimationReference" />
             <field name="alphaVariationFrequency" type="FloatAnimationReference" />
-            <field name="unknown9a4a649a" type="FloatAnimationReference" />
-            <field name="unknown76569e33" type="FloatAnimationReference" />
+            <field name="parentVelocity" type="FloatAnimationReference" />
+            <field name="overlayPhase" type="FloatAnimationReference" />
         </fields>
     </structure>
 
