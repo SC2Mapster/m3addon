@@ -1450,7 +1450,7 @@ class Exporter:
             if boneIndex is None:
                 boneIndex = self.addBoneWithRestPosAndReturnIndex(model, boneName, realBone=False)
             m3ParticleSystem = self.createInstanceOf("PAR_")
-            m3ParticleSystem.bone = boneIndex
+            m3ParticleSystem.boneIndex = boneIndex
             animPathPrefix = "m3_particle_systems[%s]." % particleSystemIndex
             transferer = BlenderToM3DataTransferer(exporter=self, m3Object=m3ParticleSystem, blenderObject=particleSystem, animPathPrefix=animPathPrefix, rootObject=self.scene)
             shared.transferParticleSystem(transferer)
@@ -1793,7 +1793,7 @@ class Exporter:
                 boneIndex = self.addBoneWithRestPosAndReturnIndex(model, boneName, realBone=True)
             m3AttachmentPoint = self.createInstanceOf("ATT_")
             m3AttachmentPoint.name = shared.attachmentPointPrefix + attachmentPoint.name
-            m3AttachmentPoint.bone = boneIndex
+            m3AttachmentPoint.boneIndex = boneIndex
             model.attachmentPoints.append(m3AttachmentPoint)
             model.attachmentPointAddons.append(0xffff)
 
