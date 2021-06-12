@@ -46,7 +46,7 @@ Currently the following content can be exported and imported:
   * volume materials
   * creep materials
   * volume noise materials
-  * splat terran bake materials
+  * splat terrain bake materials
 * M3 particle systems
 * M3 forces
 * M3 attachment points and volumes
@@ -55,7 +55,7 @@ Currently the following content can be exported and imported:
 * M3 rigid bodies
 * M3 projections
 * M3 ribbons
-* M3 billbord behaviors
+* M3 billboard behaviors
 * M3 turret behaviors
 * M3 inverse kinematic chains
 
@@ -100,7 +100,7 @@ To create a particle system and preview it in the Starcraft 2 editor you can per
 * The importing of m3 files works like this:
   1. The method loadModel of the m3.py file gets called to create a python data structure of the m3 file content.
   2. This data structure gets then used to create corresponding blender data structures
-* The exporing works the other way round:
+* The exporting works the other way round:
   1. The data structures of blender gets used to create m3.py data structures that represent a m3 file.
   2. The method saveAndInvalidateModel of the m3.py file gets used to convert the latter data structure into a m3 file.
 
@@ -131,17 +131,17 @@ The MD34 structure for example has a field called model, that is referencing a `
 
 References typically do not however reference a single structure, but the whole section and thus an array of structures. Thus theoretically a MD34 structure could reference multiple `MODL` structures but that has never been observed in a valid m3 file.
 
-The m3.py file requries all structures to be first defined in the structure.xml file before they get used/referenced by another structure. For this reason the structure MD34 is defiend at the bottom.
+The m3.py file requires all structures to be first defined in the structure.xml file before they get used/referenced by another structure. For this reason the structure MD34 is defiend at the bottom.
 
-An m3 file contains also an index/overviewabout those sections it cotnains, which can be found at the location specified by indexOffset and indexSize. If you want to get a list of the sections in an m3 file programmatic wise you can use the m3.py method `loadSections(filename)`.
+An m3 file contains also an index/overviewabout those sections it contains, which can be found at the location specified by indexOffset and indexSize. If you want to get a list of the sections in an m3 file programmatic wise you can use the m3.py method `loadSections(filename)`.
 
-However usually however it is easier to just work with a tree like represenation of the `MODL` structure in which all references to structure arrays have been replaced by a a list of the section that got referenced. This is possible via the m3.py python function `loadModel(filename)`.
+However usually however it is easier to just work with a tree like representation of the `MODL` structure in which all references to structure arrays have been replaced by a a list of the section that got referenced. This is possible via the m3.py python function `loadModel(filename)`.
 
 ### Definition of structure elements in the structure.xml file
 
 A structure definition defines a strcture for all versions that exist of it:
 
-For the creep materail for example (structure name CREP) 2 versions exist that have differnt sizes. In the structure.xml file there is however just a single structure definition:
+For the creep material for example (structure name CREP) 2 versions exist that have different sizes. In the structure.xml file there is however just a single structure definition:
 
 ```xml
     <structure name="CREP">
@@ -159,11 +159,11 @@ For the creep materail for example (structure name CREP) 2 versions exist that h
 ```
 
 The `<versions>` block contains a `<verson>` element for all known versions of that structure. For each structure the
-size needs to be known and defined in the `<version>` element. When a m3 file contains a version of a strcuture that is not yet known, an exception will be thrown and information about the structure will be logged that contains also a guess on the size of the structure.
+size needs to be known and defined in the `<version>` element. When a m3 file contains a version of a structure that is not yet known, an exception will be thrown and information about the structure will be logged that contains also a guess on the size of the structure.
 
 A newer version of a structure might have additional fields. The attribute `since-version` can be used to indicate that a field exists since a certain version. The attribute `till-version` can be used to indicate that a field exists only till a certain version of the structure.
 
-The m3.py file checkes that the defined fields have indeed the sizes specified in the `<version>` elements. So when you add a new version you propably also need to find out what new fields got added and which fields stayed the same.
+The m3.py file checkes that the defined fields have indeed the sizes specified in the `<version>` elements. So when you add a new version you probably also need to find out what new fields got added and which fields stayed the same.
 
 A field needs either to have a size or type attribute. The type attribute can be one of the following primitive types:
 
