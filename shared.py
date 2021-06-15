@@ -1986,9 +1986,12 @@ def transferLight(transferer):
     transferer.transferAnimatableVector3("lightColor")
     transferer.transferBit("flags", "shadowCast")
     transferer.transferBit("flags", "specular")
-    transferer.transferBit("flags", "unknownFlag0x04")
-    transferer.transferBit("flags", "turnOn")
-    transferer.transferBoolean("unknownAt8")
+    transferer.transferBit("flags", "affectedByAO")
+    transferer.transferBit("flags", "lightOpaqueObjects")
+    transferer.transferBit("flags", "lightTransparentObjects")
+    transferer.transferBit("flags", "useTeamColor")
+    transferer.transferEnum("lodReduce")
+    transferer.transferEnum("lodCut")
     transferer.transferAnimatableFloat("lightIntensity")
     transferer.transferAnimatableVector3("specColor")
     transferer.transferAnimatableFloat("specIntensity")
@@ -1997,7 +2000,6 @@ def transferLight(transferer):
     transferer.transferAnimatableFloat("attenuationNear")
     transferer.transferAnimatableFloat("hotSpot")
     transferer.transferAnimatableFloat("falloff")
-    transferer.transferInt("unknownAt12")
 
 def transferBillboardBehavior(transferer):
     transferer.transferEnum("billboardType")

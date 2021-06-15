@@ -1624,12 +1624,14 @@ class M3Light(bpy.types.PropertyGroup):
     attenuationFar: bpy.props.FloatProperty(default=3, update=handleLightSizeChange, options={"ANIMATABLE"})
     hotSpot: bpy.props.FloatProperty(default=1, options={"ANIMATABLE"})
     falloff: bpy.props.FloatProperty(default=1, update=handleLightSizeChange, options={"ANIMATABLE"})
-    unknownAt12: bpy.props.IntProperty(options=set(), default=-1)
-    unknownAt8: bpy.props.BoolProperty(options=set(), default=False)
+    lodReduce: bpy.props.EnumProperty(options=set(), default="0", items=shared.lodEnum)
+    lodCut: bpy.props.EnumProperty(options=set(), default="0", items=shared.lodEnum)
     shadowCast: bpy.props.BoolProperty(options=set())
     specular: bpy.props.BoolProperty(options=set())
-    unknownFlag0x04: bpy.props.BoolProperty(options=set())
-    turnOn: bpy.props.BoolProperty(options=set(), default=True)
+    affectedByAO: bpy.props.BoolProperty(options=set())
+    lightOpaqueObjects: bpy.props.BoolProperty(options=set(), default=True)
+    lightTransparentObjects: bpy.props.BoolProperty(options=set(), default=False)
+    useTeamColor: bpy.props.BoolProperty(options=set())
 
 
 class M3BillboardBehavior(bpy.types.PropertyGroup):
@@ -3835,8 +3837,7 @@ class LightPanel(bpy.types.Panel):
             row = col.row(align=True)
             row.prop(light, "attenuationNear", text="Attenuation Near")
             row.prop(light, "attenuationFar", text="Attenuation Far")
-            # col.prop(light, "unknownAt148", text="unknownAt148") ???
-            # col.prop(light, "unknownAt12", text="unknownAt12") Probably LOD setting, which is likely unused for lights
+            col.prop(light, "unknownAt148")
             if light.lightType == shared.lightTypeSpot:
                 row = col.row(align=True)
                 row.prop(light, "hotSpot", text="Hot Spot")
@@ -3857,12 +3858,16 @@ class LightPanel(bpy.types.Panel):
             sub.prop(light, "specColor", text="")
             sub.prop(light, "specIntensity", text="")
             box = layout.box()
-            row = box.row()
-            row.prop(light, "shadowCast", text="Shadow Cast")
-            row.prop(light, "unknownFlag0x04", text="Unknown Flag 0x04")
-            row = box.row()
-            row.prop(light, "turnOn", text="Turn On")
-            row.prop(light, "unknownAt8", text="unknownAt8")
+            col = box.column_flow(columns=2)
+            col.prop(light, "shadowCast", text="Shadow Cast")
+            col.prop(light, "affectedByAO")
+            col.prop(light, "lightOpaqueObjects", text="Light opaque objects")
+            col.prop(light, "lightTransparentObjects", text="Light transparent objects")
+            col.prop(light, "useTeamColor")
+            row = layout.row()
+            row.label(text="LOD Reduce/Cut:")
+            row.prop(light, "lodReduce", text="")
+            row.prop(light, "lodCut", text="")
 
 
 class BillboardBehaviorPanel(bpy.types.Panel):

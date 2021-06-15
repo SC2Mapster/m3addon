@@ -1291,20 +1291,20 @@
             <version number="7" size="212" />
         </versions>
         <fields>
-            <field name="lightType" type="uint8" />
-            <field name="unknownAt1" type="uint8" expected-value="0" />
+            <field name="lightType" type="uint16" />
             <field name="boneIndex" type="uint16" />
-            <field name="flags" type="uint32" default-value="0x08">
+            <field name="flags" type="uint32">
                 <bits>
                     <bit mask="0x1" name="shadowCast" />
                     <bit mask="0x2" name="specular" />
-                    <bit mask="0x4" name="unknownFlag0x04" />
-                    <bit mask="0x8" name="turnOn" />
-                    <bit mask="0x10" name="applyOnTransparentObjects" />
+                    <bit mask="0x4" name="affectedByAO" />
+                    <bit mask="0x8" name="lightOpaqueObjects" />
+                    <bit mask="0x10" name="lightTransparentObjects" />
+                    <bit mask="0x20" name="useTeamColor" />
                 </bits>
             </field>
-            <field name="unknownAt8" type="uint32" />
-            <field name="unknownAt12" type="int32" default-value="-1" />
+            <field name="lodReduce" type="uint32" default-value="0"/>
+            <field name="lodCut" type="uint32" default-value="0"/>
             <field name="lightColor" type="Vector3AnimationReferenceV0" />
             <field name="lightIntensity" type="FloatAnimationReference" />
             <field name="specColor" type="Vector3AnimationReferenceV0" />
