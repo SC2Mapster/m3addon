@@ -257,7 +257,10 @@ class M3Structure:
     def readFromBuffer(self, buffer, offset, checkExpectedValue):
         fieldOffset = offset
         for field in self.structureDescription.fields:
-            field.readFromBuffer(self, buffer, fieldOffset, checkExpectedValue)
+            try:
+                field.readFromBuffer(self, buffer, fieldOffset, checkExpectedValue)
+            except struct.error as e:
+                raise Exception('failed to unpack %sV%s %s' % (self.structureDescription.structureName, self.structureDescription.structureVersion, field.name), e)
             fieldOffset += field.size
         assert fieldOffset - offset == self.structureDescription.size
 

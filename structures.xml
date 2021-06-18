@@ -1806,19 +1806,18 @@
     <structure name="REF_" >
         <description>Reflection material</description>
         <versions>
-            <version number="1" size="96" />
-            <version number="2" size="160" />
+            <version number="1" size="84" />
+            <version number="2" size="156" />
+            <version number="3" size="160" /> <!-- requires MODLV30 -->
         </versions>
         <fields>
             <field name="name" type="Reference" refTo="CHAR" />
             <field name="unknown8f5ea924" size="4" default-value="0x00000000" />
-
             <field name="reflectionStrength" type="FloatAnimationReference" /> <!-- default-value="1.0" -->
             <field name="displacementStrength" type="FloatAnimationReference" /> <!-- default-value="1.0" -->
             <field name="reflectionOffset" type="FloatAnimationReference" since-version="2" /> <!-- default-value="0.0" -->
             <field name="blurAngle" type="FloatAnimationReference" since-version="2" /> <!-- default-value="0.0" -->
             <field name="blurDistance" type="FloatAnimationReference" since-version="2" /> <!-- default-value="2.0" -->
-
             <field name="normalLayer" type="Reference" refTo="LAYR" />
             <field name="strengthLayer" type="Reference" refTo="LAYR" />
             <field name="blurLayer" type="Reference" refTo="LAYR" since-version="2" />
@@ -1831,9 +1830,7 @@
                     <bit mask="0x16" name="enableBlurMask" />
                 </bits>
             </field>
-
-            <field name="unknownb4d25be3" size="12" till-version="1" expected-value="0xaaaaaaaaaaaaaaaaaaaaaaaa" />
-            <field name="unknownd5dda19" size="4" since-version="2" expected-value="0xaaaaaaaa" />
+            <field name="unknown49626d0e" type="uint32" since-version="3" />
         </fields>
     </structure>
 
@@ -2063,7 +2060,8 @@
             <field name="unknownfdab7ff3" size="8" expected-value="0xffffffff00000000"/>
             <field name="usedModel" size="12" type="Reference" refTo="SCHR" />
             <field name="copyIndices" size="12" type="Reference"  refTo="U32_" />
-            <field name="unknown9a7afdf2" size="8" expected-value="0x00000000ffffffff" since-version="23" />
+            <field name="unknown9a7afdf2" size="4" since-version="23" />
+            <field name="unknown87d57a7a" size="4" since-version="23" />
         </fields>
     </structure>
 
@@ -2767,21 +2765,18 @@
     <structure name="MADD" version="3" size="160">
         <description>Material Buffer (node based)</description>
         <versions>
-            <version number="1" size="112" />
-            <version number="2" size="160" />
+            <version number="1" size="140" />
+            <version number="2" size="152" />
             <version number="3" size="160" />
         </versions>
         <fields>
-            <field name="name" type="Reference" refTo="CHAR" since-version="1" />
-            <field name="unknown2" type="Reference" refTo="U32_" since-version="2" />
+            <field name="name" type="Reference" refTo="CHAR" />
+            <field name="unknown2" type="Reference" refTo="U32_" />
             <field name="unknown3" type="Reference" refTo="U32_" since-version="2" />
-            <field name="unknown4" type="Reference" refTo="CHAR" since-version="2" />
-            <field name="unknown5" type="Reference" refTo="SCHR" since-version="2" />
-            <!-- <field name="unknown6" type="Matrix44" since-version="1" />
-            <field name="unknown7" type="Reference" since-version="2" />
-            <field name="unknown8" type="Reference" since-version="2" />
-            <field name="unknown9" type="Reference" since-version="2" /> -->
-            <field name="sz2" size="100" since-version="1" />
+            <field name="unknown4" type="Reference" refTo="CHAR" /> <!-- some arbitrary binary data -->
+            <field name="unknown5" type="Reference" refTo="SCHR" />
+            <field name="unknown20b7712d" size="92" />
+            <field name="unknownb9c70ff0" size="8" since-version="3" />
         </fields>
     </structure>
 
