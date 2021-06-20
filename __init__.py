@@ -1624,8 +1624,8 @@ class M3Light(bpy.types.PropertyGroup):
     attenuationFar: bpy.props.FloatProperty(default=3, update=handleLightSizeChange, options={"ANIMATABLE"})
     hotSpot: bpy.props.FloatProperty(default=1, options={"ANIMATABLE"})
     falloff: bpy.props.FloatProperty(default=1, update=handleLightSizeChange, options={"ANIMATABLE"})
-    lodReduce: bpy.props.EnumProperty(options=set(), default="0", items=shared.lodEnum)
     lodCut: bpy.props.EnumProperty(options=set(), default="0", items=shared.lodEnum)
+    shadowLodCut: bpy.props.EnumProperty(options=set(), default="0", items=shared.lodEnum)
     shadowCast: bpy.props.BoolProperty(options=set())
     specular: bpy.props.BoolProperty(options=set())
     affectedByAO: bpy.props.BoolProperty(options=set())
@@ -3865,9 +3865,9 @@ class LightPanel(bpy.types.Panel):
             col.prop(light, "lightTransparentObjects", text="Light transparent objects")
             col.prop(light, "useTeamColor")
             row = layout.row()
-            row.label(text="LOD Reduce/Cut:")
-            row.prop(light, "lodReduce", text="")
+            row.label(text="LOD Cut/Shadow LOD Cut:")
             row.prop(light, "lodCut", text="")
+            row.prop(light, "shadowLodCut", text="")
 
 
 class BillboardBehaviorPanel(bpy.types.Panel):

@@ -403,6 +403,8 @@ class M3ToBlenderDataTransferer:
     def transferEnum(self, fieldName, sinceVersion=None):
         if (sinceVersion is not None) and (self.m3Version < sinceVersion):
             return
+        if getattr(self.m3Object, fieldName) == 0xFFFFFFFF:
+            return
         value = str(getattr(self.m3Object, fieldName))
         setattr(self.blenderObject, fieldName, value)
 

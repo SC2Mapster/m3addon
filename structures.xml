@@ -1303,8 +1303,8 @@
                     <bit mask="0x20" name="useTeamColor" />
                 </bits>
             </field>
-            <field name="lodReduce" type="uint32" default-value="0"/>
             <field name="lodCut" type="uint32" default-value="0"/>
+            <field name="shadowLodCut" type="uint32" default-value="0"/>
             <field name="lightColor" type="Vector3AnimationReferenceV0" />
             <field name="lightIntensity" type="FloatAnimationReference" />
             <field name="specColor" type="Vector3AnimationReferenceV0" />
