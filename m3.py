@@ -24,6 +24,7 @@ from xml.dom.minidom import Node
 import re
 from sys import stderr
 import struct
+import copy
 
 def increaseToValidSectionSize(size):
     blockSize = 16
@@ -40,9 +41,16 @@ class Section:
     def __init__(self):
         self.timesReferenced = 0
 
+    def __str__(self):
+        return 'Section %s timesReferenced=%d %sV%s' % (
+            self.indexEntry,
+            self.timesReferenced,
+            self.structureDescription.structureName,
+            self.structureDescription.structureVersion
+        )
+
     def determineContentField(self, checkExpectedValue):
-        indexEntry = self.indexEntry
-        self.content = self.structureDescription.createInstances(buffer=self.rawBytes, count=indexEntry.repetitions, checkExpectedValue=checkExpectedValue)
+        self.content = self.structureDescription.createInstances(buffer=self.rawBytes, count=self.indexEntry.repetitions, checkExpectedValue=checkExpectedValue)
 
     def determineFieldRawBytes(self):
         minRawBytes = self.determineRawBytesWithData()
@@ -89,8 +97,33 @@ class M3StructureHistory:
         for version in versionToSizeMap:
             self.getVersion(version)
 
-    def getVersion(self, version):
-        structure = self.versionToStructureDescriptionMap.get(version)
+    def createStructureDescription(self, version, usedFields, specifiedSize, fmagic):
+        finalFields = []
+        # dirty patching of all structures to make MD33 models work
+        # - they use `SmallReference` instead of `Reference` across all structures
+        if fmagic == 'MD33':
+            for field in usedFields:
+                if isinstance(field, ReferenceField):
+                    field = copy.copy(field)
+                    if field.referenceStructureDescription.structureName == 'Reference':
+                        newStructureHistory = structures['SmallReference']
+                        newDescription = newStructureHistory.getVersion(0, fmagic)
+                        field.referenceStructureDescription = newDescription
+                        field.size = newDescription.size
+                elif self.name == 'MODL' and field.name == 'tightHitTest':
+                    field = copy.copy(field)
+                    newStructureHistory = structures[field.structureDescription.structureName]
+                    newDescription = newStructureHistory.getVersion(1, fmagic)
+                    field.structureDescription = newDescription
+                    field.size = newDescription.size
+                finalFields.append(field)
+        else:
+            finalFields = usedFields
+        structure = M3StructureDescription(self.name, version, finalFields, specifiedSize, self, fmagic != 'MD33')
+        return structure
+
+    def getVersion(self, version, fmagic='MD34'):
+        structure = self.versionToStructureDescriptionMap.get(fmagic + '_' + str(version))
         if structure is None:
             usedFields = []
             for field in self.allFields:
@@ -104,8 +137,8 @@ class M3StructureHistory:
             specifiedSize = self.versionToSizeMap.get(version)
             if specifiedSize is None:
                 return None
-            structure = M3StructureDescription(self.name, version, usedFields, specifiedSize, self)
-            self.versionToStructureDescriptionMap[version] = structure
+            structure = self.createStructureDescription(version, usedFields, specifiedSize, fmagic)
+            self.versionToStructureDescriptionMap[fmagic + '_' + str(version)] = structure
         return structure
 
     def getNewestVersion(self):
@@ -128,21 +161,23 @@ class M3StructureHistory:
 
 class M3StructureDescription:
 
-    def __init__(self, structureName, structureVersion, fields, specifiedSize, history):
+    def __init__(self, structureName, structureVersion, fields, specifiedSize, history, validateSize=True):
         self.structureName = structureName
         self.structureVersion = structureVersion
         self.fields = fields
-        self.size = specifiedSize
         self.isPrimitive = self.structureName in structureNamesOfPrimitiveTypes
         self.history = history
 
-        # Validate the specified size:
         calculatedSize = 0
         for field in fields:
             calculatedSize += field.size
-        if calculatedSize != specifiedSize:
-            self.dumpOffsets()
-            raise Exception("Size mismatch: %s in version %d has been specified to have size %d, but the calculated size was %d" % (structureName, structureVersion, specifiedSize, calculatedSize))
+        self.size = calculatedSize
+
+        # Validate the specified size:
+        if validateSize:
+            if calculatedSize != specifiedSize:
+                self.dumpOffsets()
+                raise Exception("Size mismatch: %s in version %d has been specified to have size %d, but the calculated size was %d" % (structureName, structureVersion, specifiedSize, calculatedSize))
 
         nameToFieldMap = {}
         for field in fields:
@@ -237,7 +272,7 @@ class M3StructureDescription:
 
 class M3Structure:
 
-    def __init__(self, structureDescription, buffer=None, offset=0, checkExpectedValue=True):
+    def __init__(self, structureDescription: M3StructureDescription, buffer=None, offset=0, checkExpectedValue=True):
         self.structureDescription = structureDescription
 
         if buffer is not None:
@@ -1060,9 +1095,12 @@ def resolveAllReferences(list, sections):
 def loadSections(filename, checkExpectedValue=True):
     source = open(filename, "rb")
     try:
-        MD34V11 = structures["MD34"].getVersion(11)
-        headerBytes = source.read(MD34V11.size)
-        header = MD34V11.createInstance(headerBytes, checkExpectedValue=checkExpectedValue)
+        fmagic = source.read(4)[::-1].decode('ascii')
+        source.seek(0)
+
+        m3Header = structures[fmagic].getVersion(11)
+        headerBytes = source.read(m3Header.size)
+        header = m3Header.createInstance(headerBytes, checkExpectedValue=checkExpectedValue)
 
         source.seek(header.indexOffset)
         MD34IndexEntryV0 = structures["MD34IndexEntry"].getVersion(0)
@@ -1094,7 +1132,7 @@ def loadSections(filename, checkExpectedValue=True):
 
             structureHistory = structures.get(indexEntry.tag)
             if structureHistory is not None:
-                structureDescription = structureHistory.getVersion(indexEntry.version)
+                structureDescription = structureHistory.getVersion(indexEntry.version, fmagic)
             else:
                 structureDescription = None
 
@@ -1185,8 +1223,9 @@ class IndexReferenceSourceAndSectionListMaker:
             repetitions = structureDescription.countInstances(objectsToSave)
 
         indexReference = referenceStructureDescription.createInstance()
-        indexReference.entries = repetitions
-        indexReference.index = self.nextFreeIndexPosition
+        if repetitions > 0:
+            indexReference.entries = repetitions
+            indexReference.index = self.nextFreeIndexPosition
 
         if (repetitions > 0):
             indexEntry = self.MD34IndexEntry.createInstance()

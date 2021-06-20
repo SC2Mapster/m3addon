@@ -1332,6 +1332,11 @@ class Importer:
                     i0 = firstVertexIndex + divisionFaceIndices[vertexIndexIndex]
                     i1 = firstVertexIndex + divisionFaceIndices[vertexIndexIndex + 1]
                     i2 = firstVertexIndex + divisionFaceIndices[vertexIndexIndex + 2]
+                    # some weirdness in REGNV2 from SC2 Beta
+                    if region.structureDescription.structureVersion <= 2:
+                        i0 -= firstVertexIndex
+                        i1 -= firstVertexIndex
+                        i2 -= firstVertexIndex
                     face = (i0, i1, i2)
                     facesWithOldIndices.append(face)
                     vertexIndexIndex += 3

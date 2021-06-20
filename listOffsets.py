@@ -7,12 +7,13 @@ import sys
 
 structureName = sys.argv[1]
 structureVersion = int(sys.argv[2])
+mdVersion = sys.argv[3] if len(sys.argv) >= 2 else 'MD34'
 
-structureDescription = m3.structures[structureName].getVersion(structureVersion)
+structureDescription = m3.structures[structureName].getVersion(structureVersion, mdVersion)
 if structureDescription is None:
     raise Exception("The structure %s hasn't been defined in version %d" % (structureName, structureVersion))
 offset = 0
 for field in structureDescription.fields:
-    print("%s: %s" % (offset, field.name))
+    print("0x%03X %04d %s" % (offset, offset, field.name))
     offset += field.size
 

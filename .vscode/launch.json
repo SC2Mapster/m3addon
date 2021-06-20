@@ -17,6 +17,7 @@
             "options": [
                 "m3ToXml",
                 "xmlToM3",
+                "MD33ToMD34",
             ]
         },
     ],
@@ -30,6 +31,16 @@
             "args": [
                 "${input:modelFilename}"
             ]
+        },
+        {
+            "name": "Launch: MD33ToMD34",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/MD33ToMD34.py",
+            "cwd": "${workspaceFolder}",
+            "args": [
+                "${input:modelFilename}"
+            ],
         },
         {
             // Attach to running Blender using:

@@ -1161,9 +1161,7 @@
             <field name="unknown4" type="uint32" expected-value="100"/>
             <field till-version="1" name="unknown5" type="uint32" default-value="0"/>
             <field name="boundingSphere" type="BNDSV0" />
-            <field name="unknown6" type="uint32" expected-value="0"/>
-            <field name="unknown7" type="uint32" expected-value="0"/>
-            <field name="unknown8" type="uint32" expected-value="0"/>
+            <field name="unknownRefSEQSBeta01" type="Reference" />
         </fields>
     </structure>
 
@@ -1209,15 +1207,18 @@
     <structure name="REGN">
         <description>A region of a mesh</description>
         <versions>
+            <version number="2" size="28" />
             <version number="3" size="36" />
             <version number="4" size="40" />
             <version number="5" size="48" />
         </versions>
         <fields>
             <field name="unknown0" type="uint32" expected-value="0" />
-            <field name="unknown1" type="uint32" expected-value="0" />
-            <field name="firstVertexIndex" type="uint32"/>
-            <field name="numberOfVertices" type="uint32" />
+            <field name="unknown1" type="uint32" expected-value="0" since-version="3" />
+            <field name="firstVertexIndex" type="uint16" till-version="2" />
+            <field name="numberOfVertices" type="uint16" till-version="2" />
+            <field name="firstVertexIndex" type="uint32" since-version="3" />
+            <field name="numberOfVertices" type="uint32" since-version="3" />
             <field name="firstFaceVertexIndexIndex" type="uint32" />
             <field name="numberOfFaceVertexIndices" type="uint32" />
             <field name="numberOfBones" type="uint16" />
@@ -1261,7 +1262,7 @@
     <structure name="DIV_">
         <description>Mesh Division</description>
         <versions>
-            <version number="2" size="52" /><!-- size correct? -->
+            <version number="2" size="52" />
         </versions>
         <fields>
             <field name="faces" type="Reference" refTo="U16_" />
@@ -2437,12 +2438,8 @@
             <field name="boneIndex" type="int16" /><!-- can be -1 -->
             <field name="unknownAt6" type="uint16" expected-value="0" />
             <field name="matrix" type="Matrix44" />
-            <field name="unknownAt72" type="uint32" expected-value="0" />
-            <field name="unknownAt76" type="uint32" default-value="0" />
-            <field name="unknownAt80" type="uint32" default-value="0" />
-            <field name="unknownAt84" type="uint32" expected-value="0" />
-            <field name="unknownAt88" type="uint32" expected-value="0" />
-            <field name="unknownAt92" type="uint32" expected-value="0" />
+            <field name="unknownRefSSGSBeta01" type="Reference" />
+            <field name="unknownRefSSGSBeta02" type="Reference" />
             <field name="size0" type="float" />
             <field name="size1" type="float" />
             <field name="size2" type="float" />
@@ -2803,10 +2800,8 @@
             <field name="sequences" type="Reference" refTo="SEQS"  />
             <field name="sequenceTransformationCollections" type="Reference" refTo="STC_" />
             <field name="sequenceTransformationGroups" type="Reference" refTo="STG_" />
-            <field name="unknown00" type="float" expected-value="0.0" />
-            <field name="unknown01" type="float" expected-value="0.0" />
-            <field name="unknown02" type="float" expected-value="0.0" />
-            <field name="unknown03" type="float" expected-value="0.0" />
+            <field name="unknownRefBeta01" type="Reference" />
+            <field name="unknown03" type="uint32" expected-value="0" />
             <field name="sts" type="Reference" refTo="STS_"/>
             <field name="bones"  type="Reference" refTo="BONE" />
             <field name="numberOfBonesToCheckForSkin" type="uint32" />
@@ -2824,15 +2819,9 @@
             <field name="boneLookup" type="Reference" refTo="U16_"/>
             <field name="boundings" type="BNDSV0" />
             <field name="maybeBoundingsFlags" type="uint32" expected-value="0" />
-            <field name="unknown04" type="uint32" expected-value="0" />
-            <field name="unknown05" type="uint32" expected-value="0" />
-            <field name="unknown06" type="uint32" expected-value="0" />
-            <field name="unknown07" type="uint32" expected-value="0" />
-            <field name="unknown08" type="uint32" expected-value="0" />
-            <field name="unknown09" type="uint32" expected-value="0" />
-            <field name="unknown11" type="uint32" expected-value="0" />
-            <field name="unknown12" type="uint32" expected-value="0" />
-            <field name="unknown13" type="uint32" default-value="0" />
+            <field name="unknownRefBeta02" type="Reference" />
+            <field name="unknownRefBeta03" type="Reference" />
+            <field name="unknownRefBeta04" type="Reference" />
             <field name="unknown14" type="uint32" expected-value="0" />
             <field name="unknown15" type="uint32" expected-value="0" />
             <field name="unknown16" type="uint32" default-value="0" />
@@ -2891,7 +2880,6 @@
         </fields>
     </structure>
 
-
     <structure name="MD34" version="11" size="24">
         <description>Header of a M3 file: Can be found at the start of the file.</description>
         <versions>
@@ -2902,6 +2890,20 @@
             <field name="indexOffset" type="uint32"/>
             <field name="indexSize" type="uint32" />
             <field name="model" type="Reference" refTo="MODL" />
+        </fields>
+    </structure>
+
+    <structure name="MD33" version="11" size="24">
+        <description>Header of a M3 file from SC2 Beta</description>
+        <versions>
+            <version number="11" size="20" />
+        </versions>
+        <fields>
+            <field name="tag" type="tag" />
+            <field name="indexOffset" type="uint32"/>
+            <field name="indexSize" type="uint32" />
+            <field name="model" type="SmallReference" refTo="MODL" />
+            <!-- SmallReference (8 bytes) instead of Reference (12 bytes) is used across all structures in MD33 -->
         </fields>
     </structure>
 </structures>
