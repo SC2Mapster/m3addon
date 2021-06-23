@@ -27,6 +27,7 @@ import argparse
 import os
 import time
 
+
 def forElementsIn(xmlNode):
     for child in xmlNode.childNodes:
         if type(child) == xml.dom.minidom.Text:
@@ -34,6 +35,7 @@ def forElementsIn(xmlNode):
                 raise Exception("Unexpected content \"%s\" within element %s" % (child.wholeText, xmlNode.nodeName))
         else:
             yield child
+
 
 def createSingleStructureElement(xmlNode, structureDescription):
     createdObject = structureDescription.createInstance()
@@ -58,10 +60,12 @@ def createSingleStructureElement(xmlNode, structureDescription):
 
 
 intTypeStrings = set(["int32", "int16", "int8", "uint32", "uint16", "uint8"])
+
+
 def createFieldContent(xmlNode, field):
     if isinstance(field, m3.ReferenceField):
         if field.historyOfReferencedStructures is None:
-            return [] # TODO check if that's correct
+            return []  # TODO check if that's correct
         else:
             referencedStructureName = field.historyOfReferencedStructures.name
             if referencedStructureName == "CHAR":
@@ -87,11 +91,13 @@ def createFieldContent(xmlNode, field):
             raise Exception("Unsupported primtive: %s" % field.typeString)
     elif isinstance(field, m3.EmbeddedStructureField):
         return createSingleStructureElement(xmlNode, field.structureDescription)
-    else: # TagField
+    else:  # TagField
         raise Exception("Unsupported field type %s" % type(field))
+
 
 def removeWhitespace(s):
     return s.translate({ord(" "): None, ord("\t"): None, ord("\r"): None, ord("\n"): None})
+
 
 def hexToBytes(hexString, xmlNode):
     hexString = removeWhitespace(hexString)
@@ -102,6 +108,7 @@ def hexToBytes(hexString, xmlNode):
     hexString = hexString[2:]
     return bytes([int(hexString[x: x + 2], 16) for x in range(0, len(hexString), 2)])
 
+
 def stringContentOf(xmlNode):
     content = ""
     for child in xmlNode.childNodes:
@@ -110,6 +117,7 @@ def stringContentOf(xmlNode):
         else:
             raise Exception("Element %s contained childs of xml node type %s." % (xmlNode.nodeName, type(xmlNode)))
     return content
+
 
 def createListElement(xmlNode, structureDescription):
     if structureDescription.structureName in ["I32_", "I16_", "I8__", "U32_", "U16_", "U8__", "FLAG"]:
@@ -130,6 +138,7 @@ def childElementsOf(parentName, xmlNode):
             if (child.nodeName != expectedChildNames):
                 raise Exception("Unexpected child \"%s\" within element %s", (child.nodeName, xmlNode.nodeName))
             yield child
+
 
 def createElementList(xmlNode, parentName, historyOfReferencedStructure):
     xmlElements = list(childElementsOf(parentName, xmlNode))

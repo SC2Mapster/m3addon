@@ -34,11 +34,14 @@ from os import path
 def toBlenderQuaternion(m3Quaternion):
     return mathutils.Quaternion((m3Quaternion.w, m3Quaternion.x, m3Quaternion.y, m3Quaternion.z))
 
+
 def toBlenderVector3(m3Vector3):
     return mathutils.Vector((m3Vector3.x, m3Vector3.y, m3Vector3.z))
 
+
 def toBlenderVector2(m3Vector2):
     return mathutils.Vector((m3Vector2.x, m3Vector2.y))
+
 
 def toBlenderColorVector(m3Color):
     return mathutils.Vector((m3Color.red / 255.0, m3Color.green / 255.0, m3Color.blue / 255.0, m3Color.alpha / 255.0))
@@ -66,9 +69,11 @@ FRAME_RATE = 30.0
 def msToFrame(timeInMS):
     return round(timeInMS / 1000.0 * FRAME_RATE)
 
+
 def insertLinearKeyFrame(curve, frame, value):
     keyFrame = curve.keyframe_points.insert(frame, value)
     keyFrame.interpolation = "LINEAR"
+
 
 def insertConstantKeyFrame(curve, frame, value):
     keyFrame = curve.keyframe_points.insert(frame, value)
@@ -82,6 +87,7 @@ def frameValuePairs(timeValueMap):
         frame = msToFrame(timeInMS)
         value = timeValueMap[timeInMS]
         yield(frame, value)
+
 
 def extendTimeToValueMapByInterpolation(timeToVectorMap, wantedTimes, interpolationFunc):
     timesWithValues = list(timeToVectorMap.keys())
@@ -121,17 +127,21 @@ def extendTimeToValueMapByInterpolation(timeToVectorMap, wantedTimes, interpolat
     for wantedTime in wantedTimes[wantedTimesIndex:]:
         timeToVectorMap[wantedTime] = leftInterpolationValue
 
+
 def extendTimeToVectorMapByInterpolation(timeToVectorMap, wantedTimes):
     return extendTimeToValueMapByInterpolation(timeToVectorMap, wantedTimes, shared.vectorInterpolationFunction)
 
+
 def extendTimeToQuaternionMapByInterpolation(timeToVectorMap, wantedTimes):
     return extendTimeToValueMapByInterpolation(timeToVectorMap, wantedTimes, shared.quaternionInterpolationFunction)
+
 
 def convertToBlenderVector3Map(timeToM3VectorMap):
     result = {}
     for key, m3Vector3 in timeToM3VectorMap.items():
         result[key] = toBlenderVector3(m3Vector3)
     return result
+
 
 def convertToBlenderQuaternionMap(timeToM3VectorMap):
     result = {}
@@ -159,6 +169,7 @@ def visualizeMatrix(matrix, at3DCursor):
     mesh.from_pydata(vertices, edges, [])
     mesh.update(calc_edges=True)
 
+
 def checkOrder(boneEntries):
     index = 0
     for boneEntry in boneEntries:
@@ -166,6 +177,7 @@ def checkOrder(boneEntries):
             if (boneEntry.parent >= index):
                 raise Exception("Bones are not sorted as expected")
         index += 1
+
 
 def determineTails(m3Bones, heads, boneDirectionVectors):
     childBoneIndexLists = []
@@ -213,6 +225,7 @@ def determineTails(m3Bones, heads, boneDirectionVectors):
         tails.append(tail)
     return tails
 
+
 def determineRolls(absoluteBoneRestPositions, heads, tails):
     rolls = []
     for absBoneRestMatrix, head, tail in zip(absoluteBoneRestPositions, heads, tails):
@@ -229,6 +242,7 @@ def determineRolls(absoluteBoneRestPositions, heads, tails):
 
         rolls.append(rollAngle)
     return rolls
+
 
 def determineAbsoluteBoneRestPositions(model):
     matrices = []
@@ -408,6 +422,7 @@ class M3ToBlenderDataTransferer:
         value = str(getattr(self.m3Object, fieldName))
         setattr(self.blenderObject, fieldName, value)
 
+
 class AnimationTempData:
     def __init__(self, animIdToTimeValueMap, animationIndex):
         self.animIdToTimeValueMap = animIdToTimeValueMap
@@ -586,9 +601,11 @@ class Importer:
     def adjustM3BoneNames(self, model):
 
         def adjustM3BoneNamePrefix(bone, prefix, unwantedPrefixes):
-            if bone.name.startswith(prefix): return
+            if bone.name.startswith(prefix):
+                return
             for unwantedPrefix in unwantedPrefixes:
-                if not bone.name.startswith(unwantedPrefix): return
+                if not bone.name.startswith(unwantedPrefix):
+                    return
 
                 bone.name = bone.name[len(unwantedPrefix):]
                 if bone.name == "":
@@ -708,7 +725,7 @@ class Importer:
             timeEntries.extend(timeToLocationMap.keys())
             timeEntries.extend(timeToRotationMap.keys())
             timeEntries.extend(timeToScaleMap.keys())
-            timeEntries = list(set(timeEntries)) # elimate duplicates
+            timeEntries = list(set(timeEntries))  # elimate duplicates
             timeEntries.sort()
 
             extendTimeToVectorMapByInterpolation(timeToLocationMap, timeEntries)
@@ -796,7 +813,7 @@ class Importer:
             matRefIndicesToImport = set(range(len(self.model.materialReferences)))
 
         for materialReferenceIndex, m3MaterialReference in enumerate(self.model.materialReferences):
-            if not materialReferenceIndex in matRefIndicesToImport:
+            if materialReferenceIndex not in matRefIndicesToImport:
                 continue
             materialType = m3MaterialReference.materialType
             m3MaterialIndex = m3MaterialReference.materialIndex
@@ -819,7 +836,7 @@ class Importer:
             materialReference.name = material.name
             materialReference.materialType = materialType
             materialReference.materialIndex = blenderMaterialIndex
-            if hasattr(m3Material, "sections"): # Currently only composite materials have sections
+            if hasattr(m3Material, "sections"):  # Currently only composite materials have sections
                 for sectionIndex, m3Section in enumerate(m3Material.sections):
                     section = material.sections.add()
                     sectionAnimPathPrefix = animPathPrefix + ".sections[%s]." % sectionIndex
@@ -893,7 +910,7 @@ class Importer:
         m = self.model.tightHitTest.matrix
         matrixIsZero = self.m3Vector4IsZero(m.x) and self.m3Vector4IsZero(m.y) and self.m3Vector4IsZero(m.z) and self.m3Vector4IsZero(m.w)
         if matrixIsZero:
-            pass # known bug of some inoffical exporters
+            pass  # known bug of some unoffical exporters
         else:
             self.intShapeObject(scene.m3_tight_hit_test, self.model.tightHitTest)
 
@@ -1101,7 +1118,7 @@ class Importer:
                 physics_shape.rotationEuler = rotation.to_euler("XYZ")
                 physics_shape.scale = scale
 
-                if physics_shape.shape in ["4", "5"]: # convex hull or mesh
+                if physics_shape.shape in ["4", "5"]:  # convex hull or mesh
 
                     if m3PhysicsShape.structureDescription.structureVersion <= 1:
                         vertices = [(v.x, v.y, v.z) for v in m3PhysicsShape.vertices]
@@ -1252,7 +1269,7 @@ class Importer:
             if m3AttchmentVolume.bone0 != m3AttchmentVolume.bone1 or m3AttchmentVolume.bone0 != m3AttchmentVolume.bone2:
                 raise Exception("Can't handle a special attachment volume")
             boneIndex = m3AttchmentVolume.bone0
-            if not m3AttchmentVolume.type in [0, 1, 2, 3, 4]:
+            if m3AttchmentVolume.type not in [0, 1, 2, 3, 4]:
                 raise Exception("Unhandled attachment volume type %d" % m3AttchmentVolume.type)
             if boneIndex in boneIndexToM3AttachmentVolumeMap:
                 raise Exception("Found two attachment volumes for one attachment points")
@@ -1302,7 +1319,7 @@ class Importer:
             return
 
         vertexClassName = "VertexFormat" + hex(self.model.vFlags)
-        if not vertexClassName in m3.structures:
+        if vertexClassName not in m3.structures:
             raise Exception(
                 "Vertex flags %s can't behandled yet. bufferSize=%d" % (
                     hex(self.model.vFlags),
@@ -1327,7 +1344,7 @@ class Importer:
                 uvwMult = getattr(region, 'uvwMult', 16.0)
                 uvwOffset = getattr(region, 'uvwOffset', 0.0)
 
-                facesWithOldIndices = [] # old index = index of vertex in m3Vertices
+                facesWithOldIndices = []  # old index = index of vertex in m3Vertices
                 while vertexIndexIndex + 2 <= lastVertexIndexIndex:
                     i0 = firstVertexIndex + divisionFaceIndices[vertexIndexIndex]
                     i1 = firstVertexIndex + divisionFaceIndices[vertexIndexIndex + 1]
@@ -1907,12 +1924,14 @@ def boneRotMatrix(head, tail, roll):
     rMatrix = mathutils.Matrix.Rotation(roll, 3, v)
     return rMatrix @ bMatrix
 
+
 def boneMatrix(head, tail, roll):
     """unused: how blender calculates the matrix of a bone """
     rotMatrix = boneRotMatrix(head, tail, roll)
     matrix = rotMatrix.to_4x4()
     matrix.translation = head
     return matrix
+
 
 def importM3BasedOnM3ImportOptions(scene):
     importer = Importer()

@@ -29,11 +29,13 @@ from os import path
 from bpy_extras import image_utils
 from . import im
 
-lodEnum = [("0", "None", "LOD has no effect"),
-           ("1", "Low", "LOD cutoff or reduction takes effect if graphics are Low"),
-           ("2", "Medium", "LOD cutoff or reduction takes effect if graphics are Medium"),
-           ("3", "High", "LOD cutoff or reduction takes effect if graphics are High"),
-           ("4", "Ultra", "LOD cutoff or reduction takes effect if graphics are Ultra")]
+lodEnum = [
+    ("0", "None", "LOD has no effect"),
+    ("1", "Low", "LOD cutoff or reduction takes effect if graphics are Low"),
+    ("2", "Medium", "LOD cutoff or reduction takes effect if graphics are Medium"),
+    ("3", "High", "LOD cutoff or reduction takes effect if graphics are High"),
+    ("4", "Ultra", "LOD cutoff or reduction takes effect if graphics are Ultra")
+]
 
 materialNames = [
     "No Material",
@@ -91,7 +93,7 @@ colorChannelSettingR = "3"
 colorChannelSettingG = "4"
 colorChannelSettingB = "5"
 
-defaultDepthBlendFalloff = 0.2 # default if it is enabled
+defaultDepthBlendFalloff = 0.2  # default if it is enabled
 
 tightHitTestBoneName = "HitTestTight"
 
@@ -164,11 +166,13 @@ def getLayerNameFromFieldName(fieldName):
         name = fieldName
     return name
 
+
 def layerFieldNamesOfM3Material(m3Material):
     for field in m3Material.structureDescription.fields:
         if hasattr(field, "referenceStructureDescription"):
             if field.historyOfReferencedStructures.name == "LAYR":
                 yield field.name
+
 
 def copyBpyProps(dst, src, skip=[]):
     assert type(dst) == type(src)
@@ -180,6 +184,7 @@ def copyBpyProps(dst, src, skip=[]):
         setattr(dst, k, getattr(src, k))
     return dst
 
+
 def setDefaultValue(defaultAction, path, index, value):
     curve = None
     for c in defaultAction.fcurves:
@@ -190,6 +195,7 @@ def setDefaultValue(defaultAction, path, index, value):
         curve = defaultAction.fcurves.new(path, index=index)
     keyFrame = curve.keyframe_points.insert(0, value)
     keyFrame.interpolation = "CONSTANT"
+
 
 def findUnusedPropItemName(scene, propGroups=[], suggestedNames=[], prefix=""):
     usedNames = set()
@@ -220,13 +226,16 @@ def findUnusedPropItemName(scene, propGroups=[], suggestedNames=[], prefix=""):
 
     return unusedName
 
+
 def toValidBoneName(name):
     maxLength = 63
     return name[:maxLength]
 
+
 def boneNameForAttachmentPoint(attachmentPoint):
     bonePrefix = attachmentPointPrefix if attachmentPoint.volumeType == "-1" else attachmentVolumePrefix
     return bonePrefix + attachmentPoint.name
+
 
 def attachmentPointNameFromBoneName(boneName):
     if boneName.startswith(attachmentPointPrefix):
@@ -236,27 +245,35 @@ def attachmentPointNameFromBoneName(boneName):
     else:
         return boneName
 
+
 def boneNameForParticleSystem(particleSystem):
     return toValidBoneName(star2ParticlePrefix + particleSystem.name)
+
 
 def boneNameForParticleSystemCopy(copy):
     return toValidBoneName(star2ParticlePrefix + copy.name)
 
+
 def boneNameForRibbon(ribbon):
     return toValidBoneName(star2RibbonPrefix + ribbon.name)
 
+
 def boneNameForForce(force):
     return toValidBoneName(star2ForcePrefix + force.name)
+
 
 def boneNameForLight(light):
     lightPrefix = lightPrefixMap.get(light.lightType)
     return toValidBoneName(lightPrefix + light.name)
 
+
 def boneNameForProjection(projection):
     return toValidBoneName(star2ProjectionPrefix + projection.name)
 
+
 def boneNameForWarp(warp):
     return star2WarpPrefix + warp.name
+
 
 def iterateArmatureObjects(scene):
     for obj in scene.objects:
@@ -264,10 +281,12 @@ def iterateArmatureObjects(scene):
             if obj.data is not None:
                 yield obj
 
+
 def findArmatureObjectForNewBone(scene):
     for obj in iterateArmatureObjects(scene):
         return obj
     return None
+
 
 def findBoneWithArmatureObject(scene, boneName):
     for armatureObject in iterateArmatureObjects(scene):
@@ -277,12 +296,14 @@ def findBoneWithArmatureObject(scene, boneName):
             return (bone, armatureObject)
     return (None, None)
 
+
 def scaleVectorToMatrix(scaleVector):
     matrix = mathutils.Matrix()
     matrix[0][0] = scaleVector[0]
     matrix[1][1] = scaleVector[1]
     matrix[2][2] = scaleVector[2]
     return matrix
+
 
 def locRotScaleMatrix(location, rotation, scale):
     """ Important: rotation must be a normalized quaternion """
@@ -422,7 +443,8 @@ def selectBonesIfTheyExist(scene, boneNames):
         armatureObjects.append(r[1])
     for ii, bone in enumerate(bones):
         print(bone)
-        if bone is None: continue
+        if bone is None:
+            continue
         armature = armatureObjects[ii].data
         armatureObjects[ii].select_set(True)
         scene.view_layers[0].objects.active = armatureObjects[ii]
@@ -484,8 +506,10 @@ def dump(obj, title=None):
 def isVideoFilePath(filePath):
     return filePath.endswith(".ogv") or filePath.endswith(".ogg")
 
+
 def sqr(x):
     return x * x
+
 
 def smoothQuaternionTransition(previousQuaternion, quaternionToFix):
     sumOfSquares = sqr(quaternionToFix.x - previousQuaternion.x) + sqr(quaternionToFix.y - previousQuaternion.y) + sqr(quaternionToFix.z - previousQuaternion.z) + sqr(quaternionToFix.w - previousQuaternion.w)
@@ -498,32 +522,41 @@ def floatInterpolationFunction(leftInterpolationValue, rightInterpolationValue, 
     leftFactor = 1.0 - rightFactor
     return leftInterpolationValue * leftFactor + rightInterpolationValue * rightFactor
 
+
 def vectorInterpolationFunction(leftInterpolationValue, rightInterpolationValue, rightFactor):
     return leftInterpolationValue.lerp(rightInterpolationValue, rightFactor)
 
+
 def quaternionInterpolationFunction(leftInterpolationValue, rightInterpolationValue, rightFactor):
     return leftInterpolationValue.slerp(rightInterpolationValue, rightFactor)
+
 
 def floatsAlmostEqual(floatExpected, floatActual):
     delta = abs(floatExpected - floatActual)
     return delta < 0.00001
 
+
 def vectorsAlmostEqual(vectorExpected, vectorActual):
     diff = vectorExpected - vectorActual
     return diff.length < 0.00001
+
 
 def quaternionsAlmostEqual(q0, q1):
     distanceSqr = sqr(q0.x - q1.x) + sqr(q0.y - q1.y) + sqr(q0.z - q1.z) + sqr(q0.w - q1.w)
     return distanceSqr < sqr(0.00001)
 
+
 def simplifyFloatAnimationWithInterpolation(timeValuesInMS, values):
     return simplifyAnimationWithInterpolation(timeValuesInMS, values, floatInterpolationFunction, floatsAlmostEqual)
+
 
 def simplifyVectorAnimationWithInterpolation(timeValuesInMS, vectors):
     return simplifyAnimationWithInterpolation(timeValuesInMS, vectors, vectorInterpolationFunction, vectorsAlmostEqual)
 
+
 def simplifyQuaternionAnimationWithInterpolation(timeValuesInMS, vectors):
     return simplifyAnimationWithInterpolation(timeValuesInMS, vectors, quaternionInterpolationFunction, quaternionsAlmostEqual)
+
 
 def simplifyAnimationWithInterpolation(timeValuesInMS, values, interpolationFunction, almostEqualFunction):
     if len(timeValuesInMS) < 2:
@@ -553,6 +586,7 @@ def simplifyAnimationWithInterpolation(timeValuesInMS, values, interpolationFunc
     newValues.append(values[-1])
     return newTimeValuesInMS, newValues
 
+
 def findMeshObjects(scene: bpy.types.Scene) -> Iterable[bpy.types.Object]:
     for currentObject in scene.objects:
         if currentObject.type == 'MESH':
@@ -576,6 +610,7 @@ def convertM3UVSourceValueToUVLayerName(mesh, uvSource):
         return mesh.uv_layers[uvLayerIndex].name
     else:
         return None
+
 
 def createImageObjetForM3MaterialLayer(blenderM3Layer, directoryList):
     if blenderM3Layer is None:
@@ -617,7 +652,7 @@ def getStandardMaterialOrNull(scene, mesh):
     materialReference = scene.m3_material_references[mesh.m3_material_name]
     materialType = materialReference.materialType
     materialIndex = materialReference.materialIndex
-    if not materialType in [standardMaterialTypeIndex, compositeMaterialTypeIndex]:
+    if materialType not in [standardMaterialTypeIndex, compositeMaterialTypeIndex]:
         print("Material generation is only supported for starard materials, but not for material %s" % m3MaterialFieldNames[materialType])
         return None
     if materialType == compositeMaterialTypeIndex:
@@ -629,6 +664,7 @@ def getStandardMaterialOrNull(scene, mesh):
             return None
     else:
         return scene.m3_standard_materials[materialIndex]
+
 
 def createUVNodesFromM3LayerAndReturnSocket(mesh, tree, blenderM3Layer):
     """ Returns a socket that provies UVs or None"""
@@ -665,6 +701,7 @@ def createTextureNodeForM3MaterialLayer(mesh, tree, blenderM3Layer, directoryLis
 
     return textureNode
 
+
 def determineTextureDirectoryList(scene):
     textureDirectories = []
     textureDirectories.append(scene.m3_import_options.rootDirectory)
@@ -673,6 +710,7 @@ def determineTextureDirectoryList(scene):
         modelDirectory = path.dirname(scene.m3_import_options.path)
         textureDirectories.append(modelDirectory)
     return textureDirectories
+
 
 def createNormalMapNode(mesh, tree, standardMaterial, directoryList):
 
@@ -758,6 +796,7 @@ def createNormalMapNode(mesh, tree, standardMaterial, directoryList):
 
     return normalMapNode
 
+
 def createCyclesMaterialForMeshObject(scene, meshObject):
     mesh = meshObject.data
     standardMaterial = getStandardMaterialOrNull(scene, mesh)
@@ -831,7 +870,7 @@ def createCyclesMaterialForMeshObject(scene, meshObject):
     emissiveTextureNode = createTextureNodeForM3MaterialLayer(mesh, tree, emissiveLayer, directoryList)
     if emissiveTextureNode is not None:
         emissiveShaderNode = tree.nodes.new("ShaderNodeEmission")
-        emissiveShaderNode.inputs[1].default_value = 10.0 # Strength
+        emissiveShaderNode.inputs[1].default_value = 10.0  # Strength
         tree.links.new(emissiveTextureNode.outputs["Color"], emissiveShaderNode.inputs["Color"])
         print("Adding emissive to %s" % standardMaterial.name)
         mixShaderNode = tree.nodes.new("ShaderNodeMixShader")
@@ -876,6 +915,7 @@ def createCyclesMaterialForMeshObject(scene, meshObject):
 
     mesh.materials.append(realMaterial)
 
+
 def createNodeNameToInputNodesMap(tree):
     nodeNameToInputNodesMap = {}
     for link in tree.links:
@@ -885,6 +925,7 @@ def createNodeNameToInputNodesMap(tree):
             nodeNameToInputNodesMap[link.to_node.name] = inputNodes
         inputNodes.add(link.from_node)
     return nodeNameToInputNodesMap
+
 
 def createNodeNameToOutputNodesMap(tree):
     nodeNameToOutputNodesMap = {}
@@ -897,7 +938,24 @@ def createNodeNameToOutputNodesMap(tree):
     return nodeNameToOutputNodesMap
 
 
-nodeTypeToHeightMap = {'NORMAL_MAP': 148, 'MATH': 145, 'ATTRIBUTE': 116, 'SEPRGB': 112, 'COMBRGB': 115, 'MIX_RGB': 164, 'TEX_IMAGE': 226, 'OUTPUT_MATERIAL': 87, 'BSDF_DIFFUSE': 112, 'BSDF_GLOSSY': 144, 'MIX_SHADER': 112, 'MAPPING': 270, 'BSDF_TRANSPARENT': 69, 'RGB': 177, 'EMISSION': 93}
+nodeTypeToHeightMap = {
+    'NORMAL_MAP': 148,
+    'MATH': 145,
+    'ATTRIBUTE': 116,
+    'SEPRGB': 112,
+    'COMBRGB': 115,
+    'MIX_RGB': 164,
+    'TEX_IMAGE': 226,
+    'OUTPUT_MATERIAL': 87,
+    'BSDF_DIFFUSE': 112,
+    'BSDF_GLOSSY': 144,
+    'MIX_SHADER': 112,
+    'MAPPING': 270,
+    'BSDF_TRANSPARENT': 69,
+    'RGB': 177,
+    'EMISSION': 93,
+}
+
 
 def getHeightOfNewNode(node):
     # due to a blender 2.71 bug the dimensions are 0 for newly created nodes
@@ -998,6 +1056,7 @@ def createBlenderMaterialsFromM3Materials(scene):
     for meshObject in findMeshObjects(scene):
         createBlenderMaterialForMeshObject(scene, meshObject)
 
+
 def composeMatrix(location, rotation, scale):
     locMatrix = mathutils.Matrix.Translation(location)
     rotationMatrix = rotation.to_matrix().to_4x4()
@@ -1005,6 +1064,7 @@ def composeMatrix(location, rotation, scale):
     for i in range(3):
         scaleMatrix[i][i] = scale[i]
     return locMatrix @ rotationMatrix @ scaleMatrix
+
 
 def getLongAnimIdOf(objectId, animPath):
     if objectId == animObjectIdScene and animPath.startswith("m3_boundings"):
@@ -1018,6 +1078,7 @@ def getRandomAnimIdNotIn(animIdSet):
     while unusedAnimId in animIdSet:
         unusedAnimId = random.randint(1, maxValue)
     return unusedAnimId
+
 
 def createHiddenMeshObject(name, untransformedPositions, faces, matrix):
     mesh = bpy.data.meshes.new(name)
@@ -1039,11 +1100,13 @@ def createHiddenMeshObject(name, untransformedPositions, faces, matrix):
     mesh.update(calc_edges=True)
     return meshObject
 
+
 def setBoneVisibility(scene, boneName, visibility):
     bone, armatureObject = findBoneWithArmatureObject(scene, boneName)
     boneExists = bone is not None
     if boneExists:
         bone.hide = not visibility
+
 
 def updateBoneShapeOfShapeObject(shapeObject, bone, poseBone):
     cubeShapeConstant = "0"
@@ -1126,6 +1189,7 @@ def updateBoneShapeOfRibbon(ribbon, bone, poseBone):
     meshName = boneName + 'Mesh'
     updateBoneShape(bone, poseBone, meshName, untransformedPositions, faces)
 
+
 def updateBoneShapeOfAttachmentPoint(attachmentPoint, bone, poseBone):
     volumeType = attachmentPoint.volumeType
     if volumeType == attachmentVolumeNone:
@@ -1177,6 +1241,7 @@ def updateBoneShapeOfWarp(warp, bone, poseBone):
     meshName = boneName + 'Mesh'
     updateBoneShape(bone, poseBone, meshName, untransformedPositions, faces)
 
+
 def updateBoneShapeOfForce(force, bone, poseBone):
 
     if force.shape == forceShapeSphere:
@@ -1195,6 +1260,7 @@ def updateBoneShapeOfForce(force, bone, poseBone):
     meshName = boneName + 'Mesh'
     updateBoneShape(bone, poseBone, meshName, untransformedPositions, faces)
 
+
 def getRigidBodyBones(scene, rigidBodyBone):
     bone, armature = findBoneWithArmatureObject(scene, rigidBodyBone)
     if armature is None or bone is None:
@@ -1207,6 +1273,7 @@ def getRigidBodyBones(scene, rigidBodyBone):
         return None, None
 
     return bone, poseBone
+
 
 def createPhysicsShapeMeshData(shape):
     if shape.shape == "0":
@@ -1228,6 +1295,7 @@ def createPhysicsShapeMeshData(shape):
     vertices = [matrix @ mathutils.Vector(v) for v in vertices]
 
     return vertices, faces
+
 
 def updateBoneShapeOfRigidBody(scene, rigidBody, rigidBodyBone):
     bone, poseBone = getRigidBodyBones(scene, rigidBodyBone)
@@ -1252,6 +1320,7 @@ def updateBoneShapeOfRigidBody(scene, rigidBody, rigidBodyBone):
 
     updateBoneShape(bone, poseBone, "PhysicsShapeBoneMesh", combinedVertices, combinedFaces)
 
+
 def removeRigidBodyBoneShape(scene, rigidBodyBone):
     bone, poseBone = getRigidBodyBones(scene, rigidBodyBone)
     if bone is None or poseBone is None:
@@ -1259,6 +1328,7 @@ def removeRigidBodyBoneShape(scene, rigidBodyBone):
 
     poseBone.custom_shape = None
     bone.show_wire = False
+
 
 def updateBoneShape(bone, poseBone, meshName, untransformedPositions, faces, matrix=mathutils.Matrix()):
     # Undo the rotation fix:
@@ -1284,6 +1354,7 @@ def createAttachmentPointSymbolMesh():
     faces = [(0, 1, 2), (0, 1, 3), (1, 2, 3), (0, 2, 3)]
     return vertices, faces
 
+
 def createMeshDataForLightCone(radius, height, numberOfSideFaces=10):
     vertices = []
     faces = []
@@ -1302,6 +1373,7 @@ def createMeshDataForLightCone(radius, height, numberOfSideFaces=10):
         i2 = i
         faces.append((i0, i1, i2))
     return (vertices, faces)
+
 
 def createMeshDataForSphere(radius, numberOfSideFaces=10, numberOfCircles=10):
     """returns vertices and faces"""
@@ -1343,6 +1415,7 @@ def createMeshDataForSphere(radius, numberOfSideFaces=10, numberOfCircles=10):
         i2 = ((numberOfCircles - 1) * numberOfSideFaces) + i
         faces.append((i0, i1, i2))
     return (vertices, faces)
+
 
 def createMeshDataForCuboid(sizeX, sizeY, sizeZ):
     """returns vertices and faces"""
@@ -1531,8 +1604,10 @@ def getOrCreateDefaultActionFor(ob):
 
     return action
 
+
 def transferSpawnPoint(transferer):
     transferer.transferAnimatableVector3("location")
+
 
 def transferParticleSystem(transferer):
     transferer.transferAnimatableFloat("emissionSpeed1")
@@ -1642,9 +1717,11 @@ def transferParticleSystem(transferer):
     transferer.transferEnum("lodReduce")
     transferer.transferEnum("lodCut")
 
+
 def transferParticleSystemCopy(transferer):
     transferer.transferAnimatableFloat("emissionRate")
     transferer.transferAnimatableInt16("partEmit")
+
 
 def transferRibbon(transferer):
     transferer.transferBit("additionalFlags", "worldSpace", sinceVersion=8)
@@ -1769,6 +1846,7 @@ def transferWarp(transferer):
     transferer.transferAnimatableFloat("unknown8d9c977c")
     transferer.transferAnimatableFloat("unknownca6025a2")
 
+
 def transferForce(transferer):
     transferer.transferEnum("type")
     transferer.transferEnum("shape")
@@ -1780,6 +1858,7 @@ def transferForce(transferer):
     transferer.transferBit("flags", "useFalloff")
     transferer.transferBit("flags", "useHeightGradient")
     transferer.transferBit("flags", "unbounded")
+
 
 def transferRigidBody(transferer):
     transferer.transferFloat("unknownAt0", tillVersion=2)
@@ -1812,12 +1891,14 @@ def transferRigidBody(transferer):
     transferer.transferBit("worldForces", "trees")
     transferer.transferInt("priority")
 
+
 def transferPhysicsShape(transferer):
     transferer.transferEnum("shape")
     # skip unknown values for now
     transferer.transferFloat("size0")
     transferer.transferFloat("size1")
     transferer.transferFloat("size2")
+
 
 def transferStandardMaterial(transferer):
     transferer.transferMultipleBits("flags", [
@@ -1877,21 +1958,27 @@ def transferStandardMaterial(transferer):
     transferer.transferEnum("specType")
     transferer.transferAnimatableFloat("parallaxHeight")
 
+
 def transferDisplacementMaterial(transferer):
     transferer.transferAnimatableFloat("strengthFactor")
     transferer.transferInt("priority")
 
+
 def transferCompositeMaterial(transferer):
     pass
+
 
 def transferCompositeMaterialSection(transferer):
     transferer.transferAnimatableFloat("alphaFactor")
 
+
 def transferTerrainMaterial(transferer):
     pass
 
+
 def transferVolumeMaterial(transferer):
     transferer.transferAnimatableFloat("volumeDensity")
+
 
 def transferVolumeNoiseMaterial(transferer):
     transferer.transferAnimatableFloat("volumeDensity")
@@ -1904,14 +1991,18 @@ def transferVolumeNoiseMaterial(transferer):
     transferer.transferInt("alphaTreshhold")
     transferer.transferBit("flags", "drawAfterTransparency")
 
+
 def transferCreepMaterial(transferer):
     pass
+
 
 def transfersplatTerrainBakeMaterial(transferer):
     pass
 
+
 def transferLensFlareMaterial(transferer):
     pass
+
 
 def transferMaterialLayer(transferer):
     transferer.transferString("imagePath")
@@ -1961,9 +2052,11 @@ def transferAnimation(transferer):
     transferer.transferBit("flags", "alwaysGlobal")
     transferer.transferBit("flags", "globalInPreviewer")
 
+
 def transferSTC(transferer):
     transferer.transferBoolean("runsConcurrent")
     transferer.transferInt("priority")
+
 
 def transferCamera(transferer):
     transferer.transferAnimatableFloat("fieldOfView")
@@ -1975,11 +2068,13 @@ def transferCamera(transferer):
     transferer.transferAnimatableFloat("falloffEnd")
     transferer.transferAnimatableFloat("depthOfField")
 
+
 def transferFuzzyHitTest(transferer):
     transferer.transferEnum("shape")
     transferer.transferFloat("size0")
     transferer.transferFloat("size1")
     transferer.transferFloat("size2")
+
 
 def transferLight(transferer):
     transferer.transferEnum("lightType")
@@ -2001,14 +2096,17 @@ def transferLight(transferer):
     transferer.transferAnimatableFloat("hotSpot")
     transferer.transferAnimatableFloat("falloff")
 
+
 def transferBillboardBehavior(transferer):
     transferer.transferEnum("billboardType")
+
 
 def transferIkChain(transferer):
     transferer.transferFloat("maxSearchUp")
     transferer.transferFloat("maxSearchDown")
     transferer.transferFloat("maxSpeed")
     transferer.transferFloat("goalPosThreshold")
+
 
 def transferTurretBehaviorPart(transferer):
     transferer.transferBit("flags", "mainTurretBone")
@@ -2026,6 +2124,7 @@ def transferTurretBehaviorPart(transferer):
     transferer.transferFloat("unknownAt140")
     transferer.transferFloat("unknownAt144")
     transferer.transferFloat("unknownAt148")
+
 
 def transferBufferMaterial(transferer):
     pass

@@ -104,9 +104,11 @@ def availableMaterials(self, context):
         list.append((material.name, material.name, material.name))
     return list
 
+
 def swapActionSceneM3Keyframes(prefix, old, shift):
     for action in bpy.data.actions:
-        if "Scene" not in action.name: continue
+        if "Scene" not in action.name:
+            continue
 
         fcurves = []
         fcurvesShift = []
@@ -130,6 +132,7 @@ def swapActionSceneM3Keyframes(prefix, old, shift):
         for fcurve in fcurvesShift:
             fcurve.data_path = fcurve.data_path.replace(prefix + "[tempShift]", pathId)
 
+
 def updateBoneShapesOfParticleSystemCopies(scene, particleSystem):
     for copy in particleSystem.copies:
         boneName = copy.boneName
@@ -140,7 +143,8 @@ def updateBoneShapesOfParticleSystemCopies(scene, particleSystem):
 
 
 def handleAttachmentPointNameOrTypeChange(self, context):
-    if not self.bl_update: return
+    if not self.bl_update:
+        return
 
     attachmentPoint = self
     scene = context.scene
@@ -174,7 +178,8 @@ def handleGeometricShapeTypeOrBoneNameUpdate(self, context):
 
 
 def handleParticleSystemNameChange(self, context):
-    if not self.bl_update: return
+    if not self.bl_update:
+        return
 
     particleSystem = self
     scene = context.scene
@@ -231,7 +236,8 @@ def handleRibbonNameChange(self, context):
 
 
 def handleParticleSystemAreaSizeChange(self, context):
-    if not self.bl_update: return
+    if not self.bl_update:
+        return
 
     particleSystem = self
     scene = context.scene
@@ -240,7 +246,8 @@ def handleParticleSystemAreaSizeChange(self, context):
 
 
 def handleForceNameOrTypeChange(self, context):
-    if not self.bl_update: return
+    if not self.bl_update:
+        return
 
     scene = context.scene
     force = self
@@ -260,7 +267,8 @@ def handleForceNameOrTypeChange(self, context):
 
 
 def handleForceShapeUpdate(self, context):
-    if not self.bl_update: return
+    if not self.bl_update:
+        return
 
     scene = context.scene
     force = self
@@ -268,7 +276,8 @@ def handleForceShapeUpdate(self, context):
 
 
 def handleLightNameOrTypeChange(self, context):
-    if not self.bl_update: return
+    if not self.bl_update:
+        return
 
     scene = context.scene
     light = self
@@ -287,7 +296,8 @@ def handleLightNameOrTypeChange(self, context):
 
 
 def handleLightSizeChange(self, context):
-    if not self.bl_update: return
+    if not self.bl_update:
+        return
 
     scene = context.scene
     light = self
@@ -295,7 +305,8 @@ def handleLightSizeChange(self, context):
 
 
 def handleWarpRadiusChange(self, context):
-    if not self.bl_update: return
+    if not self.bl_update:
+        return
 
     scene = context.scene
     warp = self
@@ -303,7 +314,8 @@ def handleWarpRadiusChange(self, context):
 
 
 def handleWarpNameChange(self, context):
-    if not self.bl_update: return
+    if not self.bl_update:
+        return
 
     scene = context.scene
     warp = self
@@ -374,7 +386,8 @@ def handleMaterialNameChange(self, context):
 
 
 def handleAttachmentVolumeTypeChange(self, context):
-    if not self.bl_update: return
+    if not self.bl_update:
+        return
 
     handleAttachmentPointNameOrTypeChange(self, context)
     if self.volumeType in ["0", "1", "2"]:
@@ -397,7 +410,8 @@ def handleAttachmentVolumeTypeChange(self, context):
 
 
 def handleAttachmentVolumeSizeChange(self, context):
-    if not self.bl_update: return
+    if not self.bl_update:
+        return
 
     scene = context.scene
     attachmentPoint = self
@@ -483,11 +497,14 @@ def handleWarpVisibilityUpdate(self, context):
     for warp in scene.m3_warps:
         shared.setBoneVisibility(scene, warp.boneName, self.showWarps)
 
+
 def handleAnimationSequenceStartFrameChange(self, context):
     context.scene.frame_start = self.startFrame
 
+
 def handleAnimationSequenceEndFrameChange(self, context):
     context.scene.frame_end = self.exlusiveEndFrame - 1
+
 
 def handleAnimationChange(ob, animation, prefix=""):
     animationData = ob.animation_data
@@ -645,7 +662,8 @@ def handleRibbonEndPointIndexChanged(self, context):
 
 def handleForceIndexChanged(self, context):
     scene = context.scene
-    if scene.m3_force_index == -1: return
+    if scene.m3_force_index == -1:
+        return
     force = scene.m3_forces[scene.m3_force_index]
     selectOrCreateBoneForForce(scene, force)
 
@@ -683,44 +701,51 @@ def selectCurrentRigidBodyBone(scene):
 
 def handleLightIndexChanged(self, context):
     scene = context.scene
-    if scene.m3_light_index == -1: return
+    if scene.m3_light_index == -1:
+        return
     light = scene.m3_lights[scene.m3_light_index]
     selectOrCreateBoneForLight(scene, light)
 
 
 def handleBillboardBehaviorIndexChanged(self, context):
     scene = context.scene
-    if scene.m3_billboard_behavior_index == -1: return
+    if scene.m3_billboard_behavior_index == -1:
+        return
     billboardBehavior = scene.m3_billboard_behaviors[scene.m3_billboard_behavior_index]
     selectBoneIfItExists(scene, billboardBehavior.name)
 
 
 def handleTurretBehaviorPartIndexChanged(self, context):
     scene = context.scene
-    if scene.m3_turret_behavior_index < 0: return
+    if scene.m3_turret_behavior_index < 0:
+        return
     turret = scene.m3_turret_behaviors[scene.m3_turret_behavior_index]
-    if turret.part_index < 0: return
+    if turret.part_index < 0:
+        return
     part = turret.parts[turret.part_index]
     selectBoneIfItExists(scene, part.name)
 
 
 def handleIkChainIndexChanged(self, context):
     scene = context.scene
-    if scene.m3_ik_chain_index == -1: return
+    if scene.m3_ik_chain_index == -1:
+        return
     ik = scene.m3_ik_chains[scene.m3_ik_chain_index]
     shared.selectBonesIfTheyExist(scene, [ik.boneName1, ik.boneName2])
 
 
 def handleWarpIndexChanged(self, context):
     scene = context.scene
-    if scene.m3_warp_index == -1: return
+    if scene.m3_warp_index == -1:
+        return
     warp = scene.m3_warps[scene.m3_warp_index]
     selectOrCreateBoneForWarp(scene, warp)
 
 
 def handleAttachmentPointIndexChanged(self, context):
     scene = context.scene
-    if scene.m3_attachment_point_index == -1: return
+    if scene.m3_attachment_point_index == -1:
+        return
     attachmentPoint = scene.m3_attachment_points[scene.m3_attachment_point_index]
     selectOrCreateBoneForAttachmentPoint(scene, attachmentPoint)
 
@@ -735,14 +760,16 @@ def handleParticleSystemCopyIndexChanged(self, context):
 
 def handleCameraIndexChanged(self, context):
     scene = context.scene
-    if scene.m3_camera_index == -1: return
+    if scene.m3_camera_index == -1:
+        return
     camera = scene.m3_cameras[scene.m3_camera_index]
     selectOrCreateBoneForCamera(scene, camera)
 
 
 def handleFuzzyHitTestIndexChanged(self, context):
     scene = context.scene
-    if scene.m3_fuzzy_hit_test_index == -1: return
+    if scene.m3_fuzzy_hit_test_index == -1:
+        return
     fuzzyHitTest = scene.m3_fuzzy_hit_tests[scene.m3_fuzzy_hit_test_index]
     selectOrCreateBoneForShapeObject(scene, fuzzyHitTest)
 
@@ -753,11 +780,13 @@ def selectOrCreateBoneForAttachmentPoint(scene, attachmentPoint):
     bone, poseBone = selectOrCreateBone(scene, boneName)
     shared.updateBoneShapeOfAttachmentPoint(attachmentPoint, bone, poseBone)
 
+
 def selectOrCreateBoneForParticleSystemCopy(scene, particleSystem, copy):
     scene.m3_bone_visiblity_options.showParticleSystems = True
     boneName = copy.boneName
     bone, poseBone = selectOrCreateBone(scene, boneName)
     shared.updateBoneShapeOfParticleSystem(particleSystem, bone, poseBone)
+
 
 def selectOrCreateBoneForForce(scene, force):
     scene.m3_bone_visiblity_options.showForces = True
@@ -919,43 +948,59 @@ def createMaterial(scene, materialName, defaultSetting):
     materialReference.materialIndex = materialIndex
     materialReference.materialType = materialType
     material.materialReferenceIndex = materialReferenceIndex
-    material.name = materialName # will also set materialReference name
+    material.name = materialName  # will also set materialReference name
 
     scene.m3_material_reference_index = len(scene.m3_material_references) - 1
 
 
-emissionAreaTypesWithRadius = [shared.emissionAreaTypeSphere, shared.emissionAreaTypeCylinder, shared.emissionAreaTypeDisc]
-emissionAreaTypesWithWidth = [shared.emissionAreaTypePlane, shared.emissionAreaTypeCuboid]
-emissionAreaTypesWithLength = [shared.emissionAreaTypePlane, shared.emissionAreaTypeCuboid]
-emissionAreaTypesWithHeight = [shared.emissionAreaTypeCuboid, shared.emissionAreaTypeCylinder]
-emissionAreaTypeList = [(shared.emissionAreaTypePoint, "Point", "Particles spawn at a certain point"),
-                        (shared.emissionAreaTypePlane, "Plane", "Particles spawn in a rectangle"),
-                        (shared.emissionAreaTypeSphere, "Sphere", "Particles spawn in a sphere"),
-                        (shared.emissionAreaTypeCuboid, "Cuboid", "Particles spawn in a cuboid"),
-                        (shared.emissionAreaTypeCylinder, "Cylinder", "Particles spawn in a cylinder"),
-                        (shared.emissionAreaTypeDisc, "Disc", "Particles spawn in a cylinder of height 0"),
-                        (shared.emissionAreaTypeMesh, "Spline", "Spawn location are the vertices of a mesh"),
-                        ("7", "Mesh", "If Vertex Color is applied and exported by the material on the mesh, then the Red channel of vertex color regulates the probability that a face will be used for particle emission")
-                        ]
+emissionAreaTypesWithRadius = [
+    shared.emissionAreaTypeSphere,
+    shared.emissionAreaTypeCylinder,
+    shared.emissionAreaTypeDisc,
+]
+emissionAreaTypesWithWidth = [
+    shared.emissionAreaTypePlane,
+    shared.emissionAreaTypeCuboid,
+]
+emissionAreaTypesWithLength = [
+    shared.emissionAreaTypePlane,
+    shared.emissionAreaTypeCuboid,
+]
+emissionAreaTypesWithHeight = [
+    shared.emissionAreaTypeCuboid,
+    shared.emissionAreaTypeCylinder,
+]
+emissionAreaTypeList = [
+    (shared.emissionAreaTypePoint, "Point", "Particles spawn at a certain point"),
+    (shared.emissionAreaTypePlane, "Plane", "Particles spawn in a rectangle"),
+    (shared.emissionAreaTypeSphere, "Sphere", "Particles spawn in a sphere"),
+    (shared.emissionAreaTypeCuboid, "Cuboid", "Particles spawn in a cuboid"),
+    (shared.emissionAreaTypeCylinder, "Cylinder", "Particles spawn in a cylinder"),
+    (shared.emissionAreaTypeDisc, "Disc", "Particles spawn in a cylinder of height 0"),
+    (shared.emissionAreaTypeMesh, "Spline", "Spawn location are the vertices of a mesh"),
+    ("7", "Mesh", "If Vertex Color is applied and exported by the material on the mesh, then the Red channel of vertex color regulates the probability that a face will be used for particle emission")
+]
 
-particleTypeList = [("0", "Square Billbords", "Quads always rotated towards camera (id 0)"),
-                    ("1", "Speed Scaled and Rotated Billbords", "Particles are rectangles scaled which get scaled by speed by a configurable amounth"),
-                    ("2", "Square Billbords 2?", "Unknown 2"),
-                    ("3", "Square Billbords 3?", "Unknown 3"),
-                    ("4", "Square Billbords 4?", "Unknown 4"),
-                    ("5", "Square Billbords 5?", "Unknown 5"),
-                    ("6", "Rectangular Billbords", "Rectangles which can have a length != witdh which are rotated towards the camera"),
-                    ("7", "Quads with speed as normal", "Particles are quads which have their normals aligned to the speed vector of the particle"),
-                    ("8", "Unknown (Id 8)", "Code 8 with unknown meaning"),
-                    ("9", "Ray from Spawn Location", "A billboard that reaches from the spawn location to the current position"),
-                    ("10", "Unknown (Id 10)", "Code 10 with unknown meaning")
-                    ]
+particleTypeList = [
+    ("0", "Square Billbords", "Quads always rotated towards camera (id 0)"),
+    ("1", "Speed Scaled and Rotated Billbords", "Particles are rectangles scaled which get scaled by speed by a configurable amounth"),
+    ("2", "Square Billbords 2?", "Unknown 2"),
+    ("3", "Square Billbords 3?", "Unknown 3"),
+    ("4", "Square Billbords 4?", "Unknown 4"),
+    ("5", "Square Billbords 5?", "Unknown 5"),
+    ("6", "Rectangular Billbords", "Rectangles which can have a length != witdh which are rotated towards the camera"),
+    ("7", "Quads with speed as normal", "Particles are quads which have their normals aligned to the speed vector of the particle"),
+    ("8", "Unknown (Id 8)", "Code 8 with unknown meaning"),
+    ("9", "Ray from Spawn Location", "A billboard that reaches from the spawn location to the current position"),
+    ("10", "Unknown (Id 10)", "Code 10 with unknown meaning")
+]
 
-ribbonTypeList = [("0", "Planar Billboarded", "Planar Billboarded"),
-                  ("1", "Planar", "Planar"),
-                  ("2", "Cylinder", "Cylinder"),
-                  ("3", "Star Shaped", "Star Shaped")
-                  ]
+ribbonTypeList = [
+    ("0", "Planar Billboarded", "Planar Billboarded"),
+    ("1", "Planar", "Planar"),
+    ("2", "Cylinder", "Cylinder"),
+    ("3", "Star Shaped", "Star Shaped")
+]
 
 ribbonCullType = [
     ("0", "Lifespan", "Ribbon elements are destroyed after having existed for the specified lifespan."),
@@ -972,33 +1017,37 @@ ribbonCurveType = [
     ("6", "Continous Noise", ""),
 ]
 
-forceTypeList = [("0", "Directional", "The particles get accelerated into one direction"),
-                 ("1", "Radial", "Particles get accelerated ayway from the force source"),
-                 ("2", "Dampening", "This is a drag operation that resists the movement of particles"),
-                 ("3", "Vortex", "This is a special rotation field that brings particles into a orbit. Does not work with Box Shape applied.")
-                 ]
+forceTypeList = [
+    ("0", "Directional", "The particles get accelerated into one direction"),
+    ("1", "Radial", "Particles get accelerated ayway from the force source"),
+    ("2", "Dampening", "This is a drag operation that resists the movement of particles"),
+    ("3", "Vortex", "This is a special rotation field that brings particles into a orbit. Does not work with Box Shape applied.")
+]
 
-forceShapeList = [("0", "Sphere", "The particles get accelerated into one direction"),
-                  ("1", "Cylinder", "A cylinder with Radius and Height"),
-                  ("2", "Box", "A box shape with Width, Height, and Length."),
-                  ("3", "Hemisphere", "Half sphere shape defined with Radius."),
-                  ("4", "ConeDome", "Special cone shape with length defined as Radius and cone width defined as Angle.")
-                  ]
+forceShapeList = [
+    ("0", "Sphere", "The particles get accelerated into one direction"),
+    ("1", "Cylinder", "A cylinder with Radius and Height"),
+    ("2", "Box", "A box shape with Width, Height, and Length."),
+    ("3", "Hemisphere", "Half sphere shape defined with Radius."),
+    ("4", "ConeDome", "Special cone shape with length defined as Radius and cone width defined as Angle.")
+]
 
-physicsShapeTypeList = [("0", "Box", "Box shape with the given width, length and height"),
-                        ("1", "Sphere", "Sphere shape with the given radius"),
-                        ("2", "Capsule", "Capsule shape with the given radius and length"),
-                        ("3", "Cylinder", "Cylinder with the given radius and length"),
-                        ("4", "Convex Hull", "Convex hull created from the attached mesh"),
-                        ("5", "Mesh", "Mesh shape created from the attached mesh"),
-                        ]
+physicsShapeTypeList = [
+    ("0", "Box", "Box shape with the given width, length and height"),
+    ("1", "Sphere", "Sphere shape with the given radius"),
+    ("2", "Capsule", "Capsule shape with the given radius and length"),
+    ("3", "Cylinder", "Cylinder with the given radius and length"),
+    ("4", "Convex Hull", "Convex hull created from the attached mesh"),
+    ("5", "Mesh", "Mesh shape created from the attached mesh"),
+]
 
-particleEmissionTypeList = [("0", "Constant", "Emitted particles fly towards a configureable direction with a configurable spread"),
-                            ("1", "Radial", "Particles move into all kinds of directions"),
-                            ("2", "Z Axis", "Picks randomly to move in the direction of the positive or negative local Z-Axis for the emitter.e"),
-                            ("3", "Random", "Picks an entirely arbitrary orientation."),
-                            ("4", "Mesh Normal", "when using a Mesh Emitter Shape, uses the normal of the face being emitted from as the direction vector.")
-                            ]
+particleEmissionTypeList = [
+    ("0", "Constant", "Emitted particles fly towards a configureable direction with a configurable spread"),
+    ("1", "Radial", "Particles move into all kinds of directions"),
+    ("2", "Z Axis", "Picks randomly to move in the direction of the positive or negative local Z-Axis for the emitter.e"),
+    ("3", "Random", "Picks an entirely arbitrary orientation."),
+    ("4", "Mesh Normal", "when using a Mesh Emitter Shape, uses the normal of the face being emitted from as the direction vector.")
+]
 
 animationSmoothTypeList = [
     ("0", "Linear", "Linear transitions without usage of hold time"),
@@ -1008,18 +1057,20 @@ animationSmoothTypeList = [
     ("4", "Bezier Hold", "Bezier transitions with usage of hold time")
 ]
 
-attachmentVolumeTypeList = [(shared.attachmentVolumeNone, "None", "No Volume, it's a simple attachment point"),
-                            (shared.attachmentVolumeCuboid, "Cuboid", "Volume with the shape of a cuboid with the given width, length and height"),
-                            (shared.attachmentVolumeSphere, "Sphere", "Volume with the shape of a sphere with the given radius"),
-                            (shared.attachmentVolumeCapsule, "Capsule", "Volume with the shape of a cylinder with the given radius and height"),
-                            ("3", "Unknown 3", "Unknown Volume with id 3"),
-                            ("4", "Unknown 4", "Unknown Volume with id 4")
-                            ]
+attachmentVolumeTypeList = [
+    (shared.attachmentVolumeNone, "None", "No Volume, it's a simple attachment point"),
+    (shared.attachmentVolumeCuboid, "Cuboid", "Volume with the shape of a cuboid with the given width, length and height"),
+    (shared.attachmentVolumeSphere, "Sphere", "Volume with the shape of a sphere with the given radius"),
+    (shared.attachmentVolumeCapsule, "Capsule", "Volume with the shape of a cylinder with the given radius and height"),
+    ("3", "Unknown 3", "Unknown Volume with id 3"),
+    ("4", "Unknown 4", "Unknown Volume with id 4")
+]
 
-geometricShapeTypeList = [("0", "Cuboid", "A cuboid with the given width, length and height"),
-                          ("1", "Sphere", "A sphere with the given radius"),
-                          ("2", "Capsule", "A capsue which is based on a cylinder with the given radius and height"),
-                          ]
+geometricShapeTypeList = [
+    ("0", "Cuboid", "A cuboid with the given width, length and height"),
+    ("1", "Sphere", "A sphere with the given radius"),
+    ("2", "Capsule", "A capsule with the given radius and height"),
+]
 
 defaultSettingMesh = "MESH"
 defaultSettingParticle = "PARTICLE"
@@ -1031,57 +1082,64 @@ defaultSettingVolumeNoise = "VOLUME_NOISE"
 defaultSettingCreep = "CREEP"
 defaultSettingSplatTerrainBake = "STB"
 defaultSettingLensFlare = "LENS_FLARE"
-matDefaultSettingsList = [(defaultSettingMesh, "Mesh Standard Material", "A material for meshes"),
-                          (defaultSettingParticle, "Particle Standard Material", "Material for particle systems"),
-                          (defaultSettingDisplacement, "Displacement Material", "Moves the colors of the background to other locations"),
-                          (defaultSettingComposite, "Composite Material", "A combination of multiple materials"),
-                          (defaultSettingTerrain, "Terrain Material", "Makes the object look like the ground below it"),
-                          (defaultSettingVolume, "Volume Material", "A fog like material"),
-                          (defaultSettingVolumeNoise, "Volume Noise Material", "A fog like material"),
-                          (defaultSettingCreep, "Creep Material", "Looks like creep if there is creep below the model and is invisible otherwise"),
-                          (defaultSettingSplatTerrainBake, "STB Material", "Splat Terrain Bake Material"),
-                          (defaultSettingLensFlare, "Lens Flare Material", "Lens flare material which can not be exported yet"),
-                          ]
 
-billboardBehaviorTypeList = [("0", "Local X", "Bone gets oriented around X towards camera but rotates then with the model"),
-                             ("1", "Local Z", "Bone gets oriented around Z towards camera but rotates then with the model"),
-                             ("2", "Local Y", "Bone gets oriented around Y towards camera but rotates then with the model"),
-                             ("3", "World X", "Bone gets oriented around X towards camera, independent of model rotation"),
-                             ("4", "World Z", "Bone gets oriented around Z towards camera, independent of model rotation"),
-                             ("5", "World Y", "Bone gets oriented around Y towards camera, independent of model rotation"),
-                             ("6", "World All", "Bone orients itself always towards camera and rotates around all axes to do so")
-                             ]
+matDefaultSettingsList = [
+    (defaultSettingMesh, "Mesh Standard Material", "A material for meshes"),
+    (defaultSettingParticle, "Particle Standard Material", "Material for particle systems"),
+    (defaultSettingDisplacement, "Displacement Material", "Moves the colors of the background to other locations"),
+    (defaultSettingComposite, "Composite Material", "A combination of multiple materials"),
+    (defaultSettingTerrain, "Terrain Material", "Makes the object look like the ground below it"),
+    (defaultSettingVolume, "Volume Material", "A fog like material"),
+    (defaultSettingVolumeNoise, "Volume Noise Material", "A fog like material"),
+    (defaultSettingCreep, "Creep Material", "Looks like creep if there is creep below the model and is invisible otherwise"),
+    (defaultSettingSplatTerrainBake, "STB Material", "Splat Terrain Bake Material"),
+    (defaultSettingLensFlare, "Lens Flare Material", "Lens flare material which can not be exported yet"),
+]
 
-matBlendModeList = [("0", "Opaque", "no description yet"),
-                    ("1", "Alpha Blend", "no description yet"),
-                    ("2", "Add", "no description yet"),
-                    ("3", "Alpha Add", "no description yet"),
-                    ("4", "Mod", "no description yet"),
-                    ("5", "Mod 2x", "no description yet"),
-                    ("6", "Unknown 0x06", "no description yet"),
-                    ]
+billboardBehaviorTypeList = [
+    ("0", "Local X", "Bone gets oriented around X towards the camera, but rotates then with the model"),
+    ("1", "Local Z", "Bone gets oriented around Z towards the camera, but rotates then with the model"),
+    ("2", "Local Y", "Bone gets oriented around Y towards the camera, but rotates then with the model"),
+    ("3", "World X", "Bone gets oriented around X towards the camera, independent of model rotation"),
+    ("4", "World Z", "Bone gets oriented around Z towards the camera, independent of model rotation"),
+    ("5", "World Y", "Bone gets oriented around Y towards the camera, independent of model rotation"),
+    ("6", "World All", "Bone orients itself towards the camera and rotates around all axes to do so")
+]
 
-matLayerAndEmisBlendModeList = [("0", "Mod", "no description yet"),
-                                ("1", "Mod 2x", "no description yet"),
-                                ("2", "Add", "no description yet"),
-                                ("3", "Blend", "no description yet"),
-                                ("4", "Team Color Emissive Add", "no description yet"),
-                                ("5", "Team Color Diffuse Add", "no description yet")
-                                ]
+matBlendModeList = [
+    ("0", "Opaque", "no description yet"),
+    ("1", "Alpha Blend", "no description yet"),
+    ("2", "Add", "no description yet"),
+    ("3", "Alpha Add", "no description yet"),
+    ("4", "Mod", "no description yet"),
+    ("5", "Mod 2x", "no description yet"),
+    ("6", "Unknown 0x06", "no description yet"),
+]
 
-matSpecularTypeList = [("0", "RGB", "no description yet"),
-                       ("1", "Alpha Only", "no description yet")
-                       ]
+matLayerAndEmisBlendModeList = [
+    ("0", "Mod", "no description yet"),
+    ("1", "Mod 2x", "no description yet"),
+    ("2", "Add", "no description yet"),
+    ("3", "Blend", "no description yet"),
+    ("4", "Team Color Emissive Add", "no description yet"),
+    ("5", "Team Color Diffuse Add", "no description yet")
+]
 
-lightTypeList = [# directional light isn"t supported yet: ("0", "Directional", ""),
-                 (shared.lightTypePoint, "Point", "Light are generated around a point"),
-                 (shared.lightTypeSpot, "Spot", "")
-                 ]
+matSpecularTypeList = [
+    ("0", "RGB", "no description yet"),
+    ("1", "Alpha Only", "no description yet")
+]
+
+lightTypeList = [
+    # directional light isn"t supported yet: ("0", "Directional", ""),
+    (shared.lightTypePoint, "Point", "Light are generated around a point"),
+    (shared.lightTypeSpot, "Spot", "")
+]
 
 
 class M3AnimIdData(bpy.types.PropertyGroup):
-    # animId is actually an unsigned integer but blender can store only signed ones
-    # thats why the number range needs to be moved into the negative for storage
+    # animId is an unsigned integer, but Blender can store only signed ones
+    # So, the number range needs to be moved into the negative for storage
     animIdMinus2147483648: bpy.props.IntProperty(options=set())
     longAnimId: bpy.props.StringProperty(options=set())
 
@@ -1122,7 +1180,7 @@ class M3StandardMaterial(bpy.types.PropertyGroup):
     priority: bpy.props.IntProperty(
         options=set(),
         description=f"""\
-        Defines the sorting relationship between this material and other transparent materials in the model file. Within a given model, materials are drawn in order from highest priority value to lowest. Sorting for materials of equal priority is undefined. Priorities have no effect across multiple models."""
+Defines the sorting relationship between this material and other transparent materials in the model file. Within a given model, materials are drawn in order from highest priority value to lowest. Sorting for materials of equal priority is undefined. Priorities have no effect across multiple models."""
     )
     specularity: bpy.props.FloatProperty(options=set())
     cutoutThresh: bpy.props.IntProperty(options=set(), min=0, max=255, default=0)
@@ -1165,12 +1223,12 @@ class M3StandardMaterial(bpy.types.PropertyGroup):
     excludeFromHighlighting: bpy.props.BoolProperty(options=set(), default=False)
     clampOutput: bpy.props.BoolProperty(options=set(), default=False)
     geometryVisible: bpy.props.BoolProperty(options=set(), default=True)
-
-    depthBlendFalloff: bpy.props.FloatProperty(options=set(), update=handleDepthBlendFalloffChanged, default=0,
+    depthBlendFalloff: bpy.props.FloatProperty(
+        options=set(), update=handleDepthBlendFalloffChanged, default=0,
         description=f"""\
-        Extends the distance over which particle effects fade out when they get close to a solid object. To reduce visual clipping artifacts, particle effects in StarCraft II fade out as they get close to another surface. Increasing this value causes the blend to happen over a wider range. Disable Soft (Depth Blend) can bypass this effect when no depth blend is desired.
+Extends the distance over which particle effects fade out when they get close to a solid object. To reduce visual clipping artifacts, particle effects in StarCraft II fade out as they get close to another surface. Increasing this value causes the blend to happen over a wider range. Disable Soft (Depth Blend) can bypass this effect when no depth blend is desired.
         """
-        )
+    )
     useDepthBlendFalloff: bpy.props.BoolProperty(options=set(), update=handleUseDepthBlendFalloffChanged, description="Should be true for particle system materials", default=False)
     useVertexColor: bpy.props.BoolProperty(options=set(), description="The vertex color layer named color will be used to tint the model", default=False)
     useVertexAlpha: bpy.props.BoolProperty(options=set(), description="The vertex color layer named alpha, will be used to determine the alpha of the model", default=False)
@@ -1257,6 +1315,7 @@ class M3MaterialNode(bpy.types.PropertyGroup):
     name: bpy.props.StringProperty(options=set(), default="Material", update=handleMaterialNameChange)
     # the following field gets used to update the name of the material reference:
     materialReferenceIndex: bpy.props.IntProperty(options=set(), default=-1)
+
 
 class M3Camera(bpy.types.PropertyGroup):
     name: bpy.props.StringProperty(options=set(), update=handleCameraNameChange)
@@ -2139,12 +2198,13 @@ class MaterialPropertiesPanel(bpy.types.Panel):
     def poll(cls, context):
         scene = context.scene
         ii = scene.m3_material_reference_index
-        if ii < 0: return scene and False
+        if ii < 0:
+            return scene and False
         mat = scene.m3_material_references[ii]
-        return scene and (mat.materialType != shared.stbMaterialTypeIndex
-                     and  mat.materialType != shared.lensFlareMaterialTypeIndex
-                     and  mat.materialType != shared.creepMaterialTypeIndex
-                     and  mat.materialType != shared.terrainMaterialTypeIndex)
+        return scene and (mat.materialType != shared.stbMaterialTypeIndex and
+                          mat.materialType != shared.lensFlareMaterialTypeIndex and
+                          mat.materialType != shared.creepMaterialTypeIndex and
+                          mat.materialType != shared.terrainMaterialTypeIndex)
 
     def draw(self, context):
         scene = context.scene
@@ -2168,10 +2228,10 @@ class ObjectMaterialPropertiesPanel(bpy.types.Panel):
         scene = context.scene
         ob = context.object
         mat = scene.m3_material_references.get(ob.data.m3_material_name)
-        return ob and mat is not None and (mat.materialType != shared.stbMaterialTypeIndex
-                                      and  mat.materialType != shared.lensFlareMaterialTypeIndex
-                                      and  mat.materialType != shared.creepMaterialTypeIndex
-                                      and  mat.materialType != shared.terrainMaterialTypeIndex)
+        return ob and mat is not None and (mat.materialType != shared.stbMaterialTypeIndex and
+                                           mat.materialType != shared.lensFlareMaterialTypeIndex and
+                                           mat.materialType != shared.creepMaterialTypeIndex and
+                                           mat.materialType != shared.terrainMaterialTypeIndex)
 
     def draw(self, context):
         scene = context.scene
@@ -2192,8 +2252,8 @@ class MaterialPropertiesFlagsPanel(bpy.types.Panel):
     @classmethod
     def poll(cls, context):
         scene = context.scene
-        return scene and (scene.m3_material_references[scene.m3_material_reference_index].materialType == shared.standardMaterialTypeIndex
-                       or scene.m3_material_references[scene.m3_material_reference_index].materialType == shared.volumeNoiseMaterialTypeIndex)
+        return scene and (scene.m3_material_references[scene.m3_material_reference_index].materialType == shared.standardMaterialTypeIndex or
+                          scene.m3_material_references[scene.m3_material_reference_index].materialType == shared.volumeNoiseMaterialTypeIndex)
 
     def draw(self, context):
         layout = self.layout
@@ -2218,8 +2278,8 @@ class ObjectMaterialPropertiesFlagsPanel(bpy.types.Panel):
     def poll(cls, context):
         scene = context.scene
         ob = context.object
-        return ob and (scene.m3_material_references.get(ob.data.m3_material_name).materialType == shared.standardMaterialTypeIndex
-                   or  scene.m3_material_references.get(ob.data.m3_material_name).materialType == shared.volumeNoiseMaterialTypeIndex)
+        return ob and (scene.m3_material_references.get(ob.data.m3_material_name).materialType == shared.standardMaterialTypeIndex or
+                       scene.m3_material_references.get(ob.data.m3_material_name).materialType == shared.volumeNoiseMaterialTypeIndex)
 
     def draw(self, context):
         layout = self.layout
@@ -2259,7 +2319,8 @@ class MaterialLayersPanel(bpy.types.Panel):
     @classmethod
     def poll(cls, context):
         ii = context.scene.m3_material_reference_index
-        if ii < 0: return context.scene and False
+        if ii < 0:
+            return context.scene and False
         mat = context.scene.m3_material_references[ii]
         return context.scene and mat.materialType != shared.compositeMaterialTypeIndex
 
@@ -4155,16 +4216,16 @@ def addUIForShapeProperties(layout, shapeObject):
     if shapeObject.shape in ["0", "1", "2", "3"]:
         col = row.column(align=True)
         col.label(text="Dimensions:")
-        if shapeObject.shape in ["0"]: # cuboid
+        if shapeObject.shape in ["0"]:  # cuboid
             col.prop(shapeObject, "size0", text="X")
             col.prop(shapeObject, "size1", text="Y")
             col.prop(shapeObject, "size2", text="Z")
-        elif shapeObject.shape in ["1"]: # sphere
+        elif shapeObject.shape in ["1"]:  # sphere
             col.prop(shapeObject, "size0", text="R")
-        elif shapeObject.shape in ["2"]: # capsule
+        elif shapeObject.shape in ["2"]:  # capsule
             col.prop(shapeObject, "size0", text="R")
             col.prop(shapeObject, "size1", text="H")
-        elif shapeObject.shape in ["3"]: # cylinder
+        elif shapeObject.shape in ["3"]:  # cylinder
             col.prop(shapeObject, "size0", text="R")
             col.prop(shapeObject, "size1", text="H")
     elif shapeObject.shape in ["4", "5"]:
@@ -4266,8 +4327,8 @@ class ExtraBonePropertiesPanel(bpy.types.Panel):
 
 
 class M3_MATERIALS_OT_add(bpy.types.Operator):
-    bl_idname      = "m3.materials_add"
-    bl_label       = "Add M3 Material"
+    bl_idname = "m3.materials_add"
+    bl_label = "Add M3 Material"
     bl_description = "Adds an material for the export to Starcraft 2"
     bl_options = {"UNDO"}
 
@@ -4292,8 +4353,8 @@ class M3_MATERIALS_OT_add(bpy.types.Operator):
 
 
 class M3_MATERIALS_OT_createForMesh(bpy.types.Operator):
-    bl_idname      = "m3.create_material_for_mesh"
-    bl_label       = "Creates a M3 Material for the current mesh"
+    bl_idname = "m3.create_material_for_mesh"
+    bl_label = "Creates a M3 Material for the current mesh"
     bl_description = "Creates an m3 material for the current mesh"
     bl_options = {"UNDO"}
 
@@ -4322,8 +4383,8 @@ class M3_MATERIALS_OT_createForMesh(bpy.types.Operator):
 
 
 class M3_MATERIALS_OT_remove(bpy.types.Operator):
-    bl_idname      = "m3.materials_remove"
-    bl_label       = "Remove M3 Material"
+    bl_idname = "m3.materials_remove"
+    bl_label = "Remove M3 Material"
     bl_description = "Removes the active M3 Material"
     bl_options = {"UNDO"}
 
@@ -4457,8 +4518,8 @@ class M3_MATERIALS_OT_duplicate(bpy.types.Operator):
 
 
 class M3_COMPOSITE_MATERIAL_OT_add_section(bpy.types.Operator):
-    bl_idname      = "m3.composite_material_add_section"
-    bl_label       = "Add Section"
+    bl_idname = "m3.composite_material_add_section"
+    bl_label = "Add Section"
     bl_description = "Adds a section/layer to the composite material"
     bl_options = {"UNDO"}
 
@@ -4479,8 +4540,8 @@ class M3_COMPOSITE_MATERIAL_OT_add_section(bpy.types.Operator):
 
 
 class M3_COMPOSITE_MATERIAL_OT_remove_section(bpy.types.Operator):
-    bl_idname      = "m3.composite_material_remove_section"
-    bl_label       = "Removes Section"
+    bl_idname = "m3.composite_material_remove_section"
+    bl_label = "Removes Section"
     bl_description = "Removes the selected section/layer from the composite material"
     bl_options = {"UNDO"}
 
@@ -4524,8 +4585,8 @@ class M3_COMPOSITE_MATERIAL_OT_move_section(bpy.types.Operator):
 
 
 class M3_ANIMATIONS_OT_add(bpy.types.Operator):
-    bl_idname      = "m3.animations_add"
-    bl_label       = "Add Animation Sequence"
+    bl_idname = "m3.animations_add"
+    bl_label = "Add Animation Sequence"
     bl_description = "Adds an animation sequence for the export to Starcraft 2"
     bl_options = {"UNDO"}
 
@@ -4549,8 +4610,8 @@ class M3_ANIMATIONS_OT_add(bpy.types.Operator):
 
 
 class M3_ANIMATIONS_OT_remove(bpy.types.Operator):
-    bl_idname      = "m3.animations_remove"
-    bl_label       = "Remove Animation Sequence"
+    bl_idname = "m3.animations_remove"
+    bl_label = "Remove Animation Sequence"
     bl_description = "Removes the active M3 animation sequence"
     bl_options = {"UNDO"}
 
@@ -4637,8 +4698,8 @@ def copyCurrentActionOfObjectToM3Animation(scene, targetAnimation):
 
 
 class M3_ANIMATIONS_OT_duplicate(bpy.types.Operator):
-    bl_idname      = "m3.animations_duplicate"
-    bl_label       = "Copy Animation"
+    bl_idname = "m3.animations_duplicate"
+    bl_label = "Copy Animation"
     bl_description = "Create identical copy of the animation"
     bl_options = {"UNDO"}
 
@@ -4674,8 +4735,8 @@ class M3_ANIMATIONS_OT_duplicate(bpy.types.Operator):
 
 
 class M3_ANIMATIONS_OT_deselect(bpy.types.Operator):
-    bl_idname      = "m3.animations_deselect"
-    bl_label       = "Edit Default Values"
+    bl_idname = "m3.animations_deselect"
+    bl_label = "Edit Default Values"
     bl_description = "Deselects the active M3 animation sequence so that the default values can be edited"
     bl_options = {"UNDO"}
 
@@ -4686,8 +4747,8 @@ class M3_ANIMATIONS_OT_deselect(bpy.types.Operator):
 
 
 class M3_ANIMATIONS_OT_STC_add(bpy.types.Operator):
-    bl_idname      = "m3.stc_add"
-    bl_label       = "Add sub animation"
+    bl_idname = "m3.stc_add"
+    bl_label = "Add sub animation"
     bl_description = "Add sub animation to the active animation sequence"
     bl_options = {"UNDO"}
 
@@ -4704,8 +4765,8 @@ class M3_ANIMATIONS_OT_STC_add(bpy.types.Operator):
 
 
 class M3_ANIMATIONS_OT_STC_remove(bpy.types.Operator):
-    bl_idname      = "m3.stc_remove"
-    bl_label       = "Remove sub animation from animation"
+    bl_idname = "m3.stc_remove"
+    bl_label = "Remove sub animation from animation"
     bl_description = "Removes the active sub animation from animation sequence"
     bl_options = {"UNDO"}
 
@@ -4742,8 +4803,8 @@ class M3_ANIMATIONS_OT_STC_move(bpy.types.Operator):
 
 
 class M3_ANIMATIONS_OT_STC_select(bpy.types.Operator):
-    bl_idname      = "m3.stc_select"
-    bl_label       = "Select all FCurves of the active sub animation"
+    bl_idname = "m3.stc_select"
+    bl_label = "Select all FCurves of the active sub animation"
     bl_description = "Selects all FCURVES of the active sub animation"
     bl_options = {"UNDO"}
 
@@ -4801,8 +4862,8 @@ class M3_ANIMATIONS_OT_STC_select(bpy.types.Operator):
 
 
 class M3_ANIMATIONS_OT_STC_assign(bpy.types.Operator):
-    bl_idname      = "m3.stc_assign"
-    bl_label       = "Assign FCurves to sub animation"
+    bl_idname = "m3.stc_assign"
+    bl_label = "Assign FCurves to sub animation"
     bl_description = "Assigns all selected FCurves to the active sub animation"
     bl_options = {"UNDO"}
 
@@ -4854,8 +4915,8 @@ class M3_ANIMATIONS_OT_STC_assign(bpy.types.Operator):
 
 
 class M3_CAMERAS_OT_add(bpy.types.Operator):
-    bl_idname      = "m3.cameras_add"
-    bl_label       = "Add M3 Camera"
+    bl_idname = "m3.cameras_add"
+    bl_label = "Add M3 Camera"
     bl_description = "Adds a camera description for the export as m3"
     bl_options = {"UNDO"}
 
@@ -4870,8 +4931,8 @@ class M3_CAMERAS_OT_add(bpy.types.Operator):
 
 
 class M3_CAMERAS_OT_remove(bpy.types.Operator):
-    bl_idname      = "m3.cameras_remove"
-    bl_label       = "Remove Camera"
+    bl_idname = "m3.cameras_remove"
+    bl_label = "Remove Camera"
     bl_description = "Removes the active M3 camera"
     bl_options = {"UNDO"}
 
@@ -4925,8 +4986,8 @@ class M3_CAMERAS_OT_duplicate(bpy.types.Operator):
 
 
 class M3_PARTICLE_SYSTEMS_OT_create_spawn_points_from_mesh(bpy.types.Operator):
-    bl_idname      = "m3.create_spawn_points_from_mesh"
-    bl_label       = "Create Spawn Points From Mesh"
+    bl_idname = "m3.create_spawn_points_from_mesh"
+    bl_label = "Create Spawn Points From Mesh"
     bl_description = "Uses the vertices of the current mesh as spawn points for particles"
     bl_options = {"UNDO"}
 
@@ -4951,8 +5012,8 @@ class M3_PARTICLE_SYSTEMS_OT_create_spawn_points_from_mesh(bpy.types.Operator):
 
 
 class M3_PARTICLE_SYSTEMS_OT_add(bpy.types.Operator):
-    bl_idname      = "m3.particle_systems_add"
-    bl_label       = "Add Particle System"
+    bl_idname = "m3.particle_systems_add"
+    bl_label = "Add Particle System"
     bl_description = "Adds a particle system for the export to the m3 model format"
     bl_options = {"UNDO"}
 
@@ -4975,8 +5036,8 @@ class M3_PARTICLE_SYSTEMS_OT_add(bpy.types.Operator):
 
 
 class M3_PARTICLE_SYSTEMS_OT_remove(bpy.types.Operator):
-    bl_idname      = "m3.particle_systems_remove"
-    bl_label       = "Remove Particle System"
+    bl_idname = "m3.particle_systems_remove"
+    bl_label = "Remove Particle System"
     bl_description = "Removes the active M3 particle system"
     bl_options = {"UNDO"}
 
@@ -5045,8 +5106,8 @@ class M3_PARTICLE_SYSTEMS_OT_duplicate(bpy.types.Operator):
 
 
 class M3_PARTICLE_SYSTEM_COPIES_OT_add(bpy.types.Operator):
-    bl_idname      = "m3.particle_system_copies_add"
-    bl_label       = "Add Particle System Copy"
+    bl_idname = "m3.particle_system_copies_add"
+    bl_label = "Add Particle System Copy"
     bl_description = "Adds a particle system copy for the export to the m3 model format"
     bl_options = {"UNDO"}
 
@@ -5072,8 +5133,8 @@ class M3_PARTICLE_SYSTEM_COPIES_OT_add(bpy.types.Operator):
 
 
 class M3_PARTICLE_SYSTEMS_COPIES_OT_remove(bpy.types.Operator):
-    bl_idname      = "m3.particle_system_copies_remove"
-    bl_label       = "Remove Particle System Copy"
+    bl_idname = "m3.particle_system_copies_remove"
+    bl_label = "Remove Particle System Copy"
     bl_description = "Removes the active copy from the M3 particle system"
     bl_options = {"UNDO"}
 
@@ -5124,8 +5185,8 @@ class M3_PARTICLE_SYSTEMS_COPIES_OT_move(bpy.types.Operator):
 
 
 class M3_RIBBONS_OT_add(bpy.types.Operator):
-    bl_idname      = "m3.ribbons_add"
-    bl_label       = "Add Ribbon"
+    bl_idname = "m3.ribbons_add"
+    bl_label = "Add Ribbon"
     bl_description = "Adds a ribbon for the export to the m3 model format"
     bl_options = {"UNDO"}
 
@@ -5142,8 +5203,8 @@ class M3_RIBBONS_OT_add(bpy.types.Operator):
 
 
 class M3_RIBBONS_OT_remove(bpy.types.Operator):
-    bl_idname      = "m3.ribbons_remove"
-    bl_label       = "Remove Ribbon"
+    bl_idname = "m3.ribbons_remove"
+    bl_label = "Remove Ribbon"
     bl_description = "Removes the active M3 ribbon"
     bl_options = {"UNDO"}
 
@@ -5204,10 +5265,10 @@ class M3_RIBBONS_OT_duplicate(bpy.types.Operator):
 
 
 class M3_RIBBON_END_POINTS_OT_add(bpy.types.Operator):
-    bl_idname      = "m3.ribbon_end_points_add"
-    bl_label       = "Add Ribbon End Point"
+    bl_idname = "m3.ribbon_end_points_add"
+    bl_label = "Add Ribbon End Point"
     bl_description = "Adds an end point to the current ribbon"
-    bl_options     = {"UNDO"}
+    bl_options = {"UNDO"}
 
     def invoke(self, context, event):
         scene = context.scene
@@ -5221,8 +5282,8 @@ class M3_RIBBON_END_POINTS_OT_add(bpy.types.Operator):
 
 
 class M3_RIBBON_END_POINTS_OT_remove(bpy.types.Operator):
-    bl_idname      = "m3.ribbon_end_points_remove"
-    bl_label       = "Remove RibbonEnd Point"
+    bl_idname = "m3.ribbon_end_points_remove"
+    bl_label = "Remove RibbonEnd Point"
     bl_description = "Removes the active ribbon end point"
     bl_options = {"UNDO"}
 
@@ -5264,10 +5325,10 @@ class M3_RIBBON_END_POINTS_OT_move(bpy.types.Operator):
 
 
 class M3_FORCES_OT_add(bpy.types.Operator):
-    bl_idname      = "m3.forces_add"
-    bl_label       = "Add Force"
+    bl_idname = "m3.forces_add"
+    bl_label = "Add Force"
     bl_description = "Adds a particle system force for the export to the m3 model format"
-    bl_options     = {"UNDO"}
+    bl_options = {"UNDO"}
 
     def invoke(self, context, event):
         scene = context.scene
@@ -5280,10 +5341,10 @@ class M3_FORCES_OT_add(bpy.types.Operator):
 
 
 class M3_FORCES_OT_remove(bpy.types.Operator):
-    bl_idname      = "m3.forces_remove"
-    bl_label       = "Remove M3 Force"
+    bl_idname = "m3.forces_remove"
+    bl_label = "Remove M3 Force"
     bl_description = "Removes the active M3 particle system force"
-    bl_options     = {"UNDO"}
+    bl_options = {"UNDO"}
 
     def invoke(self, context, event):
         scene = context.scene
@@ -5338,10 +5399,10 @@ class M3_FORCES_OT_duplicate(bpy.types.Operator):
 
 
 class M3_RIGID_BODIES_OT_add(bpy.types.Operator):
-    bl_idname      = "m3.rigid_bodies_add"
-    bl_label       = "Add Rigid Body"
+    bl_idname = "m3.rigid_bodies_add"
+    bl_label = "Add Rigid Body"
     bl_description = "Adds a rigid body for export to the m3 model format"
-    bl_options     = {"UNDO"}
+    bl_options = {"UNDO"}
 
     def invoke(self, context, event):
         scene = context.scene
@@ -5422,8 +5483,8 @@ class M3_RIGID_BODIES_OT_duplicate(bpy.types.Operator):
 
 
 class M3_PHYSICS_SHAPES_OT_add(bpy.types.Operator):
-    bl_idname      = "m3.physics_shapes_add"
-    bl_label       = "Add Physics Shape"
+    bl_idname = "m3.physics_shapes_add"
+    bl_label = "Add Physics Shape"
     bl_description = "Adds an M3 physics shape to the active M3 rigid body"
     bl_options = {"UNDO"}
 
@@ -5486,8 +5547,8 @@ class M3_PHYSICS_SHAPES_OT_move(bpy.types.Operator):
 
 
 class M3_LIGHTS_OT_add(bpy.types.Operator):
-    bl_idname      = "m3.lights_add"
-    bl_label       = "Add Light"
+    bl_idname = "m3.lights_add"
+    bl_label = "Add Light"
     bl_description = "Adds a light for the export to the m3 model format"
     bl_options = {"UNDO"}
 
@@ -5503,8 +5564,8 @@ class M3_LIGHTS_OT_add(bpy.types.Operator):
 
 
 class M3_LIGHTS_OT_remove(bpy.types.Operator):
-    bl_idname      = "m3.lights_remove"
-    bl_label       = "Remove M3 Light"
+    bl_idname = "m3.lights_remove"
+    bl_label = "Remove M3 Light"
     bl_description = "Removes the active M3 light"
     bl_options = {"UNDO"}
 
@@ -5559,8 +5620,8 @@ class M3_LIGHTS_OT_duplicate(bpy.types.Operator):
 
 
 class M3_BILLBOARD_BEHAVIORS_OT_add(bpy.types.Operator):
-    bl_idname      = "m3.billboard_behaviors_add"
-    bl_label       = "Add Billboard Behavior"
+    bl_idname = "m3.billboard_behaviors_add"
+    bl_label = "Add Billboard Behavior"
     bl_description = "Adds a billboard behavior"
     bl_options = {"UNDO"}
 
@@ -5577,8 +5638,8 @@ class M3_BILLBOARD_BEHAVIORS_OT_add(bpy.types.Operator):
 
 
 class M3_BILLBOARD_BEHAVIORS_OT_remove(bpy.types.Operator):
-    bl_idname      = "m3.billboard_behaviors_remove"
-    bl_label       = "Remove M3 Billboard Behavior"
+    bl_idname = "m3.billboard_behaviors_remove"
+    bl_label = "Remove M3 Billboard Behavior"
     bl_description = "Removes the active M3 billboard behavior"
     bl_options = {"UNDO"}
 
@@ -5614,8 +5675,8 @@ class M3_BILLBOARD_BEHAVIORS_OT_move(bpy.types.Operator):
 
 
 class M3_INVERSE_KINEMATIC_CHAINS_OT_add(bpy.types.Operator):
-    bl_idname      = "m3.ik_chains_add"
-    bl_label       = "Add M3 Inverse Kinematic Chain"
+    bl_idname = "m3.ik_chains_add"
+    bl_label = "Add M3 Inverse Kinematic Chain"
     bl_description = "Adds an M3 inverse kinematic chain"
     bl_options = {"UNDO"}
 
@@ -5632,8 +5693,8 @@ class M3_INVERSE_KINEMATIC_CHAINS_OT_add(bpy.types.Operator):
 
 
 class M3_INVERSE_KINEMATIC_CHAINS_OT_remove(bpy.types.Operator):
-    bl_idname      = "m3.ik_chains_remove"
-    bl_label       = "Remove M3 Inverse Kinematic Chain"
+    bl_idname = "m3.ik_chains_remove"
+    bl_label = "Remove M3 Inverse Kinematic Chain"
     bl_description = "Removes the active M3 inverse kinematic chain"
     bl_options = {"UNDO"}
 
@@ -5669,8 +5730,8 @@ class M3_INVERSE_KINEMATIC_CHAINS_OT_move(bpy.types.Operator):
 
 
 class M3_TURRET_BEHAVIORS_OT_add(bpy.types.Operator):
-    bl_idname      = "m3.turret_behaviors_add"
-    bl_label       = "Add M3 Turret Behavior"
+    bl_idname = "m3.turret_behaviors_add"
+    bl_label = "Add M3 Turret Behavior"
     bl_description = "Adds an M3 turret behavior"
     bl_options = {"UNDO"}
 
@@ -5687,8 +5748,8 @@ class M3_TURRET_BEHAVIORS_OT_add(bpy.types.Operator):
 
 
 class M3_TURRET_BEHAVIORS_OT_remove(bpy.types.Operator):
-    bl_idname      = "m3.turret_behaviors_remove"
-    bl_label       = "Remove M3 Turret Behavior"
+    bl_idname = "m3.turret_behaviors_remove"
+    bl_label = "Remove M3 Turret Behavior"
     bl_description = "Removes the active M3 turret behavior"
     bl_options = {"UNDO"}
 
@@ -5724,8 +5785,8 @@ class M3_TURRET_BEHAVIORS_OT_move(bpy.types.Operator):
 
 
 class M3_TURRET_BEHAVIOR_PARTS_OT_add(bpy.types.Operator):
-    bl_idname      = "m3.turret_behavior_parts_add"
-    bl_label       = "Add M3 Turret Behavior Part"
+    bl_idname = "m3.turret_behavior_parts_add"
+    bl_label = "Add M3 Turret Behavior Part"
     bl_description = "Adds an M3 turret behavior part"
     bl_options = {"UNDO"}
 
@@ -5743,8 +5804,8 @@ class M3_TURRET_BEHAVIOR_PARTS_OT_add(bpy.types.Operator):
 
 
 class M3_TURRET_BEHAVIOR_PARTS_OT_remove(bpy.types.Operator):
-    bl_idname      = "m3.turret_behavior_parts_remove"
-    bl_label       = "Remove M3 Turret Behavior"
+    bl_idname = "m3.turret_behavior_parts_remove"
+    bl_label = "Remove M3 Turret Behavior"
     bl_description = "Removes the active M3 turret behavior"
     bl_options = {"UNDO"}
 
@@ -5782,8 +5843,8 @@ class M3_TURRET_BEHAVIOR_PARTS_OT_move(bpy.types.Operator):
 
 
 class M3_WARPS_OT_add(bpy.types.Operator):
-    bl_idname      = "m3.warps_add"
-    bl_label       = "Add Warp Field"
+    bl_idname = "m3.warps_add"
+    bl_label = "Add Warp Field"
     bl_description = "Adds a warp field for the export to the m3 model format"
     bl_options = {"UNDO"}
 
@@ -5799,8 +5860,8 @@ class M3_WARPS_OT_add(bpy.types.Operator):
 
 
 class M3_WARPS_OT_remove(bpy.types.Operator):
-    bl_idname      = "m3.warps_remove"
-    bl_label       = "Remove M3 Warp Field"
+    bl_idname = "m3.warps_remove"
+    bl_label = "Remove M3 Warp Field"
     bl_description = "Removes the active M3 warp field"
     bl_options = {"UNDO"}
 
@@ -5856,8 +5917,8 @@ class M3_WARPS_OT_duplicate(bpy.types.Operator):
 
 
 class M3_TIGHT_HIT_TESTS_OT_selectorcreatebone(bpy.types.Operator):
-    bl_idname      = "m3.tight_hit_test_select_or_create_bone"
-    bl_label       = "Select or create the HitTestFuzzy bone"
+    bl_idname = "m3.tight_hit_test_select_or_create_bone"
+    bl_label = "Select or create the HitTestFuzzy bone"
     bl_description = "Adds a shape for the fuzzy hit test"
     bl_options = {"UNDO"}
 
@@ -5870,8 +5931,8 @@ class M3_TIGHT_HIT_TESTS_OT_selectorcreatebone(bpy.types.Operator):
 
 
 class M3_TIGHT_HIT_TESTS_OT_hittestremove(bpy.types.Operator):
-    bl_idname      = "m3.tight_hit_test_remove"
-    bl_label       = "Select or create the HitTestFuzzy bone"
+    bl_idname = "m3.tight_hit_test_remove"
+    bl_label = "Select or create the HitTestFuzzy bone"
     bl_description = "Adds a shape for the fuzzy hit test"
     bl_options = {"UNDO"}
 
@@ -5887,8 +5948,8 @@ class M3_TIGHT_HIT_TESTS_OT_hittestremove(bpy.types.Operator):
 
 
 class M3_FUZZY_HIT_TESTS_OT_add(bpy.types.Operator):
-    bl_idname      = "m3.fuzzy_hit_tests_add"
-    bl_label       = "Add Fuzzy Hit Test Shape"
+    bl_idname = "m3.fuzzy_hit_tests_add"
+    bl_label = "Add Fuzzy Hit Test Shape"
     bl_description = "Adds a shape for the fuzzy hit test"
     bl_options = {"UNDO"}
 
@@ -5907,20 +5968,20 @@ class M3_FUZZY_HIT_TESTS_OT_add(bpy.types.Operator):
             usedNames.add(m3_fuzzy_hit_test.boneName)
         unusedName = None
         bestName = "HitTestFuzzy"
-        if not bestName in usedNames:
+        if bestName not in usedNames:
             unusedName = bestName
         counter = 1
         while unusedName is None:
             suggestedName = bestName + ("%02d" % counter)
-            if not suggestedName in usedNames:
+            if suggestedName not in usedNames:
                 unusedName = suggestedName
             counter += 1
         return unusedName
 
 
 class M3_FUZZY_HIT_TESTS_OT_remove(bpy.types.Operator):
-    bl_idname      = "m3.fuzzy_hit_tests_remove"
-    bl_label       = "Remove Fuzzy Hit Test Shape"
+    bl_idname = "m3.fuzzy_hit_tests_remove"
+    bl_label = "Remove Fuzzy Hit Test Shape"
     bl_description = "Removes a fuzzy hit test shape"
     bl_options = {"UNDO"}
 
@@ -5957,10 +6018,10 @@ class M3_FUZZY_HIT_TESTS_OT_move(bpy.types.Operator):
 
 
 class M3_ATTACHMENT_POINTS_OT_add(bpy.types.Operator):
-    bl_idname      = "m3.attachment_points_add"
-    bl_label       = "Add Attachment Point"
+    bl_idname = "m3.attachment_points_add"
+    bl_label = "Add Attachment Point"
     bl_description = "Adds an attachment point for the export to Starcraft 2"
-    bl_options     = {"UNDO"}
+    bl_options = {"UNDO"}
 
     def invoke(self, context, event):
         scene = context.scene
@@ -5973,8 +6034,8 @@ class M3_ATTACHMENT_POINTS_OT_add(bpy.types.Operator):
 
 
 class M3_ATTACHMENT_POINTS_OT_remove(bpy.types.Operator):
-    bl_idname      = "m3.attachment_points_remove"
-    bl_label       = "Remove Attachment Point"
+    bl_idname = "m3.attachment_points_remove"
+    bl_label = "Remove Attachment Point"
     bl_description = "Removes the active M3 attachment point"
     bl_options = {"UNDO"}
 
@@ -6011,8 +6072,8 @@ class M3_ATTACHMENT_POINTS_OT_move(bpy.types.Operator):
 
 
 class M3_OT_generateBlenderMaterails(bpy.types.Operator):
-    bl_idname      = "m3.generate_blender_materials"
-    bl_label       = "M3 -> blender materials"
+    bl_idname = "m3.generate_blender_materials"
+    bl_label = "M3 -> blender materials"
     bl_description = "Generates blender materials based on the specified m3 materials and imports textures as necessary from the specified path"
 
     def invoke(self, context, event):
@@ -6043,16 +6104,16 @@ class M3_OT_conertBlenderToM3NormalMap(bpy.types.Operator):
             # Blender: R = (left/right), G = (up/down) , B = (height), A = (unused)
             # M3:      R = (unused)    , G = (down/up?),  B = (unused), A = (left/right)
 
-            if colorIndex == 0: # red color slot:
+            if colorIndex == 0:  # red color slot:
                 # unused
                 return 1.0
-            elif colorIndex == 1: # green color slot
+            elif colorIndex == 1:  # green color slot
                 # m3.G = blender.G
                 return 1.0 - values[absoluteIndex]
-            elif colorIndex == 2: # blue color slot
+            elif colorIndex == 2:  # blue color slot
                 # unused ?
                 return 0.0
-            if colorIndex == 3: # change alpha
+            if colorIndex == 3:  # change alpha
                 # m3.A = blender.R
                 # to get from index pixelOffset+0 to pixelOffset+3: add 3
                 return values[absoluteIndex - 3]
@@ -6083,21 +6144,21 @@ class M3_OT_conertM3ToBlenderNormalMap(bpy.types.Operator):
             # Blender: R = (left/right), G = (up/down) , B = (height), A = (unused)
             # M3:      R = (unused)    , G = (down/up?),  B = (unused), A = (left/right)
 
-            if colorIndex == 0: # red color slot:
+            if colorIndex == 0:  # red color slot:
                 # blender.R = m3.A
-                return values[absoluteIndex + 3] # old alpha
-            elif colorIndex == 1: # green color slot
+                return values[absoluteIndex + 3]  # old alpha
+            elif colorIndex == 1:  # green color slot
                 # blender.G = 1.0 - m3.G
                 return 1.0 - values[absoluteIndex]
-            elif colorIndex == 2: # blue color slot
-                newRed = values[absoluteIndex + 1] # (newRed = old alpha)
-                newGreen = 1.0 - values[absoluteIndex - 1] # 1.0 - old green
+            elif colorIndex == 2:  # blue color slot
+                newRed = values[absoluteIndex + 1]  # (newRed = old alpha)
+                newGreen = 1.0 - values[absoluteIndex - 1]  # 1.0 - old green
                 leftRight = 2 * (newRed - 0.5)
                 upDown = 2 * (newGreen - 0.5)
                 # since sqrt(lowHigh^2 + leftRight^2 + upDown^2) = 1.0 is
                 # newBlue = math.sqrt(1.0 - newRed*newRed - newGreen*newGreen)
                 return math.sqrt(max(0, 1 - leftRight * leftRight - upDown * upDown))
-            if colorIndex == 3: # change alpha
+            if colorIndex == 3:  # change alpha
                 # unused
                 return 1.0
 
@@ -6108,6 +6169,7 @@ class M3_OT_conertM3ToBlenderNormalMap(bpy.types.Operator):
 
 def getSignGroup(bm):
     return bm.faces.layers.int.get("m3sign") or bm.faces.layers.int.new("m3sign")
+
 
 class ObjectSignPanel(bpy.types.Panel):
     bl_idname = "OBJECT_PT_M3_sign"
@@ -6448,8 +6510,10 @@ classes = (
     M3_OT_conertM3ToBlenderNormalMap,
 )
 
+
 def register():
-    for cls in classes: bpy.utils.register_class(cls)
+    for cls in classes:
+        bpy.utils.register_class(cls)
     bpy.types.Scene.m3_animation_index = bpy.props.IntProperty(update=handleAnimationSequenceIndexChange, default=-1)
     bpy.types.Scene.m3_animations = bpy.props.CollectionProperty(type=M3Animation)
     bpy.types.Scene.m3_material_layer_index = bpy.props.IntProperty()
@@ -6508,7 +6572,8 @@ def register():
 
 
 def unregister():
-    for cls in reversed(classes): bpy.utils.unregister_class(cls)
+    for cls in reversed(classes):
+        bpy.utils.unregister_class(cls)
     bpy.types.TOPBAR_MT_file_import.remove(menu_func_import)
     bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)
     bpy.types.IMAGE_MT_image.remove(menu_func_convertNormalMaps)

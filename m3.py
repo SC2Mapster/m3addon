@@ -26,6 +26,7 @@ from sys import stderr
 import struct
 import copy
 
+
 def increaseToValidSectionSize(size):
     blockSize = 16
     incompleteBlockBytes = (size % blockSize)
@@ -34,6 +35,7 @@ def increaseToValidSectionSize(size):
         return size + missingBytesToCompleteBlock
     else:
         return size
+
 
 class Section:
     """Has fields indexEntry and structureDescription and sometimes also the fields rawBytes and content """
@@ -83,6 +85,7 @@ primitiveFieldTypeFormats = {"uint32": "I", "int32": "i", "uint16": "H", "int16"
 intTypes = {"uint32", "int32", "uint16", "int16", "uint8", "int8"}
 
 structureNamesOfPrimitiveTypes = set(["CHAR", "U8__", "REAL", "I16_", "U16_", "I32_", "U32_", "FLAG"])
+
 
 class M3StructureHistory:
     "Describes the history of a structure with a specific name"
@@ -150,7 +153,7 @@ class M3StructureHistory:
 
     def createEmptyArray(self):
         if self.name == "CHAR":
-            return None # even no terminating character
+            return None  # even no terminating character
         elif self.name == "U8__":
             return bytearray(0)
         else:
@@ -158,6 +161,7 @@ class M3StructureHistory:
 
         def __str__():
             return self.name
+
 
 class M3StructureDescription:
 
@@ -222,8 +226,8 @@ class M3StructureDescription:
         if self.structureName == "CHAR":
             if instances is None:
                 return 0
-            return len(instances) + 1 # +1 terminating null character
-        elif hasattr(instances, "__len__"):# either a list or an array of bytes
+            return len(instances) + 1  # +1 terminating null character
+        elif hasattr(instances, "__len__"):  # either a list or an array of bytes
             return len(instances)
         else:
             raise Exception("Can't measure the length of %s which is a %s" % (instances, self.structureName))
@@ -266,7 +270,7 @@ class M3StructureDescription:
 
     def countBytesRequiredForInstances(self, instances):
         if self.structureName == "CHAR":
-            return len(instances) + 1 # +1 for terminating character
+            return len(instances) + 1  # +1 for terminating character
         return self.size * self.countInstances(instances)
 
 
@@ -369,6 +373,7 @@ class TagField(Field):
         if (type(fieldContent) != str) or (len(fieldContent) != 4):
             raise Exception("%s is not a string with 4 characters" % (fieldPath))
 
+
 class ReferenceField(Field):
     def __init__(self, name, referenceStructureDescription, historyOfReferencedStructures, sinceVersion, tillVersion):
         Field.__init__(self, name, sinceVersion, tillVersion)
@@ -458,6 +463,7 @@ class ReferenceField(Field):
 
     # The method validateContent is defined in subclasses
 
+
 class CharReferenceField(ReferenceField):
 
     def __init__(self, name, referenceStructureDescription, historyOfReferencedStructures, sinceVersion, tillVersion):
@@ -484,7 +490,7 @@ class RealReferenceField(ReferenceField):
         ReferenceField.__init__(self, name, referenceStructureDescription, historyOfReferencedStructures, sinceVersion, tillVersion)
 
     def validateContent(self, fieldContent, fieldPath):
-        if (type(fieldContent) != list):\
+        if (type(fieldContent) != list):
             raise Exception("%s is not a list of float" % (fieldPath))
         for itemIndex, item in enumerate(fieldContent):
             if type(item) != float:
@@ -509,7 +515,7 @@ class IntReferenceField(ReferenceField):
             if type(item) != int:
                 raise Exception("%s is not an integer" % (itemPath))
             if (item < self.minValue) or (item > self.maxValue):
-                raise Exception("%s has value %d which is not in range [%s, %s]"  % (itemPath, item, self.minValue, self.maxValue))
+                raise Exception("%s has value %d which is not in range [%s, %s]" % (itemPath, item, self.minValue, self.maxValue))
 
 
 class StructureReferenceField(ReferenceField):
@@ -527,6 +533,7 @@ class StructureReferenceField(ReferenceField):
             for itemIndex, item in enumerate(fieldContent):
                 structureDescription.validateInstance(item, "%s[%d]" % (fieldPath, itemIndex))
 
+
 class UnknownReferenceField(ReferenceField):
 
     def __init__(self, name, referenceStructureDescription, historyOfReferencedStructures, sinceVersion, tillVersion):
@@ -535,6 +542,7 @@ class UnknownReferenceField(ReferenceField):
     def validateContent(self, fieldContent, fieldPath):
         if (type(fieldContent) != list) or (len(fieldContent) != 0):
             raise Exception("%s is not an empty list" % (fieldPath))
+
 
 class EmbeddedStructureField(Field):
 
@@ -598,6 +606,7 @@ class PrimitiveField(Field):
     def setToDefault(self, owner):
         setattr(owner, self.name, self.defaultValue)
 
+
 class IntField(PrimitiveField):
     intTypeToMinValue = {"int16": (-(1 << 15)), "uint16": 0, "int32": (-(1 << 31)), "uint32": 0, "int8": -(1 << 7), "uint8": 0}
     intTypeToMaxValue = {"int16": ((1 << 15) - 1), "uint16": ((1 << 16) - 1), "int32": ((1 << 31) - 1), "uint32": ((1 << 32) - 1), "int8": ((1 << 7) - 1), "uint8": ((1 << 8) - 1)}
@@ -612,7 +621,7 @@ class IntField(PrimitiveField):
         if (type(fieldContent) != int):
             raise Exception("%s is not an int but a %s!" % (fieldPath, type(fieldContent)))
         if (fieldContent < self.minValue) or (fieldContent > self.maxValue):
-            raise Exception("%s has value %d which is not in range [%d, %d]"  % (fieldPath, fieldContent, self.minValue, self.maxValue))
+            raise Exception("%s has value %d which is not in range [%d, %d]" % (fieldPath, fieldContent, self.minValue, self.maxValue))
 
     def getNamedBit(self, owner, bitName):
         mask = self.bitMaskMap[bitName]
@@ -631,6 +640,7 @@ class IntField(PrimitiveField):
     def getBitNameMaskPairs(self):
         return self.bitMaskMap.items()
 
+
 class FloatField(PrimitiveField):
 
     def __init__(self, name, typeString, sinceVersion, tillVersion, defaultValue, expectedValue):
@@ -639,6 +649,7 @@ class FloatField(PrimitiveField):
     def validateContent(self, fieldContent, fieldPath):
         if (type(fieldContent) != float):
             raise Exception("%s is not a float but a %s!" % (fieldPath, type(fieldContent)))
+
 
 class Fixed8Field(PrimitiveField):
 
@@ -718,6 +729,7 @@ class Visitor:
 
     def visitEnd(self, generalDataMap):
         pass
+
 
 class StructureAttributesReader(Visitor):
     def visitClassStart(self, generalDataMap, classDataMap):
@@ -834,6 +846,7 @@ class BitAttributesReader(Visitor):
             fieldName = fieldDataMap["fieldName"]
             raise Exception("There is bit xml node in field %(fieldName)s of structure %(structureName)s without a mask attribute" % {"fieldName": fieldName, "structureName": structureName})
 
+
 class ExpectedAndDefaultConstantsDeterminer(Visitor):
     def parseHex(self, hexString):
         hexString = hexString[2:]
@@ -887,7 +900,7 @@ class ExpectedAndDefaultConstantsDeterminer(Visitor):
             defaultValue = None
             if expectedValueString is not None:
                 if not expectedValueString.startswith("0x"):
-                    hexString = None # * ???
+                    hexString = None  # * ???
                     raise Exception('The expected-value "%s" of field %s does not start with 0x' % (hexString, variableName))
                 expectedValue = self.parseHex(expectedValueString)
                 defaultValue = expectedValue
@@ -902,6 +915,7 @@ class ExpectedAndDefaultConstantsDeterminer(Visitor):
 
         fieldDataMap["expectedValue"] = expectedValue
         fieldDataMap["defaultValue"] = defaultValue
+
 
 class BitMaskMapDeterminer(Visitor):
     def visitFieldStart(self, generalDataMap, classDataMap, fieldDataMap):
@@ -969,7 +983,7 @@ class FieldListCreator(Visitor):
                     field = ByteReferenceField(fieldName, referenceStructureDescription, historyOfReferencedStructures, sinceVersion, tillVersion)
                 elif refTo == "REAL":
                     field = RealReferenceField(fieldName, referenceStructureDescription, historyOfReferencedStructures, sinceVersion, tillVersion)
-                elif refTo in  ["I16_", "U16_", "I32_", "U32_", "FLAG"]:
+                elif refTo in ["I16_", "U16_", "I32_", "U32_", "FLAG"]:
                     field = IntReferenceField(fieldName, referenceStructureDescription, historyOfReferencedStructures, sinceVersion, tillVersion)
                 else:
                     field = StructureReferenceField(fieldName, referenceStructureDescription, historyOfReferencedStructures, sinceVersion, tillVersion)
@@ -980,6 +994,7 @@ class FieldListCreator(Visitor):
                 fieldStructureDescription = fieldStructureHistory.getVersion(fieldStructureVersion)
                 field = EmbeddedStructureField(fieldName, fieldStructureDescription, sinceVersion, tillVersion)
         fields.append(field)
+
 
 class StructureHistoryListCreator(Visitor):
     def visitStart(self, generalDataMap):
@@ -1057,6 +1072,7 @@ def visitStructresDomWith(structuresDom, visitors, generalDataMap):
     for visitor in visitors:
         visitor.visitEnd(generalDataMap)
 
+
 def readStructureDefinitions(structuresXmlFile):
     doc = xml.dom.minidom.parse(structuresXmlFile)
     generalDataMap = {}
@@ -1091,6 +1107,7 @@ def resolveAllReferences(list, sections):
         if type(sublist) == ListType:
             for entry in sublist:
                 entry.resolveReferences(sections)
+
 
 def loadSections(filename, checkExpectedValue=True):
     source = open(filename, "rb")
@@ -1156,9 +1173,11 @@ def loadSections(filename, checkExpectedValue=True):
         source.close()
     return sections
 
+
 def resolveReferencesOfSections(sections):
     for section in sections:
         section.resolveReferences(sections)
+
 
 def checkThatAllSectionsGotReferenced(sections):
     numberOfUnreferencedSections = 0
@@ -1194,6 +1213,7 @@ def checkThatAllSectionsGotReferenced(sections):
     if numberOfUnreferencedSections > 0:
         raise Exception("Unable to load all data: There were %d unreferenced sections. View log for details" % numberOfUnreferencedSections)
 
+
 def loadModel(filename, checkExpectedValue=True):
     sections = loadSections(filename, checkExpectedValue)
     resolveReferencesOfSections(sections)
@@ -1203,6 +1223,7 @@ def loadModel(filename, checkExpectedValue=True):
     modelDescription = model.structureDescription
     modelDescription.validateInstance(model, "model")
     return model
+
 
 class IndexReferenceSourceAndSectionListMaker:
     """ Creates a list of sections which are needed to store the objects for which index references are requested"""
@@ -1264,6 +1285,7 @@ def modelToSections(model):
         section.determineFieldRawBytes()
     return sections
 
+
 def saveSections(sections, filename):
     fileObject = open(filename, "w+b")
     try:
@@ -1283,11 +1305,13 @@ def saveSections(sections, filename):
     finally:
         fileObject.close()
 
+
 def saveAndInvalidateModel(model, filename):
     '''Do not use the model object after calling this method since it gets modified'''
     model.structureDescription.validateInstance(model, "model")
     sections = modelToSections(model)
     saveSections(sections, filename)
+
 
 def readStructures():
     from os import path

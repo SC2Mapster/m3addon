@@ -23,6 +23,7 @@ from ..cm import M3ImportContentPreset
 from .. import m3export
 from .. import m3import
 
+
 class ExportPanel(bpy.types.Panel):
     bl_idname = "OBJECT_PT_M3_quickExport"
     bl_label = "M3 Quick Export"

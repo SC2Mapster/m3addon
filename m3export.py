@@ -34,9 +34,11 @@ import math
 actionTypeScene = "SCENE"
 actionTypeArmature = "OBJECT"
 
+
 class ExportErrorMODLVersionInsufficient(ExportError):
     def __init__(self, minVersion: int, cause: str = None):
         super().__init__(f'Unable to export in choosen version of m3 container, try version {minVersion} or higher. Reason: {cause}.')
+
 
 class Exporter:
     def __init__(self, scene: bpy.types.Scene, operator: bpy.types.Operator):
@@ -260,7 +262,7 @@ class Exporter:
         return self.getAnimIdForLongAnimId(longAnimId)
 
     def createUniqueAnimId(self):
-        self.generatedAnimIdCounter += 1 # increase first since we don't want to use 0 as animation id
+        self.generatedAnimIdCounter += 1  # increase first since we don't want to use 0 as animation id
         return self.generatedAnimIdCounter
 
     def initBones(self, model):
@@ -270,7 +272,7 @@ class Exporter:
         self.boneNameToM3SpaceDefaultScaleMap = {}
         self.boneNameToLeftCorrectionMatrix = {}
         self.boneNameToRightCorrectionMatrix = {}
-        self.boneNameToBoneIndexMap = {} # map: bone name to index in model bone list
+        self.boneNameToBoneIndexMap = {}  # map: bone name to index in model bone list
         boneNameToAbsInvRestPoseMatrix = {}
         self.boneIndexToAbsoluteInverseRestPoseMatrixFixedMap = {}
         self.armatureObjectNameToBoneNamesMap: Dict[str, bpy.types.Object] = {}
@@ -572,7 +574,7 @@ class Exporter:
                         oldChildReferenceIndex = materialNameToOldReferenceIndexMap.get(section.name)
                         if oldChildReferenceIndex is None:
                             raise ExportError("The composite material %s uses '%s' as material, but no m3 material with that name exist!" % (compositeMaterial.name, section.name))
-                        if not oldChildReferenceIndex in self.oldReferenceIndicesInCorrectedOrder:
+                        if oldChildReferenceIndex not in self.oldReferenceIndicesInCorrectedOrder:
                             canBeDefined = False
 
                 if canBeDefined:
@@ -591,7 +593,7 @@ class Exporter:
 
     def initMesh(self, model):
         nonEmptyMeshObjects: List[bpy.types.Object] = []
-        uvCoordinatesPerVertex = 1 # Never saw a m3 model with at least 1 UV layer
+        uvCoordinatesPerVertex = 1  # Never saw a m3 model with at least 1 UV layer
         for meshObject in shared.findMeshObjects(self.scene):
             mesh: bpy.types.Mesh = meshObject.data
             mesh.calc_loop_triangles()
@@ -625,7 +627,7 @@ class Exporter:
         alphaColorChannelName = "alpha"
 
         exportVertexRGBA = False
-        for meshObjectToCheck in  nonEmptyMeshObjects:
+        for meshObjectToCheck in nonEmptyMeshObjects:
             meshToCheck: bpy.types.Mesh = meshObjectToCheck.data
 
             for vertexColorLayer in meshToCheck.vertex_colors:
@@ -922,7 +924,7 @@ class Exporter:
         animHeader = self.createInstanceOf("AnimationReferenceHeader")
         animHeader.interpolationType = 0
         animHeader.animFlags = 0x0
-        animHeader.animId = self.boundingAnimId # boudings seem to have always this id
+        animHeader.animId = self.boundingAnimId  # boudings seem to have always this id
         boundingsAnimRef.header = animHeader
         self.initBoundingPointsOfExportedBonesList(model, m3Vertices)
         defaultBoundingsVector = self.calculateBoundingsVector(model, m3Vertices, self.boneIndexToDefaultAbsoluteMatrixMap)
@@ -1220,7 +1222,7 @@ class Exporter:
                 yield currentObject
 
     def frameToMS(self, frame):
-        frameRate = 30 # Export always with frame rate 30 so that there is no compability issue
+        frameRate = 30  # Export always with frame rate 30 so that there is no compability issue
         return round((frame / frameRate) * 1000.0)
 
     def prepareAnimationEndEvents(self):
@@ -1962,7 +1964,7 @@ class Exporter:
         # 2. New layers get added automatically that way
         layersAdded = False
         for layerName in orderedListOfLayerNames:
-            if not layerName in material.layers:
+            if layerName not in material.layers:
                 newLayer = material.layers.add()
                 newLayer.name = layerName
                 layersAdded = True
@@ -2198,7 +2200,7 @@ class Exporter:
         animHeader = self.createInstanceOf("AnimationReferenceHeader")
         animHeader.interpolationType = 0
         animHeader.animFlags = 0x0
-        animHeader.animId = self.boundingAnimId # boudings seem to have always this id
+        animHeader.animId = self.boundingAnimId  # boudings seem to have always this id
         boundingsAnimRef.header = animHeader
         boundingsAnimRef.initValue = self.createBoundings(minX, minY, minZ, maxX, maxY, maxZ, radius)
         boundingsAnimRef.nullValue = self.createBoundings(minX, minY, minZ, maxX, maxY, maxZ, radius)
@@ -2377,6 +2379,7 @@ class Exporter:
         else:
             return currentValue
 
+
 class BlenderToM3DataTransferer:
     def __init__(self, exporter, m3Object, blenderObject, animPathPrefix, rootObject):
         self.exporter = exporter
@@ -2537,7 +2540,7 @@ class BlenderToM3DataTransferer:
             zValues = self.exporter.getNoneOrValuesFor(action, animPath, 2, frames)
             if (xValues is not None) or (yValues is not None) or (zValues is not None):
                 if xValues is None:
-                    xValues = len(timeValuesInMS) * [currentBVector.x] # TODO should be defaultValueX
+                    xValues = len(timeValuesInMS) * [currentBVector.x]  # TODO should be defaultValueX
                 if yValues is None:
                     yValues = len(timeValuesInMS) * [currentBVector.y]
                 if zValues is None:

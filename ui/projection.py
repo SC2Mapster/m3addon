@@ -20,11 +20,8 @@ import bpy
 from .. import cm
 from .. import shared
 
-def findUnusedProjectionName(scene, **kwargs):
-    prefix = kwargs.get("prefix")
-    if prefix is None:
-        prefix = ""
 
+def findUnusedProjectionName(scene, prefix=''):
     usedNames = list()
     for projection in scene.m3_projections:
         usedNames.append(projection.boneName)

@@ -30,6 +30,7 @@ import traceback
 import re
 from xml.sax.saxutils import escape
 
+
 def byteDataToHex(byteData):
     return '0x' + ''.join(["%02x" % x for x in byteData])
 
@@ -37,11 +38,14 @@ def byteDataToHex(byteData):
 def indent(level):
     return "\t" * level
 
+
 def openTag(name):
     return "<%s>" % name
 
+
 def closeTag(name):
     return "</%s>\n" % name
+
 
 def openCloseTag(name):
     return "<%s />\n" % name
@@ -49,6 +53,7 @@ def openCloseTag(name):
 
 def printXmlElement(out, level, name, value):
     out.write(indent(level) + openTag(name) + value + closeTag(name))
+
 
 def printObject(out, level, name, value):
     valueType = type(value)
@@ -105,6 +110,7 @@ def printObject(out, level, name, value):
         printXmlElement(out, level, name, str(value))
         return
 
+
 def printModel(model, outputFilePath):
     outputStream = io.StringIO()
 
@@ -140,6 +146,7 @@ def convertFile(inputFilePath, outputFilePath, continueAtErrors):
     printModel(model, outputFilePath)
     return True
 
+
 def processFile(inputPath, outputDirectory, inputFilePath, continueAtErrors):
     relativeInputPath = os.path.relpath(inputFilePath, inputPath)
     relativeOutputPath = relativeInputPath + ".xml"
@@ -154,6 +161,7 @@ def processFile(inputPath, outputDirectory, inputFilePath, continueAtErrors):
     print("%s -> %s" % (inputFilePath, outputFilePath))
 
     return convertFile(inputFilePath, outputFilePath, continueAtErrors)
+
 
 def processDirectory(inputPath, outputPath, recurse, continueAtErrors):
 
@@ -180,13 +188,16 @@ def processDirectory(inputPath, outputPath, recurse, continueAtErrors):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Convert Starcraft II m3 models to xml format.')
     parser.add_argument('path', nargs='+', help="Either a *.m3 file or a directory with *.m3 files")
-    parser.add_argument('--output-directory',
+    parser.add_argument(
+        '--output-directory',
         '-o',
         help='Directory in which m3 files will be placed')
-    parser.add_argument('-r', '--recurse',
+    parser.add_argument(
+        '-r', '--recurse',
         action='store_true', default=False,
         help='Recurse input directory and convert all m3 files found.')
-    parser.add_argument('-c', '--continue-at-errors',
+    parser.add_argument(
+        '-c', '--continue-at-errors',
         action='store_true', default=False,
         help='Continue if there are errors in the files')
     args = parser.parse_args()

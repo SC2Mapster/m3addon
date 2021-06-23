@@ -77,7 +77,8 @@ def selectOrCreateBoneForProjection(scene, projection):
 
 
 def handleProjectionSizeChange(self, context):
-    if not self.bl_update: return
+    if not self.bl_update:
+        return
 
     scene = context.scene
     if self.updateBlenderBone:
@@ -93,7 +94,8 @@ def handleProjectionIndexChanged(self: bpy.types.Scene, context: bpy.types.Conte
 
 
 def onUpdateName(self, context):
-    if not self.bl_update: return
+    if not self.bl_update:
+        return
 
     scene = context.scene
 

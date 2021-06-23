@@ -149,7 +149,7 @@ class M3ImportContent(bpy.types.PropertyGroup):
 
 
 def handleContentPresetChange(options, context: bpy.types.Context):
-    options = options # type: M3ImportOptions
+    options = options  # type: M3ImportOptions
     content: M3ImportContent = options.content
     # content.mesh = True
 

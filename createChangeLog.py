@@ -27,6 +27,7 @@ import time
 
 modelFileName = sys.argv[1]
 
+
 class ChangeLogCreator:
 
     def __init__(self, modelFileName, logFileName):
