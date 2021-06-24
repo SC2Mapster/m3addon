@@ -899,21 +899,20 @@
     <structure name="EVNT">
         <description>An animation sequence event</description>
         <versions>
-            <version number="0" size="96" />
+            <version number="0" size="100" />
             <version number="1" size="104" />
             <version number="2" size="108" />
         </versions>
         <fields>
             <field name="name" type="Reference" refTo="CHAR" />
             <field name="unknown76ff2940" type="int32" expected-value="-1" />
-            <field name="unknown97b2ea12" type="int16" default-value="-1" />
+            <field name="boneIndex" type="uint16" />
             <field name="unknown294cc515" type="uint16" expected-value="0" />
             <field name="matrix" type="Matrix44" />
-            <field name="unknown7275bfa0" type="uint32" default-value="4" />
-            <field name="unknown2a403b40" type="Reference" refTo="CHAR" since-version="1"/>
-            <field name="unknowna20de85" type="uint32" till-version="0" expected-value="0" />
-            <field name="unknown76cf1db0" type="uint32" expected-value="0" />
-            <field name="unknowne5f1b2a7" type="uint32" expected-value="0" since-version="2"/>
+            <field name="unknown7275bfa0" type="uint32" default-value="4" /> <!-- some kind of type (enum) ? -->
+            <field name="payload" type="Reference" refTo="CHAR" />
+            <field name="unknown76cf1db0" type="uint32" expected-value="0" since-version="1" />
+            <field name="unknowne5f1b2a7" type="uint32" expected-value="0" since-version="2" />
         </fields>
     </structure>
 
@@ -1063,7 +1062,7 @@
 
 
 
-    <structure name="BONE" version="1" size="160" >
+    <structure name="BONE">
         <description>A bone</description>
         <versions>
             <version number="1" size="160" />
@@ -1094,7 +1093,7 @@
         </fields>
     </structure>
 
-    <structure name="STC_" version="4" size="204">
+    <structure name="STC_">
         <description>Sequence Transformations Collection of a Sub Animation
             animId: array of animation ids
             animref: array of integers is actually an array of short pairs:
@@ -1165,7 +1164,7 @@
         </fields>
     </structure>
 
-    <structure name="STG_" version="0" size="24">
+    <structure name="STG_">
         <description>
             Seqeuence Transformation Group which can contain multiple STCs
             referenced by index as they are listed in the model.
@@ -1179,7 +1178,7 @@
         </fields>
     </structure>
 
-    <structure name="STS_" version="0" size="28">
+    <structure name="STS_">
         <description></description>
         <versions>
             <version number="0" size="28" />
@@ -1194,7 +1193,7 @@
         </fields>
     </structure>
 
-    <structure name="IREF" version="0" size="64">
+    <structure name="IREF">
         <description>Just a 4x4 matrix</description>
         <versions>
             <version number="0" size="64" />
@@ -1332,15 +1331,17 @@
     <structure name="PATU">
         <description>Part of Turret</description>
         <versions>
+            <version number="1" size="100" />
             <version number="4" size="152" />
         </versions>
         <fields>
-            <field name="forwardX" type="VEC4V0"/>
-            <field name="forwardY" type="VEC4V0"/>
-            <field name="forwardZ" type="VEC4V0"/>
-            <field name="upX" type="VEC4V0"/>
-            <field name="upY" type="VEC4V0"/>
-            <field name="upZ" type="VEC4V0"/>
+            <field name="matrix" type="Matrix44" till-version="1" />
+            <field name="forwardX" type="VEC4V0" since-version="4" />
+            <field name="forwardY" type="VEC4V0" since-version="4" />
+            <field name="forwardZ" type="VEC4V0" since-version="4" />
+            <field name="upX" type="VEC4V0" since-version="4" />
+            <field name="upY" type="VEC4V0" since-version="4" />
+            <field name="upZ" type="VEC4V0" since-version="4" />
             <field name="boneIndex" type="uint16" />
             <field name="flags" type="uint8" default-value="0x0">
                 <bits>
@@ -1355,7 +1356,7 @@
             </field>
             <field name="yawMin" type="float" default-value="0.0" />
             <field name="yawMax" type="float" default-value="0.0" />
-            <field name="yawWeight" type="float" default-value="0.0" />
+            <field name="yawWeight" type="float" default-value="0.0" since-version="4" />
             <field name="pitchFlags" type="uint32" default-value="0x2">
                 <bits>
                     <bit mask="0x2" name="pitchLimited"/>
@@ -1363,12 +1364,12 @@
             </field>
             <field name="pitchMin" type="float" default-value="0.0" />
             <field name="pitchMax" type="float" default-value="0.0" />
-            <field name="pitchWeight" type="float" default-value="0.0" />
+            <field name="pitchWeight" type="float" default-value="0.0" since-version="4" />
             <field name="unknownAt132" type="float" default-value="0.0" />
             <field name="unknownAt136" type="float" default-value="0.0" />
-            <field name="unknownAt140" type="float" default-value="0.0" />
-            <field name="unknownAt144" type="float" default-value="0.0" />
-            <field name="unknownAt148" type="float" default-value="0.0" />
+            <field name="unknownAt140" type="float" default-value="0.0" since-version="4" />
+            <field name="unknownAt144" type="float" default-value="0.0" since-version="4" />
+            <field name="unknownAt148" type="float" default-value="0.0" since-version="4" />
         </fields>
     </structure>
 
@@ -1411,9 +1412,11 @@
         </fields>
     </structure>
 
-    <structure name="LAYR" version="22" size="356" >
+    <structure name="LAYR">
         <description>Describes a layer of a material</description>
         <versions>
+            <version number="20" size="356" />
+            <version number="21" size="356" />
             <version number="22" size="356" />
             <version number="24" size="436" />
             <version number="25" size="468" />
@@ -1490,7 +1493,7 @@
         </fields>
     </structure>
 
-    <structure name="MAT_" version="15" size="268">
+    <structure name="MAT_">
         <description>Standard Material</description>
         <versions>
             <version number="15" size="268" />
@@ -1809,7 +1812,7 @@
         <versions>
             <version number="1" size="84" />
             <version number="2" size="156" />
-            <version number="3" size="160" /> <!-- requires MODLV30 -->
+            <version number="3" size="160" /> <!-- probably Storm exclusive? -->
         </versions>
         <fields>
             <field name="name" type="Reference" refTo="CHAR" />
@@ -1838,6 +1841,8 @@
     <structure name="PAR_">
         <description>Particle System</description>
         <versions>
+            <version number="10" size="1304" />
+            <version number="11" size="1308" />
             <version number="12" size="1316" />
             <version number="17" size="1460" />
             <version number="18" size="1464" />
@@ -1869,37 +1874,43 @@
             <field name="lifespan2" type="FloatAnimationReference" />
             <field till-version="12" name="randomizeWithLifespan2" type="uint32" />
             <field name="killSphere" type="float" default-value="0.0" />
-            <field name="unknownf21cc980" size="8" expected-value="0x0000000000000000" />
+            <field name="unknownf21cc980" size="4" expected-value="0x00000000" />
+            <field name="unknown54b2bb52" size="4" expected-value="0x00000000" />
             <field name="zAcceleration" type="float" />
-            <field name="sizeAnimationMiddle" type="float" default-value="0.5" />
-            <field name="colorAnimationMiddle" type="float" default-value="0.5" />
-            <field name="alphaAnimationMiddle" type="float" default-value="0.5" />
-            <field name="rotationAnimationMiddle" type="float" default-value="0.5" />
+            <field name="sizeAnimationMiddle" type="float" default-value="0.5" since-version="12" />
+            <field name="colorAnimationMiddle" type="float" default-value="0.5" since-version="12" />
+            <field name="alphaAnimationMiddle" type="float" default-value="0.5" since-version="12" />
+            <field name="rotationAnimationMiddle" type="float" default-value="0.5" since-version="12" />
             <field name="sizeHoldTime" type="float" default-value="0.0" since-version="17" /> <!-- was unknown82a208f7 -->
             <field name="colorHoldTime" type="float" default-value="0.0" since-version="17" /><!-- was unknown93aad73b -->
             <field name="alphaHoldTime" type="float" default-value="0.0" since-version="17" /><!-- was unknown74620ffe -->
             <field name="rotationHoldTime" type="float" default-value="0.0" since-version="17" /><!-- was unknown1525cb58 -->
-            <field name="particleSizes1" type="Vector3AnimationReferenceV0" />
-            <field name="rotationValues1" type="Vector3AnimationReferenceV0" />
+            <field name="unknown5289d695" size="80" since-version="10" till-version="11" /> <!-- 2 animated props ; similar to particleSizes1 and rotationValues1, but doesn't match in size -->
+            <field name="particleSizes1" type="Vector3AnimationReferenceV0" since-version="12" />
+            <field name="rotationValues1" type="Vector3AnimationReferenceV0" since-version="12" />
+            <!-- START - probably incorrect before v12 (although size of the block matches) -->
             <field name="initialColor1" type="ColorAnimationReference" />
             <field name="middleColor1" type="ColorAnimationReference" />
             <field name="finalColor1" type="ColorAnimationReference" />
+            <!-- END - probably incorrect before v12 (although size of the block matches) -->
             <field name="drag" type="float" />
-            <field name="mass" type="float" default-value="0.001" /> <!-- was unknownFloat2a -->
-            <field name="mass2" type="float" default-value="1.0"/> <!-- was unknownFloat2b -->
-            <field name="unknownFloat2c" type="float" default-value="1.0"/>
-            <field till-version="12" name="unknown4" type="uint32" default-value="0" />
-            <field till-version="12" name="trailingEnabled" type="uint32" />
-            <field name="localForceChannels" type="uint16" default-value="0" />
-            <field name="worldForceChannels" type="uint16" default-value="0" />
-            <field name="forceChannelsFillerBytes" type="uint16" default-value="0" />
-            <field name="worldForceChannelsCopy" type="uint16" default-value="0" />
+            <field name="randomizeWithMass2" type="uint32" since-version="12" till-version="12" /> <!-- TODO: transfer: set 0x4 on additionalFlags -->
+            <field name="mass" type="float" default-value="0.001" />
+            <field name="mass2" type="float" default-value="1.0" />
+            <field name="unknownFloat2c" type="float" default-value="1.0" since-version="12" />
+            <field name="trailingEnabled" type="uint32" till-version="12" /> <!-- TODO: transfer: set 0x8 on additionalFlags -->
+            <field name="localForceChannels" type="uint16" default-value="0" since-version="12" />
+            <field name="worldForceChannels" type="uint16" default-value="0" since-version="12" />
+            <field name="forceChannelsFillerBytes" type="uint16" default-value="0" since-version="12" />
+            <field name="worldForceChannelsCopy" type="uint16" default-value="0" since-version="12" />
+            <field name="unknownb379688d" size="16" since-version="10" till-version="11" />
+            <field name="unknownc851d80" type="float" default-value="1.0" since-version="24" />
             <field name="noiseAmplitude" type="float" default-value="0.0" />
             <field name="noiseFrequency" type="float" default-value="0.0" />
             <field name="noiseCohesion" type="float" default-value="0.0" />
             <field name="noiseEdge" type="float" default-value="0.0" />
-            <field name="unknownc851d80" type="float" default-value="0.1" since-version="24" />
-            <field name="indexPlusHighestIndex" type="uint32" />
+            <field name="indexPlusHighestIndex" type="uint32" since-version="11" />
+            <field name="unknown406560aa" size="8" since-version="10" till-version="11" />
             <field name="maxParticles" type="uint32" />
             <field name="emissionRate" type="FloatAnimationReference" />
             <field name="emissionAreaType" type="uint32" />
@@ -1911,8 +1922,9 @@
             <field name="emissionType" type="uint32" />
             <field name="randomizeWithParticleSizes2" type="uint32" />
             <field name="particleSizes2" type="Vector3AnimationReferenceV0" />
-            <field name="randomizeWithRotationValues2" type="uint32" />
-            <field name="rotationValues2" type="Vector3AnimationReferenceV0" />
+            <field name="unknown71001416" size="40" since-version="10" till-version="11" />
+            <field name="randomizeWithRotationValues2" type="uint32" since-version="12" />
+            <field name="rotationValues2" type="Vector3AnimationReferenceV0" since-version="12" />
             <field name="randomizeWithColor2" type="uint32" />
             <field name="initialColor2" type="ColorAnimationReference" />
             <field name="middleColor2" type="ColorAnimationReference" />
@@ -1926,8 +1938,8 @@
             <field name="relativePhase1Length" type="float" />
             <field name="numberOfColumns" type="uint16" />
             <field name="numberOfRows" type="uint16" />
-            <field name="columnWidth" type="float" default-value="inf" />
-            <field name="rowHeight" type="float" default-value="inf" />
+            <field name="columnWidth" type="float" default-value="inf" since-version="12" />
+            <field name="rowHeight" type="float" default-value="inf" since-version="12" />
             <field name="bounce" type="float" default-value="0.0" />
             <field name="friction" type="float" default-value="1.0"/>
             <field name="unknown9" type="int32" default-value="-1" />
@@ -2058,9 +2070,10 @@
             <field name="trailingParticlesIndex" type="int32" default-value="-1" />
             <field name="trailingParticlesChance" type="float" default-value="0.0"/>
             <field name="trailingParticlesRate" type="FloatAnimationReference" />
-            <field name="unknownfdab7ff3" size="8" expected-value="0xffffffff00000000"/>
-            <field name="usedModel" size="12" type="Reference" refTo="SCHR" />
-            <field name="copyIndices" size="12" type="Reference"  refTo="U32_" />
+            <field name="unknownfdab7ff3" size="4" default-value="0xffffffff" />
+            <field name="unknown7d4a9e6b" size="4" expected-value="0x00000000" />
+            <field name="usedModel" type="Reference" refTo="SCHR" />
+            <field name="copyIndices" type="Reference" refTo="U32_" />
             <field name="unknown9a7afdf2" size="4" since-version="23" />
             <field name="unknown87d57a7a" size="4" since-version="23" />
         </fields>
@@ -2263,7 +2276,7 @@
         </versions>
         <fields>
             <field name="matrix" type="Matrix44" />
-            <field till-version="1" name="unknownAt64" type="uint32" default-value="0x3ca14285" />
+            <field name="unknownAt64" type="uint32" default-value="0x3ca14285" till-version="1" />
             <!-- Shape types:
                 0 = box
                 1 = sphere
@@ -2277,19 +2290,11 @@
             <!-- Is not always 0 (in Version 1 and 3). It's propably the unintialized part of shape: -->
             <field name="unknown1c286108" type="uint8" default-value="0" />
             <field name="unknown4ddf14b3" type="uint16" default-value="0" />
-            <field till-version="1" name="vertices" type="SmallReference" refTo="VEC3" />
-            <!-- Belongs to the previous reference and seems not be get properly initialized with 0: -->
-            <field till-version="1" name="uninitializedFieldAt80" type="uint32" default-value="0" />
-            <field till-version="1" name="unknownAt84" type="SmallReference" refTo="U8__"/>
-            <!-- Belongs to the previous reference and seems to be uninitialized. -->
-            <field till-version="1" name="uninitializedFieldAt92" type="uint32" default-value="0" />
-            <field till-version="1" name="faces" type="SmallReference" refTo="U16_" />
-            <!-- Belongs to the previous reference and seems not be get properly initialized with 0: -->
-            <field till-version="1" name="uninitializedFieldAt104" type="uint32" default-value="0" />
-            <!-- Bounding planes used for convex hull shapes? (may include extra radius value?) -->
-            <field till-version="1" name="planeEquations" type="SmallReference" refTo="VEC4" />
-            <!-- Belongs to the previous reference and seems not be get properly initialized with 0: -->
-            <field till-version="1" name="uninitializedFieldAt116" type="uint32" default-value="0" />
+            <field name="vertices" type="Reference" refTo="VEC3" till-version="1" />
+            <field name="unknownAt84" type="Reference" refTo="U8__" till-version="1"/>
+            <field name="faces" type="Reference" refTo="U16_" till-version="1" />
+            <field name="planeEquations" type="Reference" refTo="VEC4" till-version="1" /> <!-- Bounding planes used for convex hull shapes? (may include extra radius value?) -->
+
             <field name="unknown66ce545e" size="20" expected-value="0x0000000000000000000000000000000000000000" since-version="2" />
             <field name="unknown66ce545e_b" type="uint32" default-value="0" since-version="2" />
             <field name="size0" type="float" default-value="1.0" /> <!-- box x-size / capsule radius (/ cylinder radius / sphere radius?) -->
@@ -2332,7 +2337,7 @@
         </fields>
     </structure>
 
-    <structure name="PHRB" version="2" size="104" >
+    <structure name="PHRB">
         <description>Rigid Body</description>
         <versions>
             <version number="2" size="104" />
@@ -2481,20 +2486,37 @@
             <version number="0" size="48" />
         </versions>
         <fields>
-            <field name="unknownac35793a" size="8" expected-value="0x0000000000000000" />
-            <field name="unknownd9d65198" size="4" default-value="0x00000000" /> <!-- not always set properly? -->
-            <field name="boneIndex" type="uint8" />
-            <field name="unknown8a35689c" type="uint8" default-value="0"/>
+            <field name="unknownac35793a" type="Reference" />
+            <field name="boneIndex" type="uint16" />
             <field name="billboardType" type="uint8" default-value="6" />
-            <field name="unknown5cd4cd94" type="uint8" default-value="1" />
-            <field name="unknown76974b30" size="4" default-value="0x00000000" /> <!-- not always set properly? -->
-            <field name="unknownb7903f37" size="4" default-value="0x00000000" /> <!-- not always set properly? -->
-            <field name="unknown15901615" size="4" default-value="0x00000000" /> <!-- not always set properly? -->
-            <field name="unknown8db56887" type="float" default-value="1.0"/>
-            <field name="unknown8a4fe2ab" size="4" default-value="0x00000000" /> <!-- not always set properly? -->
-            <field name="unknown51d106ab" size="4" default-value="0x00000000" /> <!-- not always set properly? -->
-            <field name="unknownb410610b" size="4" default-value="0x00000000" /> <!-- not always set properly? -->
-            <field name="unknown6a9fde72" type="float" default-value="1.0"/>
+            <field name="cameraLookAt" type="uint8" default-value="1" />
+            <field name="unknown76974b30" type="float" default-value="0.0" />
+            <field name="unknownb7903f37" type="float" default-value="0.0" />
+            <field name="unknown15901615" type="float" default-value="0.0" />
+            <field name="unknown8db56887" type="float" default-value="1.0" />
+            <field name="unknown8a4fe2ab" type="float" default-value="0.0" />
+            <field name="unknown51d106ab" type="float" default-value="0.0" />
+            <field name="unknownb410610b" type="float" default-value="0.0" />
+            <field name="unknown6a9fde72" type="float" default-value="1.0" />
+        </fields>
+    </structure>
+
+    <!-- used only by Infestor from SC2 beta -->
+    <structure name="TMD_">
+        <description>
+        </description>
+        <versions>
+            <version number="1" size="72" />
+        </versions>
+        <fields>
+            <field name="unknown68763a86" type="Reference" refTo="VEC3" />
+            <field name="unknownd3f6c7b8" type="float" />
+            <field name="unknown74229b33" type="float" />
+            <field name="unknownd4f91286" type="FloatAnimationReference" />
+            <field name="unknown77f047c2" type="FloatAnimationReference" />
+            <field name="unknownbc1e64c1" type="uint32" expected-value="1" />
+            <field name="unknown6cd3476c" type="uint32" expected-value="0" />
+            <field name="unknownccd5a5af" type="uint32" expected-value="0" />
         </fields>
     </structure>
 
@@ -2539,6 +2561,8 @@
             3 - Star Shaped
         </description>
         <versions>
+            <version number="4" size="744" />
+            <version number="5" size="748" />
             <version number="6" size="748" />
             <version number="8" size="756" />
             <version number="9" size="760" />
@@ -2607,7 +2631,7 @@
             <field name="surfaceNoiseNumberOfWaves" type="float" />
             <field name="surfaceNoiseFrequency" type="float" />
             <field name="surfaceNoiseScale" type="float" />
-            <field name="indexPlusHighestIndex" type="uint32" default-value="1" /> <!-- 1-255 value ; never seen to be 0 on Blizzard models ; shared with PAR_ ; probably determines the rendering priority of some sort ? -->
+            <field name="indexPlusHighestIndex" type="uint32" default-value="1" since-version="5" /> <!-- 1-255 value ; never seen to be 0 on Blizzard models ; shared with PAR_ ; probably determines the rendering priority of some sort ? -->
             <field name="ribbonType" type="uint32" />
             <field name="cullType" type="uint32" default-value="1"/>
             <field name="ribbonDivisions" type="float" />
@@ -2679,9 +2703,7 @@
             <version number="0" size="32" />
         </versions>
         <fields>
-            <field name="unknown1" type="int32" default-value="0"/>
-            <field name="unknown2" type="int32" default-value="0"/>
-            <field name="unknown3" type="int32" default-value="-1"/>
+            <field name="unknownIKJTRef01" type="Reference" />
             <field name="boneIndex1" type="uint16" />
             <field name="boneIndex2" type="uint16" />
             <field name="maxSearchUp" type="float" />
@@ -2714,26 +2736,26 @@
             Camera
         </description>
         <versions>
+            <version number="2" size="148" />
             <version number="3" size="180" />
             <version number="5" size="264" />
         </versions>
         <fields>
             <field name="boneIndex" type="uint32" />
             <field name="name" type="Reference" refTo="CHAR" />
-            <field name="fieldOfView" type="FloatAnimationReference" />
-            <field name="unknowne35db92d" type="uint32" default-value="1"/>
-            <field name="unknown920dc1c4" size="4" default-value="0x00000000" since-version="5" />
-            <field name="farClip" type="FloatAnimationReference" />
-            <field name="nearClip" type="FloatAnimationReference" />
-            <field name="clip2" type="FloatAnimationReference" />
-            <field name="focalDepth" type="FloatAnimationReference" />
-            <field name="falloffStart" type="FloatAnimationReference" />
-            <field name="falloffEnd" type="FloatAnimationReference" />
-            <field name="depthOfField" type="FloatAnimationReference" />
-            <!-- Position of version 5 fields may not be correct...-->
-            <field name="unknown587dc7fb" type="Unknown4ByteAnimationReference" default-value="0x00000000" since-version="5" />
-            <!-- not 100% sure if unknownfff8cb33 is an animation reference: -->
+            <field name="fieldOfView" type="FloatAnimationReference" since-version="3" />
+            <field name="useVertFOV" type="uint32" default-value="1" since-version="3" />
+            <field name="depthOfFieldType" type="uint32" default-value="3" since-version="5" />
+            <field name="unknown0818df94" size="132" till-version="2" />
+            <field name="farClip" type="FloatAnimationReference" since-version="3" />
+            <field name="nearClip" type="FloatAnimationReference" since-version="3" />
+            <field name="clip2" type="FloatAnimationReference" since-version="3" />
+            <field name="focalDepth" type="FloatAnimationReference" since-version="3" />
+            <field name="falloffStart" type="FloatAnimationReference" since-version="3" />
+            <field name="falloffEnd" type="FloatAnimationReference" since-version="3" />
+            <field name="unknown587dc7fb" type="FloatAnimationReference" since-version="5" />
             <field name="unknownfff8cb33" type="FloatAnimationReference" since-version="5" />
+            <field name="depthOfField" type="FloatAnimationReference" since-version="3" />
             <field name="unknownf726f834" type="FloatAnimationReference" since-version="5" />
             <field name="unknownd506807d" type="FloatAnimationReference" since-version="5" />
         </fields>
@@ -2759,7 +2781,7 @@
         </fields>
     </structure>
 
-    <structure name="MADD" version="3" size="160">
+    <structure name="MADD">
         <description>Material Buffer (node based)</description>
         <versions>
             <version number="1" size="140" />
@@ -2777,12 +2799,14 @@
         </fields>
     </structure>
 
-    <structure name="MODL" >
+    <structure name="MODL">
         <description>
             Describes the content of the file.
             bone must have same size like IREF
         </description>
         <versions>
+            <version number="20" size="748" />
+            <version number="21" size="760" />
             <version number="23" size="784" />
             <version number="25" size="808" />
             <version number="26" size="820" />
@@ -2831,7 +2855,7 @@
             <field name="attachmentPoints" type="Reference" refTo="ATT_" />
             <field name="attachmentPointAddons" type="Reference" refTo="U16_"/>
             <field name="lights" type="Reference" refTo="LITE" />
-            <field name="shbxData" type="Reference" refTo="SHBX" />
+            <field name="shbxData" type="Reference" refTo="SHBX" since-version="21" />
             <field name="cameras" type="Reference" refTo="CAM_" />
             <field name="d" type="Reference" refTo="U16_" />
             <field name="materialReferences" type="Reference" refTo="MATM" />
@@ -2840,7 +2864,6 @@
             <field name="compositeMaterials" type="Reference" refTo="CMP_" />
             <field name="terrainMaterials" type="Reference" refTo="TER_" />
             <field name="volumeMaterials" type="Reference" refTo="VOL_" />
-            <!-- it grew in size between version from 2 to 3 which indicates a reference-->
             <field name="unknownMaybeRef0" type="Reference" />
             <field name="creepMaterials" type="Reference" refTo="CREP" />
             <field name="volumeNoiseMaterials" type="Reference" refTo="VON_" since-version="25" />
@@ -2855,14 +2878,12 @@
             <field name="forces" type="Reference" refTo="FOR_" />
             <field name="warps" type="Reference" refTo ="WRP_" />
             <field name="unknownMaybeRef2" type="Reference" />
-            <!-- it grew in size between version from 2 to 3 which indicates a reference-->
             <field name="rigidBodies" type="Reference" refTo="PHRB"/>
-            <!-- it grew in size between version from 3x2 to 3x3 which indicates a reference-->
             <field name="unknownMaybeRef3" type="Reference" />
             <field name="physicalJoint" type="Reference" refTo="PHYJ" />
             <field name="clothBehavior" type="Reference" refTo="PHCL" since-version="28" />
             <field name="unknownMaybeRef4" type="Reference" />
-            <field name="unknownbd5657bd" size="12" since-version="25" />
+            <field name="unknownbd5657bd" type="Reference" since-version="25" />
             <field name="inverseKinematicChains" type="Reference" refTo="IKJT"/>
             <field name="unknownMaybeRef5" type="Reference" />
             <field name="turretBehaviorParts" type="Reference" refTo="PATU" />
@@ -2871,16 +2892,16 @@
             <field name="tightHitTest" type="SSGSV1" />
             <field name="fuzzyHitTestObjects" type="Reference" refTo="SSGS" />
             <field name="attachmentVolumes" type="Reference" refTo="ATVL" />
-            <field name="attachmentVolumesAddon0" type="Reference" refTo="U16_"/>
-            <field name="attachmentVolumesAddon1" type="Reference" refTo="U16_"/>
+            <field name="attachmentVolumesAddon0" type="Reference" refTo="U16_" since-version="23" />
+            <field name="attachmentVolumesAddon1" type="Reference" refTo="U16_" since-version="23" />
             <field name="billboardBehaviors" type="Reference" refTo="BBSC" />
-            <field name="tmdData" type="Reference" />
+            <field name="tmdData" type="Reference" refTo="TMD_" />
             <field name="uniqueUnknownNumber" type="uint32" />
             <field name="unknown45" type="Reference" refTo="U32_" />
         </fields>
     </structure>
 
-    <structure name="MD34" version="11" size="24">
+    <structure name="MD34">
         <description>Header of a M3 file: Can be found at the start of the file.</description>
         <versions>
             <version number="11" size="24" />
@@ -2893,7 +2914,7 @@
         </fields>
     </structure>
 
-    <structure name="MD33" version="11" size="24">
+    <structure name="MD33">
         <description>Header of a M3 file from SC2 Beta</description>
         <versions>
             <version number="11" size="20" />

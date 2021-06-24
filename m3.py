@@ -25,6 +25,7 @@ import re
 from sys import stderr
 import struct
 import copy
+import sys
 
 
 def increaseToValidSectionSize(size):
@@ -125,7 +126,7 @@ class M3StructureHistory:
         structure = M3StructureDescription(self.name, version, finalFields, specifiedSize, self, fmagic != 'MD33')
         return structure
 
-    def getVersion(self, version, fmagic='MD34'):
+    def getVersion(self, version, fmagic='MD34', force=False):
         structure = self.versionToStructureDescriptionMap.get(fmagic + '_' + str(version))
         if structure is None:
             usedFields = []
@@ -138,7 +139,7 @@ class M3StructureHistory:
                 if includeField:
                     usedFields.append(field)
             specifiedSize = self.versionToSizeMap.get(version)
-            if specifiedSize is None:
+            if not force and specifiedSize is None:
                 return None
             structure = self.createStructureDescription(version, usedFields, specifiedSize, fmagic)
             self.versionToStructureDescriptionMap[fmagic + '_' + str(version)] = structure
@@ -178,10 +179,9 @@ class M3StructureDescription:
         self.size = calculatedSize
 
         # Validate the specified size:
-        if validateSize:
-            if calculatedSize != specifiedSize:
-                self.dumpOffsets()
-                raise Exception("Size mismatch: %s in version %d has been specified to have size %d, but the calculated size was %d" % (structureName, structureVersion, specifiedSize, calculatedSize))
+        if validateSize and calculatedSize != specifiedSize:
+            self.dumpOffsets()
+            raise Exception("Size mismatch: %s in version %d has been specified to have size %d, but the calculated size was %d" % (structureName, structureVersion, specifiedSize, calculatedSize))
 
         nameToFieldMap = {}
         for field in fields:
@@ -1166,6 +1166,24 @@ def loadSections(filename, checkExpectedValue=True):
                 guessedBytesPerEntry = float(len(section.rawBytes) - guessedUnusedSectionBytes) / indexEntry.repetitions
                 message = "ERROR: Unknown section at offset %s with tag=%s version=%s repetitions=%s sectionLengthInBytes=%s guessedUnusedSectionBytes=%s guessedBytesPerEntry=%s\n" % (indexEntry.offset, indexEntry.tag, indexEntry.version, indexEntry.repetitions, len(section.rawBytes), guessedUnusedSectionBytes, guessedBytesPerEntry)
                 stderr.write(message)
+                if sys.stderr.isatty():
+                    for entryNum in range(indexEntry.repetitions):
+                        stderr.write('Entry %d\n' % entryNum)
+                        offset = 0
+                        while offset < int(guessedBytesPerEntry):
+                            val_u32 = struct.unpack_from('<I', section.rawBytes, int(guessedBytesPerEntry) * entryNum + offset)[0]
+                            val_float = struct.unpack_from('<f', section.rawBytes, int(guessedBytesPerEntry) * entryNum + offset)[0]
+                            stderr.write('%sV%d @%02d -> %04X:%04d = 0x%08X  %15d  %20.5f\n' % (
+                                indexEntry.tag,
+                                indexEntry.version,
+                                entryNum,
+                                offset,
+                                offset,
+                                val_u32,
+                                val_u32,
+                                val_float,
+                            ))
+                            offset += 4
                 unknownSections.add("%sV%s" % (indexEntry.tag, indexEntry.version))
         if len(unknownSections) != 0:
             raise Exception("There were %s unknown sections: %s (see console log for more details)" % (len(unknownSections), unknownSections))
@@ -1181,7 +1199,7 @@ def resolveReferencesOfSections(sections):
 
 def checkThatAllSectionsGotReferenced(sections):
     numberOfUnreferencedSections = 0
-    referenceStructureDescription = reference = structures["Reference"].getVersion(0)
+    referenceStructureDescription = reference = structures["SmallReference"].getVersion(0)
     for sectionIndex, section in enumerate(sections):
 
         if (section.timesReferenced == 0) and (sectionIndex != 0):
@@ -1190,25 +1208,19 @@ def checkThatAllSectionsGotReferenced(sections):
             reference = referenceStructureDescription.createInstance()
             reference.entries = section.indexEntry.repetitions
             reference.index = sectionIndex
-            reference.flags = 0
             bytesToSearch = referenceStructureDescription.instancesToBytes([reference])
-            possibleReferences = 0
             for sectionToCheck in sections:
                 positionInSection = sectionToCheck.rawBytes.find(bytesToSearch)
                 if positionInSection != -1:
-                    possibleReferences += 1
-                    stderr.write("  -> Found a reference at offset %d in a section of type %sV%s\n" % (positionInSection % sectionToCheck.structureDescription.size, sectionToCheck.indexEntry.tag, sectionToCheck.indexEntry.version))
+                    flagBytes = sectionToCheck.rawBytes[positionInSection + 8:positionInSection + 12]
+                    flagsAsHex = ''.join(["%02x" % x for x in flagBytes])
+                    stderr.write("  -> Found possible reference at offset %d in a section of type %sV%s with flag %s\n" % (
+                        positionInSection % sectionToCheck.structureDescription.size,
+                        sectionToCheck.indexEntry.tag,
+                        sectionToCheck.indexEntry.version,
+                        flagsAsHex
+                    ))
                     sectionToCheck.structureDescription.dumpOffsets()
-
-            if possibleReferences == 0:
-                bytesToSearch = bytesToSearch[0:-4]
-                for sectionToCheck in sections:
-                    positionInSection = sectionToCheck.rawBytes.find(bytesToSearch)
-                    if positionInSection != -1:
-                        flagBytes = sectionToCheck.rawBytes[positionInSection + 8:positionInSection + 12]
-                        flagsAsHex = ''.join(["%02x" % x for x in flagBytes])
-                        stderr.write("  -> Found maybe a reference at offset %d in a section of type %sV%s with flag %s\n" % (positionInSection, sectionToCheck.indexEntry.tag, sectionToCheck.indexEntry.version, flagsAsHex))
-                        sectionToCheck.structureDescription.dumpOffsets()
 
     if numberOfUnreferencedSections > 0:
         raise Exception("Unable to load all data: There were %d unreferenced sections. View log for details" % numberOfUnreferencedSections)

@@ -46,7 +46,7 @@ def structureToMD34(structure: m3.M3Structure):
             raise Exception(field.name, type(value), value)
 
 
-def process_model(mSrc: str, mDest: Optional[str] = None, outDir: Optional[str] = None):
+def processModel(mSrc: str, mDest: Optional[str] = None, outDir: Optional[str] = None, skipExisting: bool = False):
     if not outDir:
         outDir = os.path.dirname(mSrc)
     if not mDest:
@@ -54,17 +54,27 @@ def process_model(mSrc: str, mDest: Optional[str] = None, outDir: Optional[str] 
         name = ''.join(tmp[:-1]) if len(tmp) > 1 else tmp[0]
         mDest = os.path.join(outDir, name + '_MD34.m3')
 
-    print("%s -> %s" % (mSrc, mDest))
+    print("%s -> %s ... " % (mSrc, mDest), end='')
 
-    model = m3.loadModel(mSrc)
-    structureToMD34(model)
-    m3.saveAndInvalidateModel(model, mDest)
+    if skipExisting and os.path.isfile(mDest):
+        print("SKIPPED")
+        return
+
+    try:
+        model = m3.loadModel(mSrc)
+        structureToMD34(model)
+        m3.saveAndInvalidateModel(model, mDest)
+        print("OK")
+    except Exception:
+        print("FAIL")
+        raise
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Convert Starcraft II Beta model (MD33) to its supported variant (MD34)')
     parser.add_argument('src', type=str, nargs='+', help='source .m3 file')
     parser.add_argument('-O', '--output-directory', type=str, help='output directory for converted m3 files')
+    parser.add_argument('--skip-existing', action='store_true', default=False, help='skip conversion if target field already exists')
     args = parser.parse_args()
     for src in args.src:
-        process_model(src, None, args.output_directory)
+        processModel(src, None, args.output_directory, args.skip_existing)
