@@ -1072,6 +1072,13 @@ geometricShapeTypeList = [
     ("2", "Capsule", "A capsule with the given radius and height"),
 ]
 
+physicsJointType = [
+    ("0", "Spherical", "Allows the joint to move freely on any axis"),
+    ("1", "Revolute", "Allows the joint to move only on the Z axis, like a door hinge"),
+    ("2", "Cone", "Allows the joint to move to move freely like a spherical joint, but constrains movement to the cone angle, around the Z axis"),
+    ("3", "Weld", "Restricts the joint's rotation, but is not perfectly rigid")
+]
+
 defaultSettingMesh = "MESH"
 defaultSettingParticle = "PARTICLE"
 defaultSettingDisplacement = "DISPLACEMENT"
@@ -1738,6 +1745,26 @@ class M3TurretBehavior(bpy.types.PropertyGroup):
     name: bpy.props.StringProperty(options=set())
     parts: bpy.props.CollectionProperty(type=M3TurretBehaviorPart)
     part_index: bpy.props.IntProperty(default=-1, update=handleTurretBehaviorPartIndexChanged)
+
+
+class M3PhysicsJoint(bpy.types.PropertyGroup):
+    bl_update: bpy.props.BoolProperty(options=set())
+    name: bpy.props.StringProperty(options=set())
+    bone1: bpy.props.StringProperty(options=set())
+    bone2: bpy.props.StringProperty(options=set())
+    jointType: bpy.props.EnumProperty(options=set(), items=physicsJointType)
+    offset1: bpy.props.FloatVectorProperty(options=set(), size=3, subtype="XYZ")
+    rotation1: bpy.props.FloatVectorProperty(options=set(), size=3, subtype="EULER", unit="ROTATION")
+    offset2: bpy.props.FloatVectorProperty(options=set(), size=3, subtype="XYZ")
+    rotation2: bpy.props.FloatVectorProperty(options=set(), size=3, subtype="EULER", unit="ROTATION")
+    limit: bpy.props.BoolProperty(options=set())
+    limitMin: bpy.props.FloatProperty(options=set())
+    limitMax: bpy.props.FloatProperty(options=set())
+    coneAngle: bpy.props.FloatProperty(options=set())
+    friction: bpy.props.BoolProperty(options=set())
+    frictionAmount: bpy.props.FloatProperty(options=set(), default=0.2)
+    dampingRatio: bpy.props.FloatProperty(options=set(), default=0.7, min=0, max=1, subtype="FACTOR")
+    angularFrequency: bpy.props.FloatProperty(options=set(), default=5)
 
 
 class BoneVisibilityPanel(bpy.types.Panel):
@@ -4108,6 +4135,83 @@ class TurretBehaviorPanel(bpy.types.Panel):
                 col.prop(part, "unknownAt148")
 
 
+class PhysicsJointPanel(bpy.types.Panel):
+    bl_idname = "OBJECT_PT_M3_physics_joint"
+    bl_label = "M3 Physics Joints"
+    bl_space_type = "PROPERTIES"
+    bl_region_type = "WINDOW"
+    bl_context = "scene"
+    bl_options = {"DEFAULT_CLOSED"}
+
+    def draw(self, context):
+        layout = self.layout
+        scene = context.scene
+        joints = len(scene.m3_physics_joints)
+
+        rows = 2
+        if joints > 1:
+            rows = 4
+
+        row = layout.row()
+        col = row.column()
+        col.template_list("UI_UL_list", "m3_physics_joints", scene, "m3_physics_joints", scene, "m3_physics_joint_index", rows=rows)
+        col = row.column(align=True)
+        col.operator("m3.physics_joints_add", icon="ADD", text="")
+        col.operator("m3.physics_joints_remove", icon="REMOVE", text="")
+
+        if joints > 1:
+            col.separator()
+            col.operator("m3.physics_joints_move", icon="TRIA_UP", text="").shift = -1
+            col.operator("m3.physics_joints_move", icon="TRIA_DOWN", text="").shift = 1
+
+        currentIndex = scene.m3_physics_joint_index
+        if currentIndex < 0:
+            return
+
+        joint = scene.m3_physics_joints[scene.m3_physics_joint_index]
+
+        col = layout.column()
+        col.prop(joint, "name", text="Joint ID")
+        col.prop(joint, "bone1", text="Bone 1")
+        col.prop(joint, "bone2", text="Bone 2")
+        col = layout.column(align=True)
+        col.prop(joint, "jointType", text="Joint Type")
+        box = col.box()
+
+        if joint.type != shared.physicsJointWeld:
+
+            if joint.type == shared.physicsJointCone:
+                box.prop(joint, "coneAngle", text="Cone Angle")
+
+            if joint.type in [shared.physicsJointRevolute, shared.physicsJointCone]:
+                brow = box.row()
+                brow.prop(joint, "limit", text="Limit Rotation")
+                sub = brow.column(align=True)
+                sub.active = joint.limit
+                sub.prop(joint, "limitMin", text="Minimum")
+                sub.prop(joint, "limitMax", text="Maximim")
+
+            brow = box.row()
+            brow.prop(joint, "friction", text="Joint Friction")
+            sub = brow.column()
+            sub.active = joint.friction
+            sub.prop(joint, "frictionAmount", text="")
+
+        else:
+            brow = box.row()
+            brow.prop(joint, "angularFrequency", text="Angular Frequency")
+            brow.prop(joint, "dampingRatio", text="Damping Ratio")
+
+        col = layout.column()
+        col.label(text="Bone 1 Joint:")
+        col.prop(joint, "offset1", text="Location")
+        col.prop(joint, "rotation1", text="Rotation")
+        col = layout.column()
+        col.label(text="Bone 2 Joint:")
+        col.prop(joint, "offset2", text="Location")
+        col.prop(joint, "rotation2", text="Rotation")
+
+
 class WarpPanel(bpy.types.Panel):
     bl_idname = "OBJECT_PT_M3_warps"
     bl_label = "M3 Warp Fields"
@@ -5842,6 +5946,61 @@ class M3_TURRET_BEHAVIOR_PARTS_OT_move(bpy.types.Operator):
         return {"FINISHED"}
 
 
+class M3_PHYSICS_JOINTS_OT_add(bpy.types.Operator):
+    bl_idname = "m3.physics_joints_add"
+    bl_label = "Add M3 Physics Joint"
+    bl_description = "Adds an M3 physics joint"
+    bl_options = {"UNDO"}
+
+    def invoke(self, context, event):
+        scene = context.scene
+        joint = scene.m3_physics_joints.add()
+
+        joint.name = shared.findUnusedPropItemName(scene, propGroups=[scene.m3_physics_joints])
+
+        # The following selection causes a new bone to be created:
+        scene.m3_physics_joint_index = len(scene.m3_physics_joints) - 1
+
+        return {"FINISHED"}
+
+
+class M3_PHYSICS_JOINTS_OT_remove(bpy.types.Operator):
+    bl_idname = "m3.physics_joints_remove"
+    bl_label = "Remove M3 Physics Joint"
+    bl_description = "Removes the active M3 physics joint"
+    bl_options = {"UNDO"}
+
+    def invoke(self, context, event):
+        scene = context.scene
+        if scene.m3_physics_joint_index >= 0:
+            scene.m3_physics_joints.remove(scene.m3_physics_joint_index)
+
+            if scene.m3_physics_joint_index != 0 or len(scene.m3_physics_joints) == 0:
+                scene.m3_physics_joint_index -= 1
+
+        return {"FINISHED"}
+
+
+class M3_PHYSICS_JOINTS_OT_move(bpy.types.Operator):
+    bl_idname = "m3.physics_joints_move"
+    bl_label = "Move M3 Physics Joint"
+    bl_description = "Moves the active M3 physics joint"
+    bl_options = {"UNDO"}
+
+    shift: bpy.props.IntProperty(name="shift", default=0)
+
+    def invoke(self, context, event):
+        scene = context.scene
+        ii = scene.m3_physics_joint_index
+
+        if (ii < len(scene.m3_physics_joints) - self.shift and ii >= -self.shift):
+            scene.m3_physics_joints.move(ii, ii + self.shift)
+            swapActionSceneM3Keyframes("m3_physics_joints", ii, self.shift)
+            scene.m3_physics_joint_index += self.shift
+
+        return {"FINISHED"}
+
+
 class M3_WARPS_OT_add(bpy.types.Operator):
     bl_idname = "m3.warps_add"
     bl_label = "Add Warp Field"
@@ -6338,6 +6497,7 @@ classes = (
     M3InverseKinematicChain,
     M3TurretBehaviorPart,
     M3TurretBehavior,
+    M3PhysicsJoint,
     cm.M3GroupProjection,
     M3Warp,
     M3AttachmentPoint,
@@ -6405,6 +6565,7 @@ classes = (
     BillboardBehaviorPanel,
     InverseKinematicChainPanel,
     TurretBehaviorPanel,
+    PhysicsJointPanel,
     ui.ProjectionMenu,
     ui.ProjectionPanel,
     WarpMenu,
@@ -6483,6 +6644,9 @@ classes = (
     M3_TURRET_BEHAVIOR_PARTS_OT_add,
     M3_TURRET_BEHAVIOR_PARTS_OT_remove,
     M3_TURRET_BEHAVIOR_PARTS_OT_move,
+    M3_PHYSICS_JOINTS_OT_add,
+    M3_PHYSICS_JOINTS_OT_remove,
+    M3_PHYSICS_JOINTS_OT_move,
     ui.M3_PROJECTIONS_OT_add,
     ui.M3_PROJECTIONS_OT_remove,
     ui.M3_PROJECTIONS_OT_move,
@@ -6547,6 +6711,8 @@ def register():
     bpy.types.Scene.m3_ik_chain_index = bpy.props.IntProperty(default=-1, update=handleIkChainIndexChanged)
     bpy.types.Scene.m3_turret_behaviors = bpy.props.CollectionProperty(type=M3TurretBehavior)
     bpy.types.Scene.m3_turret_behavior_index = bpy.props.IntProperty(default=-1)
+    bpy.types.Scene.m3_physics_joints = bpy.props.CollectionProperty(type=M3PhysicsJoint)
+    bpy.types.Scene.m3_physics_joint_index = bpy.props.IntProperty(default=-1)
     bpy.types.Scene.m3_projections = bpy.props.CollectionProperty(type=cm.M3GroupProjection)
     bpy.types.Scene.m3_projection_index = bpy.props.IntProperty(update=cm.handleProjectionIndexChanged, default=-1)
     bpy.types.Scene.m3_warps = bpy.props.CollectionProperty(type=M3Warp)

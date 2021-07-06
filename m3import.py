@@ -489,6 +489,7 @@ class Importer:
             self.createBillboardBehaviors()
             self.createInverseKinematicChains()
             self.createTurretBehaviors()
+            self.createPhysicsJoints()
             self.createAttachmentPoints()
             self.createProjections()
             self.createWarps()
@@ -1259,6 +1260,37 @@ class Importer:
                 part.upZ[1] = m3TurretBehaviorPart.upZ.y
                 part.upZ[2] = m3TurretBehaviorPart.upZ.z
                 part.upZ[3] = m3TurretBehaviorPart.upZ.w
+
+    def createPhysicsJoints(self):
+        print("Loading physics joints")
+        scene = bpy.context.scene
+
+        for m3pj in self.model.physicsJoints:
+            boneBlender1 = self.boneNames[m3pj.boneIndex1]
+            boneBlender2 = self.boneNames[m3pj.boneIndex2]
+
+            pj = scene.m3_physics_joints.add()
+            pj.bl_update = False
+
+            animPathPrefix = "m3_physics_joints[%s]." % (len(scene.m3_physics_joints) - 1)
+            transferer = M3ToBlenderDataTransferer(self, scene, animPathPrefix, blenderObject=pj, m3Object=m3pj)
+            shared.transferPhysicsJoint(transferer)
+
+            pj.name = "Joint" + str(len(scene.m3_physics_joints) - 1)
+            pj.bone1 = boneBlender1
+            pj.bone2 = boneBlender2
+
+            matrix1 = toBlenderMatrix(m3pj.matrix1)
+            matrix2 = toBlenderMatrix(m3pj.matrix2)
+
+            offset, rotation, scale = matrix1.decompose()
+            pj.offset1 = offset
+            pj.rotation1 = rotation.to_euler("XYZ")
+            offset, rotation, scale = matrix2.decompose()
+            pj.offset2 = offset
+            pj.rotation2 = rotation.to_euler("XYZ")
+
+            pj.bl_update = True
 
     def createAttachmentPoints(self):
         print("Loading attachment points and volumes")

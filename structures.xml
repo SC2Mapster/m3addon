@@ -2150,7 +2150,7 @@
             <version number="0" size="180" />
         </versions>
         <fields>
-            <field name="type" type="uint32"/>
+            <field name="jointType" type="uint32"/>
             <field name="boneIndex1" type="uint32"/>
             <field name="boneIndex2" type="uint32"/>
             <field name="matrix1" type="Matrix44"/>
@@ -2880,7 +2880,7 @@
             <field name="unknownMaybeRef2" type="Reference" />
             <field name="rigidBodies" type="Reference" refTo="PHRB"/>
             <field name="unknownMaybeRef3" type="Reference" />
-            <field name="physicalJoint" type="Reference" refTo="PHYJ" />
+            <field name="physicsJoints" type="Reference" refTo="PHYJ" />
             <field name="clothBehavior" type="Reference" refTo="PHCL" since-version="28" />
             <field name="unknownMaybeRef4" type="Reference" />
             <field name="unknownbd5657bd" type="Reference" since-version="25" />
