@@ -1701,6 +1701,15 @@ class Importer:
             if key.name == "Evt_Simulate":
                 return True, frame
 
+        # TODO
+        # This should be regarded as only a temporary solution.
+        # The function fails to find the simulation event in models
+        # that typically use physics joints, such as ragdolls.
+        # The function should be changed to properly find it so that
+        # this brute force method can be removed.
+        if len(self.model.physicsJoints) > 0:
+            return True, 0
+
         return False, 0
 
     def createAnimations(self):
