@@ -748,15 +748,12 @@ def setPhysicsJointPivot(scene, name, boneName, offset, rotation):
         else:
             empty = bpy.data.objects[name]
 
-        empty.parent = armature
-        empty.parent_type = "BONE"
-        empty.parent_bone = boneName
-        empty.location = offset + (bone.head - bone.tail)
-        empty.rotation_euler = rotation
+        matrix = bone.matrix_local + shared.composeMatrix(offset, rotation, (1, 1, 1))
+        loc, rot, scale = matrix.decompose()
 
-        # ? currently the helper location and rotation are set relative to the bone
-        # ? but, I suspect the game calculates it relative to the rigid body of the bone
-        # TODO look into implementing the above for the helpers
+        empty.parent = armature
+        empty.location = loc
+        empty.rotation_euler = rot.to_euler("XYZ")
 
 
 def handlePhysicsJointPivotDisplay(self, context):
