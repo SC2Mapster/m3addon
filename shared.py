@@ -447,7 +447,6 @@ def selectBonesIfTheyExist(scene, boneNames):
         bones.append(r[0])
         armatureObjects.append(r[1])
     for ii, bone in enumerate(bones):
-        print(bone)
         if bone is None:
             continue
         armature = armatureObjects[ii].data

@@ -734,6 +734,12 @@ def handleIkChainIndexChanged(self, context):
     shared.selectBonesIfTheyExist(scene, [ik.boneName1, ik.boneName2])
 
 
+def handlePhysicsJointIndexChanged(self, context):
+    if self.m3_physics_joint_index >= 0:
+        pj = self.m3_physics_joints[self.m3_physics_joint_index]
+        shared.selectBonesIfTheyExist(self, [pj.boneName1, pj.boneName2])
+
+
 def handleWarpIndexChanged(self, context):
     scene = context.scene
     if scene.m3_warp_index == -1:
@@ -6713,7 +6719,7 @@ def register():
     bpy.types.Scene.m3_turret_behaviors = bpy.props.CollectionProperty(type=M3TurretBehavior)
     bpy.types.Scene.m3_turret_behavior_index = bpy.props.IntProperty(default=-1)
     bpy.types.Scene.m3_physics_joints = bpy.props.CollectionProperty(type=M3PhysicsJoint)
-    bpy.types.Scene.m3_physics_joint_index = bpy.props.IntProperty(default=-1)
+    bpy.types.Scene.m3_physics_joint_index = bpy.props.IntProperty(default=-1, update=handlePhysicsJointIndexChanged)
     bpy.types.Scene.m3_projections = bpy.props.CollectionProperty(type=cm.M3GroupProjection)
     bpy.types.Scene.m3_projection_index = bpy.props.IntProperty(update=cm.handleProjectionIndexChanged, default=-1)
     bpy.types.Scene.m3_warps = bpy.props.CollectionProperty(type=M3Warp)
