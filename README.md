@@ -53,6 +53,7 @@ Currently, the following content can be exported and imported:
 * M3 cameras
 * M3 lights
 * M3 rigid bodies
+* M3 physics joints
 * M3 projections
 * M3 ribbons
 * M3 billboard behaviors
