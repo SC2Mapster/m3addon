@@ -734,10 +734,57 @@ def handleIkChainIndexChanged(self, context):
     shared.selectBonesIfTheyExist(scene, [ik.boneName1, ik.boneName2])
 
 
+def setPhysicsJointPivot(scene, name, boneName, offset, rotation):
+
+    bone, armature = shared.findBoneWithArmatureObject(scene, boneName)
+
+    if bone:
+        if name not in bpy.data.objects:
+            empty = bpy.data.objects.new(name, None)
+            scene.collection.objects.link(empty)
+            empty.show_in_front = True
+            empty.empty_display_type = "ARROWS"
+            empty.empty_display_size = 0.4
+        else:
+            empty = bpy.data.objects[name]
+
+        empty.parent = armature
+        empty.parent_type = "BONE"
+        empty.parent_bone = boneName
+        empty.location = offset + (bone.head - bone.tail)
+        empty.rotation_euler = rotation
+
+        # ? currently the helper location and rotation are set relative to the bone
+        # ? but, I suspect the game calculates it relative to the rigid body of the bone
+        # TODO look into implementing the above for the helpers
+
+
+def handlePhysicsJointPivotDisplay(self, context):
+    name1 = "M3PhysicsJointPivotHelper1"
+    name2 = "M3PhysicsJointPivotHelper2"
+    obs = bpy.data.objects
+    scene = context.scene
+
+    if scene.m3_physics_joint_index >= 0 and scene.m3_physics_joint_pivots:
+        pj = scene.m3_physics_joints[scene.m3_physics_joint_index]
+
+        if pj.bl_update:
+            setPhysicsJointPivot(scene, name1, pj.boneName1, pj.offset1, pj.rotation1)
+            setPhysicsJointPivot(scene, name2, pj.boneName2, pj.offset2, pj.rotation2)
+
+    else:
+        if name1 in obs:
+            obs.remove(bpy.data.objects[name1], do_unlink=True)
+
+        if name2 in obs:
+            obs.remove(bpy.data.objects[name2], do_unlink=True)
+
+
 def handlePhysicsJointIndexChanged(self, context):
     if self.m3_physics_joint_index >= 0:
         pj = self.m3_physics_joints[self.m3_physics_joint_index]
         shared.selectBonesIfTheyExist(self, [pj.boneName1, pj.boneName2])
+    handlePhysicsJointPivotDisplay(self, context)
 
 
 def handleWarpIndexChanged(self, context):
@@ -1759,10 +1806,10 @@ class M3PhysicsJoint(bpy.types.PropertyGroup):
     boneName1: bpy.props.StringProperty(options=set())
     boneName2: bpy.props.StringProperty(options=set())
     jointType: bpy.props.EnumProperty(options=set(), items=physicsJointType)
-    offset1: bpy.props.FloatVectorProperty(options=set(), size=3, subtype="XYZ")
-    rotation1: bpy.props.FloatVectorProperty(options=set(), size=3, subtype="EULER", unit="ROTATION")
-    offset2: bpy.props.FloatVectorProperty(options=set(), size=3, subtype="XYZ")
-    rotation2: bpy.props.FloatVectorProperty(options=set(), size=3, subtype="EULER", unit="ROTATION")
+    offset1: bpy.props.FloatVectorProperty(options=set(), size=3, subtype="XYZ", update=handlePhysicsJointPivotDisplay)
+    rotation1: bpy.props.FloatVectorProperty(options=set(), size=3, subtype="EULER", unit="ROTATION", update=handlePhysicsJointPivotDisplay)
+    offset2: bpy.props.FloatVectorProperty(options=set(), size=3, subtype="XYZ", update=handlePhysicsJointPivotDisplay)
+    rotation2: bpy.props.FloatVectorProperty(options=set(), size=3, subtype="EULER", unit="ROTATION", update=handlePhysicsJointPivotDisplay)
     limit: bpy.props.BoolProperty(options=set())
     limitMin: bpy.props.FloatProperty(options=set())
     limitMax: bpy.props.FloatProperty(options=set())
@@ -4158,6 +4205,7 @@ class PhysicsJointPanel(bpy.types.Panel):
         if joints > 1:
             rows = 4
 
+        layout.prop(scene, "m3_physics_joint_pivots", text="Display Physics Joint Pivot Helpers")
         row = layout.row()
         col = row.column()
         col.template_list("UI_UL_list", "m3_physics_joints", scene, "m3_physics_joints", scene, "m3_physics_joint_index", rows=rows)
@@ -4208,15 +4256,20 @@ class PhysicsJointPanel(bpy.types.Panel):
             brow.prop(joint, "angularFrequency", text="Angular Frequency")
             brow.prop(joint, "dampingRatio", text="Damping Ratio")
 
-        row = layout.row()
-        col = row.column()
+        col = layout.column()
         col.label(text="Bone 1 Joint:")
-        col.prop(joint, "offset1", text="Location")
-        col.prop(joint, "rotation1", text="Rotation")
-        col = row.column()
+        row = col.row()
+        sub = row.column()
+        sub.prop(joint, "offset1", text="Location")
+        sub = row.column()
+        sub.prop(joint, "rotation1", text="Rotation")
+        col = layout.column()
         col.label(text="Bone 2 Joint:")
-        col.prop(joint, "offset2", text="Location")
-        col.prop(joint, "rotation2", text="Rotation")
+        row = col.row()
+        sub = row.column()
+        sub.prop(joint, "offset2", text="Location")
+        sub = row.column()
+        sub.prop(joint, "rotation2", text="Rotation")
 
 
 class WarpPanel(bpy.types.Panel):
@@ -6718,6 +6771,7 @@ def register():
     bpy.types.Scene.m3_ik_chain_index = bpy.props.IntProperty(default=-1, update=handleIkChainIndexChanged)
     bpy.types.Scene.m3_turret_behaviors = bpy.props.CollectionProperty(type=M3TurretBehavior)
     bpy.types.Scene.m3_turret_behavior_index = bpy.props.IntProperty(default=-1)
+    bpy.types.Scene.m3_physics_joint_pivots = bpy.props.BoolProperty(options=set(), default=True, update=handlePhysicsJointPivotDisplay)
     bpy.types.Scene.m3_physics_joints = bpy.props.CollectionProperty(type=M3PhysicsJoint)
     bpy.types.Scene.m3_physics_joint_index = bpy.props.IntProperty(default=-1, update=handlePhysicsJointIndexChanged)
     bpy.types.Scene.m3_projections = bpy.props.CollectionProperty(type=cm.M3GroupProjection)
