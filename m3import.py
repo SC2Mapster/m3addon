@@ -1266,9 +1266,6 @@ class Importer:
         scene = bpy.context.scene
 
         for m3pj in self.model.physicsJoints:
-            boneBlender1 = self.boneNames[m3pj.boneIndex1]
-            boneBlender2 = self.boneNames[m3pj.boneIndex2]
-
             pj = scene.m3_physics_joints.add()
             pj.bl_update = False
 
@@ -1277,16 +1274,13 @@ class Importer:
             shared.transferPhysicsJoint(transferer)
 
             pj.name = "Joint" + str(len(scene.m3_physics_joints) - 1)
-            pj.bone1 = boneBlender1
-            pj.bone2 = boneBlender2
+            pj.boneName1 = self.boneNames[m3pj.boneIndex1]
+            pj.boneName2 = self.boneNames[m3pj.boneIndex2]
 
-            matrix1 = toBlenderMatrix(m3pj.matrix1)
-            matrix2 = toBlenderMatrix(m3pj.matrix2)
-
-            offset, rotation, scale = matrix1.decompose()
+            offset, rotation, scale = toBlenderMatrix(m3pj.matrix1).decompose()
             pj.offset1 = offset
             pj.rotation1 = rotation.to_euler("XYZ")
-            offset, rotation, scale = matrix2.decompose()
+            offset, rotation, scale = toBlenderMatrix(m3pj.matrix2).decompose()
             pj.offset2 = offset
             pj.rotation2 = rotation.to_euler("XYZ")
 

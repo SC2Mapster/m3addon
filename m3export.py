@@ -180,6 +180,7 @@ class Exporter:
         self.structureVersionMap["IKJT"] = 0
         self.structureVersionMap["TRGD"] = 0
         self.structureVersionMap["PATU"] = 4
+        self.structureVersionMap["PHYJ"] = 0
 
     def getVersionOf(self, structureName):
         return self.structureVersionMap[structureName]
@@ -221,6 +222,7 @@ class Exporter:
         self.initBillboardBehaviors(model)
         self.initIkChains(model)
         self.initTurretBehaviors(model)
+        self.initPhysicsJoints(model)
         self.initVisibilityTest(model)
         # TODO remove call and method:
         # self.initBoundings(model)
@@ -1785,6 +1787,33 @@ class Exporter:
                 model.turretBehaviorParts.append(m3TurretBehaviorPart)
 
             model.turretBehaviors.append(m3TurretBehavior)
+
+    def initPhysicsJoints(self, model):
+        scene = self.scene
+        for ii, pj in enumerate(scene.m3_physics_joints):
+            boneName1 = pj.boneName1
+            boneName2 = pj.boneName2
+            boneIndex1 = self.boneNameToBoneIndexMap.get(boneName1)
+            boneIndex2 = self.boneNameToBoneIndexMap.get(boneName2)
+
+            if boneIndex1 is None:
+                boneIndex1 = self.addBoneWithRestPosAndReturnIndex(model, boneName1, realBone=True)
+
+            if boneIndex2 is None:
+                boneIndex2 = self.addBoneWithRestPosAndReturnIndex(model, boneName2, realBone=True)
+
+            m3pj = self.createInstanceOf("PHYJ")
+            m3pj.boneIndex1 = boneIndex1
+            m3pj.boneIndex2 = boneIndex2
+            matrix = shared.composeMatrix(pj.offset1, pj.rotation1, [1, 1, 1])
+            m3pj.matrix1 = self.createMatrixFromBlenderMatrix(matrix)
+            matrix = shared.composeMatrix(pj.offset2, pj.rotation2, [1, 1, 1])
+            m3pj.matrix2 = self.createMatrixFromBlenderMatrix(matrix)
+
+            animPathPrefix = "m3_physics_joints[%s]." % ii
+            transferer = BlenderToM3DataTransferer(exporter=self, m3Object=m3pj, blenderObject=pj, animPathPrefix=animPathPrefix, rootObject=self.scene)
+            shared.transferPhysicsJoint(transferer)
+            model.physicsJoints.append(m3pj)
 
     def initAttachmentPoints(self, model):
         scene = self.scene

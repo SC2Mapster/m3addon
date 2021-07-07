@@ -1750,8 +1750,8 @@ class M3TurretBehavior(bpy.types.PropertyGroup):
 class M3PhysicsJoint(bpy.types.PropertyGroup):
     bl_update: bpy.props.BoolProperty(options=set())
     name: bpy.props.StringProperty(options=set())
-    bone1: bpy.props.StringProperty(options=set())
-    bone2: bpy.props.StringProperty(options=set())
+    boneName1: bpy.props.StringProperty(options=set())
+    boneName2: bpy.props.StringProperty(options=set())
     jointType: bpy.props.EnumProperty(options=set(), items=physicsJointType)
     offset1: bpy.props.FloatVectorProperty(options=set(), size=3, subtype="XYZ")
     rotation1: bpy.props.FloatVectorProperty(options=set(), size=3, subtype="EULER", unit="ROTATION")
@@ -4172,18 +4172,18 @@ class PhysicsJointPanel(bpy.types.Panel):
 
         col = layout.column()
         col.prop(joint, "name", text="Joint ID")
-        col.prop(joint, "bone1", text="Bone 1")
-        col.prop(joint, "bone2", text="Bone 2")
+        col.prop(joint, "boneName1", text="Bone 1")
+        col.prop(joint, "boneName2", text="Bone 2")
         col = layout.column(align=True)
         col.prop(joint, "jointType", text="Joint Type")
         box = col.box()
 
-        if joint.type != shared.physicsJointWeld:
+        if joint.jointType != shared.physicsJointWeld:
 
-            if joint.type == shared.physicsJointCone:
+            if joint.jointType == shared.physicsJointCone:
                 box.prop(joint, "coneAngle", text="Cone Angle")
 
-            if joint.type in [shared.physicsJointRevolute, shared.physicsJointCone]:
+            if joint.jointType in [shared.physicsJointRevolute, shared.physicsJointCone]:
                 brow = box.row()
                 brow.prop(joint, "limit", text="Limit Rotation")
                 sub = brow.column(align=True)
@@ -4202,11 +4202,12 @@ class PhysicsJointPanel(bpy.types.Panel):
             brow.prop(joint, "angularFrequency", text="Angular Frequency")
             brow.prop(joint, "dampingRatio", text="Damping Ratio")
 
-        col = layout.column()
+        row = layout.row()
+        col = row.column()
         col.label(text="Bone 1 Joint:")
         col.prop(joint, "offset1", text="Location")
         col.prop(joint, "rotation1", text="Rotation")
-        col = layout.column()
+        col = row.column()
         col.label(text="Bone 2 Joint:")
         col.prop(joint, "offset2", text="Location")
         col.prop(joint, "rotation2", text="Rotation")
