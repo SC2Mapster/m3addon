@@ -605,7 +605,7 @@ class Importer:
                 return
             for unwantedPrefix in unwantedPrefixes:
                 if not bone.name.startswith(unwantedPrefix):
-                    return
+                    continue
 
                 bone.name = bone.name[len(unwantedPrefix):]
                 if bone.name == "":
@@ -616,7 +616,7 @@ class Importer:
 
         for ii, bone in enumerate(model.bones):
             adjustM3BoneNamePrefix(bone, shared.star2ParticlePrefix, ["P_", "MR3_Particle_"])
-            adjustM3BoneNamePrefix(bone, shared.star2RibbonPrefix, ["SC2SplRbn"])
+            adjustM3BoneNamePrefix(bone, shared.star2RibbonPrefix, ["SC2SplRbn", "SC2Ribbon"])
             adjustM3BoneNamePrefix(bone, shared.lightPrefixMap["1"], ["SC2Omni"])
             adjustM3BoneNamePrefix(bone, shared.lightPrefixMap["2"], ["SC2Spot"])
             adjustM3BoneNamePrefix(bone, shared.star2ForcePrefix, ["_Force"])
