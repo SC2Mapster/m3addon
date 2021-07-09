@@ -1798,7 +1798,7 @@ class M3TurretBehavior(bpy.types.PropertyGroup):
 
 
 class M3PhysicsJoint(bpy.types.PropertyGroup):
-    bl_update: bpy.props.BoolProperty(options=set())
+    bl_update: bpy.props.BoolProperty(options=set(), default=True)
     name: bpy.props.StringProperty(options=set())
     boneName1: bpy.props.StringProperty(options=set())
     boneName2: bpy.props.StringProperty(options=set())
@@ -5659,7 +5659,7 @@ class M3_PHYSICS_SHAPES_OT_add(bpy.types.Operator):
         physics_shape.nameOld = physics_shape.name = shared.findUnusedPropItemName(scene, propGroups=[rigid_body.physicsShapes])
 
         rigid_body.physicsShapeIndex = len(rigid_body.physicsShapes) - 1
-        shared.updateBoneShapeOfRigidBody(scene, rigid_body.name)
+        shared.updateBoneShapeOfRigidBody(scene, rigid_body, rigid_body.name)
 
         return {"FINISHED"}
 
