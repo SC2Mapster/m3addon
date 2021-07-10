@@ -1991,9 +1991,6 @@ class AnimationSequencesPropPanel(bpy.types.Panel):
             col.prop(animation, "alwaysGlobal", text="Always Global")
             col.prop(animation, "globalInPreviewer", text="Global In Previewer")
 
-            if not len(scene.m3_rigid_bodies) > 0:
-                return
-
             row = layout.row()
             row.prop(animation, "useSimulateFrame", text="Use physics")
             sub = row.split()
