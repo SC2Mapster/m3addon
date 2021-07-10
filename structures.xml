@@ -906,7 +906,7 @@
         <fields>
             <field name="name" type="Reference" refTo="CHAR" />
             <field name="unknown76ff2940" type="int32" expected-value="-1" />
-            <field name="boneIndex" type="uint16" />
+            <field name="boneIndex" type="int16" default-value="-1" />
             <field name="unknown294cc515" type="uint16" expected-value="0" />
             <field name="matrix" type="Matrix44" />
             <field name="unknown7275bfa0" type="uint32" default-value="4" /> <!-- some kind of type (enum) ? -->

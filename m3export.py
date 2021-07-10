@@ -1261,10 +1261,11 @@ class Exporter:
     def createSimulateEventKey(self):
         event = self.createInstanceOf("EVNT")
         event.name = "Evt_Simulate"
+        # link boneIndex to a bone that matches event name
+        # no idea if this matters but that's what Blizzard models do
+        event.boneIndex = self.boneNameToBoneIndexMap.get(event.name, -1)
         event.matrix = self.createIdentityMatrix()
         # TODO: does the matrix matter? do the unknown fields matter?
-        event.unknown1 = 0x27
-        event.unknown3 = 0x3d03
         return event
 
     def initWithPreparedAnimationData(self, model):
