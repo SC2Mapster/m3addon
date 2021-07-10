@@ -2164,7 +2164,7 @@
             <field name="dampingRatio" type="float" default-value="0.7"/>
             <field name="angularFrequency" type="float" default-value="5"/>
             <field name="breakThreshold" type="float" default-value="1"/>
-            <field name="unknown176" type="uint32"/>
+            <field name="shapeCollisionValue" type="int32"/> <!-- some magic value related to how shapes collide with each other ; it might be some kind of bitmask -->
         </fields>
     </structure>
 

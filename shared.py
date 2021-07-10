@@ -2140,6 +2140,7 @@ def transferPhysicsJoint(transferer):
     transferer.transferFloat("frictionAmount")
     transferer.transferFloat("dampingRatio")
     transferer.transferFloat("angularFrequency")
+    transferer.transferInt("shapeCollisionValue")
 
 
 def transferBufferMaterial(transferer):

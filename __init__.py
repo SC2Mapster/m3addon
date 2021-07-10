@@ -1815,6 +1815,7 @@ class M3PhysicsJoint(bpy.types.PropertyGroup):
     frictionAmount: bpy.props.FloatProperty(options=set(), default=0.2)
     dampingRatio: bpy.props.FloatProperty(options=set(), default=0.7, min=0, max=1, subtype="FACTOR")
     angularFrequency: bpy.props.FloatProperty(options=set(), default=5)
+    shapeCollisionValue: bpy.props.IntProperty(options=set())
 
 
 class BoneVisibilityPanel(bpy.types.Panel):
@@ -4264,6 +4265,8 @@ class PhysicsJointPanel(bpy.types.Panel):
         sub.prop(joint, "offset2", text="Location")
         sub = row.column()
         sub.prop(joint, "rotation2", text="Rotation")
+        col = layout.column()
+        col.prop(joint, "shapeCollisionValue")
 
 
 class WarpPanel(bpy.types.Panel):
