@@ -489,6 +489,7 @@ class Importer:
             self.createBillboardBehaviors()
             self.createInverseKinematicChains()
             self.createTurretBehaviors()
+            self.createPhysicsJoints()
             self.createAttachmentPoints()
             self.createProjections()
             self.createWarps()
@@ -1260,6 +1261,31 @@ class Importer:
                 part.upZ[2] = m3TurretBehaviorPart.upZ.z
                 part.upZ[3] = m3TurretBehaviorPart.upZ.w
 
+    def createPhysicsJoints(self):
+        print("Loading physics joints")
+        scene = bpy.context.scene
+
+        for m3pj in self.model.physicsJoints:
+            pj = scene.m3_physics_joints.add()
+            pj.bl_update = False
+
+            animPathPrefix = "m3_physics_joints[%s]." % (len(scene.m3_physics_joints) - 1)
+            transferer = M3ToBlenderDataTransferer(self, scene, animPathPrefix, blenderObject=pj, m3Object=m3pj)
+            shared.transferPhysicsJoint(transferer)
+
+            pj.name = "Joint" + str(len(scene.m3_physics_joints) - 1)
+            pj.boneName1 = self.boneNames[m3pj.boneIndex1]
+            pj.boneName2 = self.boneNames[m3pj.boneIndex2]
+
+            offset, rotation, scale = toBlenderMatrix(m3pj.matrix1).decompose()
+            pj.offset1 = offset
+            pj.rotation1 = rotation.to_euler("XYZ")
+            offset, rotation, scale = toBlenderMatrix(m3pj.matrix2).decompose()
+            pj.offset2 = offset
+            pj.rotation2 = rotation.to_euler("XYZ")
+
+            pj.bl_update = True
+
     def createAttachmentPoints(self):
         print("Loading attachment points and volumes")
         scene = bpy.context.scene
@@ -1665,18 +1691,6 @@ class Importer:
 
         return action
 
-    def findSimulateFrame(self, animIdToTimeValueMap):
-        # Hack:
-        # So far only seen models where Evt_Simulate and Evt_End are in the same animId element.
-        # Check through all stc.sdev entries directly instead?
-        timeValueMap = animIdToTimeValueMap.get(0x65bd3215, {})
-
-        for frame, key, in frameValuePairs(timeValueMap):
-            if key.name == "Evt_Simulate":
-                return True, frame
-
-        return False, 0
-
     def createAnimations(self):
         print("Creating actions(animation sequences)")
         scene = bpy.context.scene
@@ -1733,7 +1747,12 @@ class Importer:
                 if len(stc.animIds) != len(stc.animRefs):
                     raise Exception("len(stc.animids) != len(stc.animrefs)")
 
-            animation.useSimulateFrame, animation.simulateFrame = self.findSimulateFrame(animIdToTimeValueMap)
+            # Find simulate frame
+            evtSimulate = [*filter(lambda x: x.name == 'Evt_Simulate', stc.sdev[sequenceIndex].keys)]
+            if len(evtSimulate) > 0:
+                assert len(evtSimulate) <= 1  # there should be just one match for this event
+                animation.useSimulateFrame = True
+                animation.simulateFrame = msToFrame(stc.sdev[sequenceIndex].frames[0])
 
             self.animations.append(AnimationTempData(animIdToTimeValueMap, animationIndex))
 

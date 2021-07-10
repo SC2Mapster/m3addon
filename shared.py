@@ -86,6 +86,11 @@ forceShapeConeDome = "4"
 lightTypePoint = "1"
 lightTypeSpot = "2"
 
+physicsJointSphere = "0"
+physicsJointRevolute = "1"
+physicsJointCone = "2"
+physicsJointWeld = "3"
+
 colorChannelSettingRGB = "0"
 colorChannelSettingRGBA = "1"
 colorChannelSettingA = "2"
@@ -442,7 +447,6 @@ def selectBonesIfTheyExist(scene, boneNames):
         bones.append(r[0])
         armatureObjects.append(r[1])
     for ii, bone in enumerate(bones):
-        print(bone)
         if bone is None:
             continue
         armature = armatureObjects[ii].data
@@ -2124,6 +2128,18 @@ def transferTurretBehaviorPart(transferer):
     transferer.transferFloat("unknownAt140")
     transferer.transferFloat("unknownAt144")
     transferer.transferFloat("unknownAt148")
+
+
+def transferPhysicsJoint(transferer):
+    transferer.transferEnum("jointType")
+    transferer.transferBoolean("limit")
+    transferer.transferFloat("limitMin")
+    transferer.transferFloat("limitMax")
+    transferer.transferFloat("coneAngle")
+    transferer.transferBoolean("friction")
+    transferer.transferFloat("frictionAmount")
+    transferer.transferFloat("dampingRatio")
+    transferer.transferFloat("angularFrequency")
 
 
 def transferBufferMaterial(transferer):

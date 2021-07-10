@@ -906,7 +906,7 @@
         <fields>
             <field name="name" type="Reference" refTo="CHAR" />
             <field name="unknown76ff2940" type="int32" expected-value="-1" />
-            <field name="boneIndex" type="uint16" />
+            <field name="boneIndex" type="int16" default-value="-1" />
             <field name="unknown294cc515" type="uint16" expected-value="0" />
             <field name="matrix" type="Matrix44" />
             <field name="unknown7275bfa0" type="uint32" default-value="4" /> <!-- some kind of type (enum) ? -->
@@ -2150,7 +2150,7 @@
             <version number="0" size="180" />
         </versions>
         <fields>
-            <field name="type" type="uint32"/>
+            <field name="jointType" type="uint32"/>
             <field name="boneIndex1" type="uint32"/>
             <field name="boneIndex2" type="uint32"/>
             <field name="matrix1" type="Matrix44"/>
@@ -2880,7 +2880,7 @@
             <field name="unknownMaybeRef2" type="Reference" />
             <field name="rigidBodies" type="Reference" refTo="PHRB"/>
             <field name="unknownMaybeRef3" type="Reference" />
-            <field name="physicalJoint" type="Reference" refTo="PHYJ" />
+            <field name="physicsJoints" type="Reference" refTo="PHYJ" />
             <field name="clothBehavior" type="Reference" refTo="PHCL" since-version="28" />
             <field name="unknownMaybeRef4" type="Reference" />
             <field name="unknownbd5657bd" type="Reference" since-version="25" />
