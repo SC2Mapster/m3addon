@@ -1691,27 +1691,6 @@ class Importer:
 
         return action
 
-    def findSimulateFrame(self, animIdToTimeValueMap):
-        # Hack:
-        # So far only seen models where Evt_Simulate and Evt_End are in the same animId element.
-        # Check through all stc.sdev entries directly instead?
-        timeValueMap = animIdToTimeValueMap.get(0x65bd3215, {})
-
-        for frame, key, in frameValuePairs(timeValueMap):
-            if key.name == "Evt_Simulate":
-                return True, frame
-
-        # TODO
-        # This should be regarded as only a temporary solution.
-        # The function fails to find the simulation event in models
-        # that typically use physics joints, such as ragdolls.
-        # The function should be changed to properly find it so that
-        # this brute force method can be removed.
-        if len(self.model.physicsJoints) > 0:
-            return True, 0
-
-        return False, 0
-
     def createAnimations(self):
         print("Creating actions(animation sequences)")
         scene = bpy.context.scene
@@ -1768,7 +1747,12 @@ class Importer:
                 if len(stc.animIds) != len(stc.animRefs):
                     raise Exception("len(stc.animids) != len(stc.animrefs)")
 
-            animation.useSimulateFrame, animation.simulateFrame = self.findSimulateFrame(animIdToTimeValueMap)
+            # Find simulate frame
+            evtSimulate = [*filter(lambda x: x.name == 'Evt_Simulate', stc.sdev[sequenceIndex].keys)]
+            if len(evtSimulate) > 0:
+                assert len(evtSimulate) <= 1  # there should be just one match for this event
+                animation.useSimulateFrame = True
+                animation.simulateFrame = msToFrame(stc.sdev[sequenceIndex].frames[0])
 
             self.animations.append(AnimationTempData(animIdToTimeValueMap, animationIndex))
 
