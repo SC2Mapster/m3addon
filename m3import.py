@@ -1746,12 +1746,13 @@ class Importer:
                 if len(stc.animIds) != len(stc.animRefs):
                     raise Exception("len(stc.animids) != len(stc.animrefs)")
 
-            # Find simulate frame
-            evtSimulate = [*filter(lambda x: x.name == 'Evt_Simulate', stc.sdev[sequenceIndex].keys)]
-            if len(evtSimulate) > 0:
-                assert len(evtSimulate) <= 1  # there should be just one match for this event
-                animation.useSimulateFrame = True
-                animation.simulateFrame = msToFrame(stc.sdev[sequenceIndex].frames[0])
+                # Find simulate frame
+                for currSdev in stc.sdev:
+                    evtSimulate = [*filter(lambda x: x.name == 'Evt_Simulate', currSdev.keys)]
+                    if len(evtSimulate) > 0:
+                        assert len(evtSimulate) == 1  # there should be just one match for this event
+                        animation.useSimulateFrame = True
+                        animation.simulateFrame = msToFrame(currSdev.frames[0])
 
             self.animations.append(AnimationTempData(animIdToTimeValueMap, animationIndex))
 
