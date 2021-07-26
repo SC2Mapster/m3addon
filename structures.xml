@@ -1760,10 +1760,14 @@
            <field name="unknown5d722d08" type="float" default-value="500.0" />
            <field name="unknownfc180384" type="float" default-value="1200.0" />
            <field name="unknown713b7b48" type="float" default-value="150.0" />
-           <field name="unknown389805a1" size="12" default-value="0x000000000000000000000000"/>
+           <field name="unk00" type="uint32" default-value="0" />
+           <field name="unk01" type="uint32" default-value="0" />
+           <field name="unk02" type="uint32" default-value="0" />
            <field name="unknown1e6f06e7" type="float" default-value="1.0" />
            <field name="unknown402f350d" type="uint32" default-value="0x80ffffff" />
-           <field name="unknown42724138" size="12" default-value="0x000000000000000000000000" />
+           <field name="unk03" type="uint32" default-value="0" />
+           <field name="unk04" type="float" default-value="0.0" />
+           <field name="unk05" type="float" default-value="0.0" />
         </fields>
     </structure>
 
@@ -1779,31 +1783,18 @@
             <field name="name" type="Reference" refTo="CHAR" />
             <field name="unknownLayer1" type="Reference" refTo="LAYR" />
             <field name="unknownLayer2" type="Reference" refTo="LAYR" />
-            <field name="unknown335fd923" type="Reference" refTo="LFSB" />
-            <field name="unknown42724139" size="12" expacted-value="0x000000000000000000000000" since-version="3" />
-            <field name="unknown191c7146" type="Reference" refTo="CHAR" since-version="3" />
-            <field name="unknowne5cb3d48" type="uint32" default-value="1" since-version="3" />
-            <field name="unknown62cd83e0" size="4" since-version="3" />
-            <field name="unknown7f492c0a" type="uint32" defualt-value="0x40000000" />
+            <field name="unkRefToLFSB" type="Reference" refTo="LFSB" />
+            <field name="unk00" type="uint32" default-value="0" since-version="3" />
+            <field name="unk01" type="uint32" default-value="0" since-version="3" />
+            <field name="unk02" type="float" default-value="0.0" since-version="3" />
+            <field name="unkRefToCHAR" type="Reference" refTo="CHAR" since-version="3" />
+            <field name="unknown7f492c0a" type="uint32" defualt-value="0x40000000" till-version="2" />
+            <field name="unkFloatAnim01" type="FloatAnimationReference" since-version="3" />
             <!-- version 2 may have more fields with version 3 in common -->
             <field name="unknown7c0501fd" size="28" till-version="2" />
-            <field name="unknown592478e1" size="4" default-value="0x00000000" since-version="3"/>
-            <field name="unknownd3786e1e" size="4" since-version="3" />
-            <field name="unknown8beb57a7" size="4" default-value="0x00000000" since-version="3" />
-            <field name="unknown9b624fc7" size="4" since-version="3" />
-            <field name="unknownbaed442e" size="4" default-value="0xffffffff" since-version="3" />
-            <field name="unknown7a47ad22" size="4" default-value="0xffffffff" since-version="3" />
-            <field name="unknown8b614731" size="4" since-version="3" />
-            <field name="unknown1d8f2887" size="4" default-value="0x00000000" since-version="3" />
-            <field name="unknown43f3ad4d" size="4" since-version="3" />
-            <field name="unknownedeec90d" type="float" default-value="1.0"  since-version="3" />
-            <field name="unknown374c15de" type="float" default-value="1.0" since-version="3" />
-            <field name="unknown5f5e0f87" size="4" since-version="3" />
-            <field name="unknownf6e1c072" size="4" since-version="3" default-value="0x00000000" />
-            <field name="unknown41cff88a" size="4" since-version="3" />
-            <field name="unknown1c5b9dc4" type="float" default-value="1.0" since-version="3" />
-            <field name="unknown57c02c2b" type="float" default-value="1.0" since-version="3" />
-            <field name="unknown294d3393" size="4" since-version="3" />
+			<field name="unkFloatAnim02" type="UInt32AnimationReference" since-version="3" />
+			<field name="unkFloatAnim03" type="FloatAnimationReference" since-version="3" />
+			<field name="unkFloatAnim04" type="FloatAnimationReference" since-version="3" />
         </fields>
     </structure>
 
