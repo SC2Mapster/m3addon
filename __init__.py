@@ -22,7 +22,7 @@
 bl_info = {
     "name": "m3addon for M3 format: used by Blizzard's StarCraft 2 and Heroes of the Storm",
     "author": "Florian Köberle, netherh, chaos2night, Talv, Solstice245",
-    "version": (0, 5, 0),
+    "version": (0, 5, 1),
     "blender": (2, 80, 0),
     "location": "Properties Editor -> Scene -> M3 Panels",
     "description": "Allows to export and import models in M3 format.",
