@@ -896,6 +896,31 @@
         </fields>
     </structure>
 
+    <structure name="VertexFormat0x4186007d" >
+        <description></description>
+        <versions>
+            <version number="0" size="40" />
+        </versions>
+        <fields>
+            <field name="position" type="VEC3V0" />
+            <field name="boneWeight0" type="uint8" default-value="0" />
+            <field name="boneWeight1" type="uint8" default-value="0" />
+            <field name="boneWeight2" type="uint8" default-value="0" />
+            <field name="boneWeight3" type="uint8" default-value="0" />
+            <field name="boneLookupIndex0" type="uint8" default-value="0" />
+            <field name="boneLookupIndex1" type="uint8" default-value="0" />
+            <field name="boneLookupIndex2" type="uint8" default-value="0" />
+            <field name="boneLookupIndex3" type="uint8" default-value="0" />
+            <field name="normal" type="Vector3As3Fixed8V0" />
+            <field name="sign" type="fixed8" />
+            <field name="uv0" type="Vector2As2int16V0" />
+            <field name="uv1" type="Vector2As2int16V0" />
+            <field name="uv2" type="Vector2As2int16V0" />
+            <field name="tangent" type="Vector3As3Fixed8V0" />
+            <field name="unused" type="fixed8" default-value="1.0" />
+        </fields>
+    </structure>
+
     <structure name="EVNT">
         <description>An animation sequence event</description>
         <versions>
@@ -2833,9 +2858,16 @@
                 <bits>
                     <bit mask="0x200" name="hasVertexColors" />
                     <bit mask="0x20000" name="hasVertices" />
-                    <bit mask="0x40000" name="useUVChannel1" />
-                    <bit mask="0x80000" name="useUVChannel2" />
-                    <bit mask="0x100000" name="useUVChannel3" />
+                    <bit mask="0x40000" name="useUVChannel1" /> <!-- 1st UV coordinate -->
+                    <bit mask="0x80000" name="useUVChannel2" /> <!-- 2nd UV coordinate -->
+                    <bit mask="0x100000" name="useUVChannel3" /> <!-- 3th UV coordinate -->
+                    <bit mask="0x100000" name="useUVChannel4" /> <!-- 4th UV coordinate -->
+                    <bit mask="0x40000000" name="useUVChannel5" /> <!-- 5th UV coordinate -->
+                    <!--
+                         UV flags aren't always set in order, for instance 0x41820261 has two UVs
+                         - does it affect the model in some way?
+                         - examples: SpaceDockEngineSmall.m3 Void_Thrasher_Walker.m3
+                    -->
                 </bits>
             </field>
             <field name="vertices" type="Reference" refTo="U8__"/>
