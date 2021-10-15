@@ -255,10 +255,6 @@ def boneNameForParticleSystem(particleSystem):
     return toValidBoneName(star2ParticlePrefix + particleSystem.name)
 
 
-def boneNameForParticleSystemCopy(copy):
-    return toValidBoneName(star2ParticlePrefix + copy.name)
-
-
 def boneNameForRibbon(ribbon):
     return toValidBoneName(star2RibbonPrefix + ribbon.name)
 
@@ -277,7 +273,7 @@ def boneNameForProjection(projection):
 
 
 def boneNameForWarp(warp):
-    return star2WarpPrefix + warp.name
+    return toValidBoneName(star2WarpPrefix + warp.name)
 
 
 def iterateArmatureObjects(scene):
