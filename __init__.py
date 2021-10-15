@@ -204,7 +204,7 @@ def handleParticleSystemCopyNameChange(self, context):
     particleSystemCopy = self
 
     currentBoneName = particleSystemCopy.boneName
-    calculatedBoneName = shared.boneNameForParticleSystemCopy(particleSystemCopy)
+    calculatedBoneName = shared.boneNameForParticleSystem(particleSystemCopy)
 
     if currentBoneName != calculatedBoneName:
         bone, armatureObject = shared.findBoneWithArmatureObject(scene, currentBoneName)
@@ -216,6 +216,9 @@ def handleParticleSystemCopyNameChange(self, context):
 
 
 def handleRibbonNameChange(self, context):
+    if not self.bl_update:
+        return
+
     ribbon = self
     scene = context.scene
 
@@ -1247,7 +1250,7 @@ Defines the sorting relationship between this material and other transparent mat
     envDiffMult: bpy.props.FloatProperty(options=set(), default=0.0)
     envSpecMult: bpy.props.FloatProperty(options=set(), default=0.0)
     layerBlendType: bpy.props.EnumProperty(options=set(), items=matLayerAndEmisBlendModeList, default="2")
-    emisBlendType: bpy.props.EnumProperty(options=set(), items=matLayerAndEmisBlendModeList, default="3")
+    emisBlendType: bpy.props.EnumProperty(options=set(), items=matLayerAndEmisBlendModeList, default="2")
     specType: bpy.props.EnumProperty(options=set(), items=matSpecularTypeList, default="0")
     parallaxHeight: bpy.props.FloatProperty(options={"ANIMATABLE"}, default=0.0)
     unfogged: bpy.props.BoolProperty(options=set(), default=True)
@@ -1535,6 +1538,7 @@ class M3RibbonEndPoint(bpy.types.PropertyGroup):
 
 
 class M3Ribbon(bpy.types.PropertyGroup):
+    bl_update: bpy.props.BoolProperty(options=set(), default=True)
     name: bpy.props.StringProperty(options=set(), update=handleRibbonNameChange)
     boneName: bpy.props.StringProperty(options=set())
     materialName: bpy.props.StringProperty(options=set())
@@ -1771,9 +1775,9 @@ class M3TurretBehaviorPart(bpy.types.PropertyGroup):
     forwardX: bpy.props.FloatVectorProperty(options=set(), size=4, default=(0, -1, 0, 0))
     forwardY: bpy.props.FloatVectorProperty(options=set(), size=4, default=(1, 0, 0, 0))
     forwardZ: bpy.props.FloatVectorProperty(options=set(), size=4, default=(0, 0, 1, 0))
-    upX: bpy.props.FloatVectorProperty(options=set(), size=4, default=(1, 0, 0, 0))
-    upY: bpy.props.FloatVectorProperty(options=set(), size=4, default=(1, 0, 0, 0))
-    upZ: bpy.props.FloatVectorProperty(options=set(), size=4, default=(1, 0, 0, 0))
+    upX: bpy.props.FloatVectorProperty(options=set(), size=4, default=(0, 0, 0, 1))
+    upY: bpy.props.FloatVectorProperty(options=set(), size=4, default=(0, 0, 0, 1))
+    upZ: bpy.props.FloatVectorProperty(options=set(), size=4, default=(0, 0, 0, 1))
     mainTurretBone: bpy.props.BoolProperty(options=set())
     groupId: bpy.props.IntProperty(options=set(), subtype="UNSIGNED", default=1)
     yawWeight: bpy.props.FloatProperty(options=set(), min=0, max=1, default=1, subtype="FACTOR")
@@ -1991,6 +1995,9 @@ class AnimationSequencesPropPanel(bpy.types.Panel):
             col.prop(animation, "notLooping", text="Doesn't Loop")
             col.prop(animation, "alwaysGlobal", text="Always Global")
             col.prop(animation, "globalInPreviewer", text="Global In Previewer")
+
+            if not len(scene.m3_rigid_bodies) > 0:
+                return
 
             row = layout.row()
             row.prop(animation, "useSimulateFrame", text="Use physics")
@@ -3402,6 +3409,8 @@ class RibbonPropertiesPanel(bpy.types.Panel):
         col.prop(ribbon, "drag", text="Drag")
         col.prop(ribbon, "friction", text="Friction")
         col.prop(ribbon, "bounce", text="Bounce")
+        col.prop(ribbon, "mass", text="Mass")
+        col.prop(ribbon, "gravity", text="Gravity")
         row = layout.row()
         col = row.column(align=True)
         col.active = len(ribbon.endPoints) == 0
@@ -4778,7 +4787,7 @@ class M3_ANIMATIONS_OT_remove(bpy.types.Operator):
 
     def invoke(self, context, event):
         scene = context.scene
-        if scene.m3_animation_index >= 0:
+        if len(scene.m3_animations) > 0:
             animation = scene.m3_animations[scene.m3_animation_index]
 
             armAction = bpy.data.actions["Armature Object" + animation.name] if "Armature Object" + animation.name in bpy.data.actions else None
@@ -4793,15 +4802,9 @@ class M3_ANIMATIONS_OT_remove(bpy.types.Operator):
 
             scene.m3_animations.remove(scene.m3_animation_index)
 
-            if scene.m3_animation_index == 0 and len(scene.m3_animations) == 1:
-                scene.m3_animation_index -= 1
-            # Here we jog the animation index to get the actions to refresh
-            elif scene.m3_animation_index > 0:
-                scene.m3_animation_index -= 1
-                scene.m3_animation_index += 1
-            else:
-                scene.m3_animation_index += 1
-                scene.m3_animation_index -= 1
+            # Here we jog the animation index to make sure actions get refreshed
+            scene.m3_animation_index -= 1 if scene.m3_animation_index > 0 or len(scene.m3_animations) == 0 else 0
+            scene.m3_animation_index += 1 if scene.m3_animation_index is len(scene.m3_animations) else 0
 
         return {"FINISHED"}
 
@@ -5138,7 +5141,7 @@ class M3_CAMERAS_OT_duplicate(bpy.types.Operator):
         camera = scene.m3_cameras[scene.m3_camera_index]
         newCamera = scene.m3_cameras.add()
 
-        shared.copyBpyProps(newCamera, camera)
+        shared.copyBpyProps(newCamera, camera, skip="name")
 
         newCamera.name = shared.findUnusedPropItemName(scene, propGroups=[scene.m3_cameras], prefix=camera.name)
 
@@ -5248,18 +5251,15 @@ class M3_PARTICLE_SYSTEMS_OT_duplicate(bpy.types.Operator):
         particleSystem = scene.m3_particle_systems[scene.m3_particle_system_index]
         newParticleSystem = scene.m3_particle_systems.add()
 
-        shared.copyBpyProps(newParticleSystem, particleSystem, skip=["copies", "spawnPoints"])
+        propGroups = [scene.m3_particle_systems] + [system.copies for system in scene.m3_particle_systems]
+
+        newParticleSystem.name = shared.findUnusedPropItemName(scene, propGroups=propGroups, prefix=particleSystem.name)
+        shared.copyBpyProps(newParticleSystem, particleSystem, skip=["name", "boneName", "copies", "spawnPoints"])
 
         for spawnPoint in particleSystem.spawnPoints:
             newSpawnPoint = newParticleSystem.spawnPoints.add()
 
             shared.copyBpyProps(newSpawnPoint, spawnPoint)
-
-        propGroups = [scene.m3_particle_systems]
-        for particle_system in scene.m3_particle_systems:
-            propGroups.append(particle_system.copies)
-
-        newParticleSystem.name = shared.findUnusedPropItemName(scene, propGroups=propGroups)
 
         scene.m3_particle_system_index = len(scene.m3_particle_systems) - 1
 
@@ -5416,7 +5416,7 @@ class M3_RIBBONS_OT_duplicate(bpy.types.Operator):
         ribbon = scene.m3_ribbons[scene.m3_ribbon_index]
         newRibbon = scene.m3_ribbons.add()
 
-        shared.copyBpyProps(newRibbon, ribbon, skip=["endPoints"])
+        shared.copyBpyProps(newRibbon, ribbon, skip=["name", "boneName", "endPoints"])
 
         newRibbon.name = shared.findUnusedPropItemName(scene, propGroups=[scene.m3_ribbons], prefix=ribbon.name)
 
@@ -5551,7 +5551,7 @@ class M3_FORCES_OT_duplicate(bpy.types.Operator):
         force = scene.m3_forces[scene.m3_force_index]
         newForce = scene.m3_forces.add()
 
-        shared.copyBpyProps(newForce, force, skip=["name"])
+        shared.copyBpyProps(newForce, force, skip=["name", "boneName"])
         newForce.name = shared.findUnusedPropItemName(scene, propGroups=[scene.m3_forces], prefix=force.name)
 
         scene.m3_force_index = len(scene.m3_forces) - 1
@@ -5589,7 +5589,7 @@ class M3_RIGID_BODIES_OT_remove(bpy.types.Operator):
         if not 0 <= currentIndex < len(scene.m3_rigid_bodies):
             return {"CANCELLED"}
 
-        shared.removeRigidBodyBoneShape(scene, scene.m3_rigid_bodies[currentIndex])
+        shared.removeRigidBodyBoneShape(scene, scene.m3_rigid_bodies[currentIndex].name)
 
         scene.m3_rigid_bodies.remove(currentIndex)
 
@@ -5681,7 +5681,7 @@ class M3_PHYSICS_SHAPES_OT_remove(bpy.types.Operator):
 
         if rigid_body.physicsShapeIndex != 0 or len(rigid_body.physicsShapes) == 0:
             rigid_body.physicsShapeIndex -= 1
-        shared.updateBoneShapeOfRigidBody(scene, rigid_body.name)
+        shared.updateBoneShapeOfRigidBody(scene, rigid_body, rigid_body.name)
 
         return {"FINISHED"}
 
@@ -5773,7 +5773,7 @@ class M3_LIGHTS_OT_duplicate(bpy.types.Operator):
         light = scene.m3_lights[scene.m3_light_index]
         newLight = scene.m3_lights.add()
 
-        shared.copyBpyProps(newLight, light, skip="name")
+        shared.copyBpyProps(newLight, light, skip=["name", "boneName"])
         newLight.name = shared.findUnusedPropItemName(scene, propGroups=[scene.m3_lights], prefix=light.name)
 
         scene.m3_light_index = len(scene.m3_lights) - 1
@@ -6125,7 +6125,7 @@ class M3_WARPS_OT_duplicate(bpy.types.Operator):
         warp = scene.m3_warps[scene.m3_warp_index]
         newWarp = scene.m3_warps.add()
 
-        shared.copyBpyProps(newWarp, warp, skip="name")
+        shared.copyBpyProps(newWarp, warp, skip=["name", "boneName"])
         newWarp.name = shared.findUnusedPropItemName(scene, propGroups=[scene.m3_warps], prefix=warp.name)
 
         scene.m3_warp_index = len(scene.m3_warps) - 1

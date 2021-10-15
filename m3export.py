@@ -425,6 +425,9 @@ class Exporter:
                     boneNameToRotations[boneName] = []
                     boneNameToScales[boneName] = []
 
+            # Jog animation frame so that complicated bone constraints are given time to be properly calculated before proceeding
+            self.scene.frame_set(0)
+
             for frame in frames:
                 self.scene.frame_set(frame)
                 for armatureObjectName, boneNamesOfArmature in self.armatureObjectNameToBoneNamesMap.items():
@@ -769,7 +772,7 @@ class Exporter:
                                     boneNameToBoneLookupIndexMap[vertexGroup.name] = boneLookupIndex
                                 bone = model.bones[boneIndex]
                                 bone.setNamedBit("flags", "skinned", True)
-                                boneWeight = round(g.weight * 255)
+                                boneWeight = sorted((round(g.weight * 255), 0, 255))[1]
                                 if boneWeight != 0:
                                     if len(weightLookupIndexPairs) < 4:
                                         weightLookupIndexPairs.append((g.weight, boneLookupIndex))
@@ -1516,7 +1519,7 @@ class Exporter:
                 boneIndex = self.boneNameToBoneIndexMap.get(boneName)
                 if boneIndex is None:
                     boneIndex = self.addBoneWithRestPosAndReturnIndex(model, boneName, realBone=False)
-                m3Copy.bone = boneIndex
+                m3Copy.boneIndex = boneIndex
                 copyAnimPathPrefix = animPathPrefix + "copies[%d]." % blenderCopyIndex
                 transferer = BlenderToM3DataTransferer(exporter=self, m3Object=m3Copy, blenderObject=copy, animPathPrefix=copyAnimPathPrefix, rootObject=self.scene)
                 shared.transferParticleSystemCopy(transferer)
