@@ -63,7 +63,7 @@ def toBlenderMatrix(m3Matrix):
     ))
 
 
-FRAME_RATE = 30.0
+FRAME_RATE = 30
 
 
 def msToFrame(timeInMS):
