@@ -1776,23 +1776,23 @@
             Lens Flare Material Substructure
         </description>
         <versions>
-            <version number="2" size="56" />
+            <version number="2" size="56"/>
         </versions>
         <fields>
-           <field name="unknown07c51b5b" type="uint32" default-value="0" />
-           <field name="unknownde754918" type="float" default-value="1.0" />
-           <field name="unknownd74895eb" type="float" default-value="3200.0" />
-           <field name="unknown5d722d08" type="float" default-value="500.0" />
-           <field name="unknownfc180384" type="float" default-value="1200.0" />
-           <field name="unknown713b7b48" type="float" default-value="150.0" />
-           <field name="unk00" type="uint32" default-value="0" />
-           <field name="unk01" type="uint32" default-value="0" />
-           <field name="unk02" type="uint32" default-value="0" />
-           <field name="unknown1e6f06e7" type="float" default-value="1.0" />
-           <field name="unknown402f350d" type="uint32" default-value="0x80ffffff" />
-           <field name="unk03" type="uint32" default-value="0" />
-           <field name="unk04" type="float" default-value="0.0" />
-           <field name="unk05" type="float" default-value="0.0" />
+           <field name="uv_index" type="uint32" default-value="0"/>
+           <field name="distance_factor" type="float" default-value="1.0"/>
+           <field name="width" type="float" default-value="3200.0"/>
+           <field name="height" type="float" default-value="500.0"/>
+           <field name="width_falloff" type="float" default-value="1200.0"/>
+           <field name="height_falloff" type="float" default-value="150.0"/>
+           <field name="unk00" type="uint32" default-value="0"/> <!-- these unknown fields are possibly related to unknown layer, but more research will be needed -->
+           <field name="unk01" type="uint32" default-value="0"/>
+           <field name="falloff_threshold" type="float" default-value="0"/>
+           <field name="falloff_rate" type="float" default-value="1.0"/>
+           <field name="color" type="COL" default-value="0x80ffffff"/>
+           <field name="flag_face_source" type="uint32" default-value="0"/>
+           <field name="unk02" type="float" default-value="0.0"/>
+           <field name="unk03" type="float" default-value="0.0"/>
         </fields>
     </structure>
 
@@ -1801,56 +1801,62 @@
             Lens Flare Material
         </description>
         <versions>
-            <version number="2" size="80" />
-            <version number="3" size="152" />
+            <version number="2" size="80"/>
+            <version number="3" size="152"/>
         </versions>
         <fields>
-            <field name="name" type="Reference" refTo="CHAR" />
-            <field name="unknownLayer1" type="Reference" refTo="LAYR" />
-            <field name="unknownLayer2" type="Reference" refTo="LAYR" />
-            <field name="unkRefToLFSB" type="Reference" refTo="LFSB" />
-            <field name="unk00" type="uint32" default-value="0" since-version="3" />
-            <field name="unk01" type="uint32" default-value="0" since-version="3" />
-            <field name="unk02" type="float" default-value="0.0" since-version="3" />
-            <field name="unkRefToCHAR" type="Reference" refTo="CHAR" since-version="3" />
-            <field name="unknown7f492c0a" type="uint32" defualt-value="0x40000000" till-version="2" />
-            <field name="unkFloatAnim01" type="FloatAnimationReference" since-version="3" />
+            <field name="name" type="Reference" refTo="CHAR"/>
+            <field name="color_layer" type="Reference" refTo="LAYR"/>
+            <field name="unknown_layer" type="Reference" refTo="LAYR"/>
+            <field name="starbursts" type="Reference" refTo="LFSB"/>
+            <field name="unknown7f492c0a" type="uint32" default-value="0x40000000" till-version="2"/>
+            <field name="unk00" type="uint32" till-version="2"/>
+            <field name="unk01" type="uint32" till-version="2"/>
+            <field name="unk02" type="uint32" till-version="2"/>
+            <field name="unk03" type="uint32" till-version="2"/>
+            <field name="unk04" type="uint32" till-version="2"/>
+            <field name="unk05" type="uint32" till-version="2"/>
+            <field name="unk06" type="uint32" till-version="2"/>
             <!-- version 2 may have more fields with version 3 in common -->
-            <field name="unknown7c0501fd" size="28" till-version="2" />
-			<field name="unkFloatAnim02" type="UInt32AnimationReference" since-version="3" />
-			<field name="unkFloatAnim03" type="FloatAnimationReference" since-version="3" />
-			<field name="unkFloatAnim04" type="FloatAnimationReference" since-version="3" />
+            <field name="uv_columns" type="uint32" default-value="0" since-version="3"/>
+            <field name="uv_rows" type="uint32" default-value="0" since-version="3"/>
+            <field name="unk07" type="float" default-value="0.0" since-version="3"/>
+            <field name="unknown_ref_char" type="Reference" refTo="CHAR" since-version="3"/>
+            <field name="intensity" type="FloatAnimationReference" since-version="3"/>
+            <field name="color" type="ColorAnimationReference" since-version="3"/>
+            <field name="intensity2" type="FloatAnimationReference" since-version="3"/>
+            <field name="uniform_scale" type="FloatAnimationReference" since-version="3"/>
         </fields>
     </structure>
 
     <structure name="REF_" >
         <description>Reflection material</description>
         <versions>
-            <version number="1" size="84" />
-            <version number="2" size="156" />
-            <version number="3" size="160" /> <!-- probably Storm exclusive? -->
+            <version number="1" size="84"/>
+            <version number="2" size="156"/>
+            <version number="3" size="160"/> <!-- probably Storm exclusive? -->
         </versions>
         <fields>
-            <field name="name" type="Reference" refTo="CHAR" />
-            <field name="unknown8f5ea924" size="4" default-value="0x00000000" />
-            <field name="reflectionStrength" type="FloatAnimationReference" /> <!-- default-value="1.0" -->
-            <field name="displacementStrength" type="FloatAnimationReference" /> <!-- default-value="1.0" -->
-            <field name="reflectionOffset" type="FloatAnimationReference" since-version="2" /> <!-- default-value="0.0" -->
-            <field name="blurAngle" type="FloatAnimationReference" since-version="2" /> <!-- default-value="0.0" -->
-            <field name="blurDistance" type="FloatAnimationReference" since-version="2" /> <!-- default-value="2.0" -->
-            <field name="normalLayer" type="Reference" refTo="LAYR" />
-            <field name="strengthLayer" type="Reference" refTo="LAYR" />
-            <field name="blurLayer" type="Reference" refTo="LAYR" since-version="2" />
+            <field name="name" type="Reference" refTo="CHAR"/>
+            <field name="unknown8f5ea924" type="uint32" default-value="0"/>
+            <field name="reflectionStrength" type="FloatAnimationReference"/> <!-- default-value="1.0" -->
+            <field name="displacementStrength" type="FloatAnimationReference"/> <!-- default-value="1.0" -->
+            <field name="reflectionOffset" type="FloatAnimationReference" since-version="2"/> <!-- default-value="0.0" -->
+            <field name="blurAngle" type="FloatAnimationReference" since-version="2"/> <!-- default-value="0.0" -->
+            <field name="blurDistance" type="FloatAnimationReference" since-version="2"/> <!-- default-value="2.0" -->
+            <field name="normalLayer" type="Reference" refTo="LAYR"/>
+            <field name="strengthLayer" type="Reference" refTo="LAYR"/>
+            <field name="blurLayer" type="Reference" refTo="LAYR" since-version="2"/>
             <field name="flags" type="uint32">
                 <bits>
-                    <bit mask="0x1" name="enableNormalLayer" />
-                    <bit mask="0x2" name="enableStrengthLayer" />
-                    <bit mask="0x4" name="renderInTransparentPass" />
-                    <bit mask="0x8" name="enableBlur" />
-                    <bit mask="0x16" name="enableBlurMask" />
+                    <bit mask="0x1" name="enableNormalLayer"/>
+                    <bit mask="0x2" name="enableStrengthLayer"/>
+                    <bit mask="0x4" name="renderInTransparentPass"/>
+                    <bit mask="0x8" name="enableBlur"/>
+                    <bit mask="0x16" name="enableBlurMask"/>
                 </bits>
             </field>
-            <field name="unknown49626d0e" type="uint32" since-version="3" />
+            <field name="unknown49626d0e" type="uint32" since-version="3"/>
         </fields>
     </structure>
 
@@ -2187,58 +2193,70 @@
     <structure name="PHCC">
         <description>Cloth Constraint</description>
         <versions>
-            <version number="0" size="76" />
+            <version number="0" size="76"/>
         </versions>
         <fields>
-            <field name="unknown1_1"  type="VEC3V0" />
-            <field name="unknown1_2" type="uint32" />
-            <field name="unknown2_1"  type="VEC3V0" />
-            <field name="unknown2_2" type="uint32" />
-            <field name="unknown3_1"  type="VEC3V0" />
-            <field name="unknown3_2" type="uint32" />
-            <field name="unknown4"  type="VEC3V0" />
-            <field name="unknown5"  type="VEC3V0" />
-            <field name="unknown6" type="uint32" />
+            <field name="matrix" type="Matrix44"/>
+            <field name="size0" type="float"/>
+            <field name="size1" type="float"/>
+            <field name="bone" type="uint32"/>
         </fields>
     </structure>
 
     <structure name="PHAC">
         <description>Cloth related</description>
         <versions>
-            <version number="0" size="32" />
+            <version number="0" size="32"/>
         </versions>
         <fields>
-            <field name="unknown1" type="uint32" />
-            <field name="unknown2" type="uint32" />
-            <field name="unknown3" type="Reference" refTo="U64_" />
-            <field name="unknown4" type="Reference" refTo="U32_" />
+            <field name="simulation_region_index" type="uint32"/>
+            <field name="influenced_region_index" type="uint32"/>
+            <field name="simulation_vertices" type="Reference" refTo="U64_"/> <!-- i suspect this is intended to be read as 4 int16 values, possibly linking together vertices which influence one another -->
+            <field name="simulation_weights" type="Reference" refTo="U32_"/> <!-- assigns influence of simulation_region vertices on influenced_region vertices with 4 single byte values, one for each vertice index in simulation_vertices -->
         </fields>
     </structure>
 
     <structure name="PHCL">
         <description>Cloth Behavior</description>
         <versions>
-            <version number="2" size="128" />
-            <version number="4" size="192" />
+            <version number="2" size="128"/>
+            <version number="4" size="192"/>
         </versions>
         <fields>
-            <field name="unknown1" type="uint32" />
-            <field name="unknown2" type="uint32" />
-            <field name="unknown3" type="Reference" refTo="U16_" />
-            <field name="unknown4" type="Reference" refTo="U8__" />
-            <field name="unknown5" type="Reference" refTo="U32_" />
-            <field name="unknown6" type="Reference" refTo="U32_" />
-            <field name="unknown7" type="Reference" refTo="PHCC" />
-            <field name="unknown8" type="Reference" refTo="PHAC" />
-            <field name="unknown9"  type="VEC3V0" />
-            <field name="unknown10"  type="VEC3V0" />
-            <field name="unknown11"  type="VEC3V0" />
-            <field name="unknown12"  type="VEC3V0" />
-
-            <field name="unknown71538f14" size="16" default-value="0x00000000000000000000000000000000" since-version="4" />
-            <field name="unknown71538f24" size="16" default-value="0x00000000000000000000000000000000" since-version="4" />
-            <field name="unknown71538f34" size="16" default-value="0x00000000000000000000000000000000" since-version="4" />
-            <field name="unknown71538f44" size="16" default-value="0x00000000000000000000000000000000" since-version="4" />
+            <field name="influenced_region_index" type="uint32"/>
+            <field name="unknown0" type="uint32"/>
+            <field name="skin_bones" type="Reference" refTo="U16_"/> <!-- list of bone indices referenced by vertex_bones or by PHCC bone indices -->
+            <field name="vertex_simulated" type="Reference" refTo="U8__"/> <!-- 0x0 for static vertex, 0x1 for simulated vertex -->
+            <field name="vertex_bones" type="Reference" refTo="U32_"/> <!-- 2 bytes each used to reference up to 4 bone indices -->
+            <field name="vertex_weights" type="Reference" refTo="U32_"/> <!-- 2 bytes each used to define the weight given to the bones referenced by vertex_bones -->
+            <field name="cloth_constrainsts" type="Reference" refTo="PHCC"/>
+            <field name="influence_map" type="Reference" refTo="PHAC"/>
+            <field name="density" type="float"/>
+            <field name="tracking" type="float"/>
+            <field name="stiffness_stretching" type="float"/>
+            <field name="stiffness_horizontal" type="float"/>
+            <field name="stifness_blending" type="float"/>
+            <field name="damping" type="float"/>
+            <field name="friction" type="float"/>
+            <field name="gravity" type="float"/>
+            <field name="explosion_scale" type="float"/>
+            <field name="wind_scale" type="float"/>
+            <field name="shear_stiffness" type="float"/>
+            <field name="drag_factor" type="float"/>
+            <field name="lift_factor" type="float"/>
+            <field name="sphere_attachment_stiffness" type="float"/>
+            <field name="unknown1" type="uint32" since-version="4"/>
+            <field name="unknown2" type="uint32" since-version="4"/>
+            <field name="unknown3" type="uint32" since-version="4"/> <!-- weird number, could actually be single byte values -->
+            <field name="unknown4" type="uint32" since-version="4" default-value="1"/>
+            <field name="unknown5" type="uint32" since-version="4" default-value="1"/>
+            <field name="unknown6" type="int32" since-version="4" default-value="-1"/>
+            <field name="use_skin_collision" type="uint32" since-version="4"/>
+            <field name="skin_offset" type="float" since-version="4"/>
+            <field name="skin_exponent" type="float" since-version="4"/>
+            <field name="skin_stiffness" type="float" since-version="4"/>
+            <field name="unknown7" type="uint32" since-version="4"/>
+            <field name="local_wind" type="VEC3" since-version="4"/>
         </fields>
     </structure>
 
