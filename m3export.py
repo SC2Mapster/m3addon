@@ -1847,12 +1847,7 @@ class Exporter:
                 model.attachmentVolumesAddon1.append(0)
 
     def toM3ColorComponent(self, blenderColorComponent):
-        v = round(blenderColorComponent * 255)
-        if v > 255:
-            v = 255
-        if v < 0:
-            v = 0
-        return v
+        return sorted((0, round(blenderColorComponent * 255), 255))[1]
 
     def toM3Color(self, blenderColor):
         color = self.createInstanceOf("COL")

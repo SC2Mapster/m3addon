@@ -1546,9 +1546,9 @@ class M3Ribbon(bpy.types.PropertyGroup):
     speed: bpy.props.FloatProperty(default=1, options={"ANIMATABLE"})
     size: bpy.props.FloatVectorProperty(default=(1, 1, 1), size=3, subtype="XYZ", options={"ANIMATABLE"})
     rotation: bpy.props.FloatVectorProperty(default=(1, 1, 1), size=3, subtype="XYZ", options={"ANIMATABLE"})
-    baseColoring: bpy.props.FloatVectorProperty(size=3, subtype="COLOR", options={"ANIMATABLE"})
-    centerColoring: bpy.props.FloatVectorProperty(size=3, subtype="COLOR", options={"ANIMATABLE"})
-    tipColoring: bpy.props.FloatVectorProperty(size=3, subtype="COLOR", options={"ANIMATABLE"})
+    baseColoring: bpy.props.FloatVectorProperty(size=4, subtype="COLOR", min=0, max=1, options={"ANIMATABLE"})
+    centerColoring: bpy.props.FloatVectorProperty(size=4, subtype="COLOR", min=0, max=1, options={"ANIMATABLE"})
+    tipColoring: bpy.props.FloatVectorProperty(size=4, subtype="COLOR", min=0, max=1, options={"ANIMATABLE"})
     sizeMiddleTime: bpy.props.FloatProperty(options=set(), default=1.0, min=0, max=1, subtype="FACTOR")
     colorMiddleTime: bpy.props.FloatProperty(options=set(), default=1.0, min=0, max=1, subtype="FACTOR")
     alphaMiddleTime: bpy.props.FloatProperty(options=set(), default=1.0, min=0, max=1, subtype="FACTOR")
@@ -6390,7 +6390,7 @@ def getSignGroup(bm):
 
 class ObjectSignPanel(bpy.types.Panel):
     bl_idname = "OBJECT_PT_M3_sign"
-    bl_label = "M3 Inverse Sign Group"
+    bl_label = "M3 Vertex Signs"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "data"
@@ -6404,18 +6404,18 @@ class ObjectSignPanel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
         col = layout.column()
-        col.operator("m3.object_sign_select", text="Select")
+        col.operator("m3.vertex_sign_select", text="Select")
         col = layout.column_flow(columns=2)
-        col.operator("m3.object_sign_set", text="Set To Selected")
-        col.operator("m3.object_sign_invert", text="Invert Selected")
-        col.operator("m3.object_sign_add", text="Add Selected")
-        col.operator("m3.object_sign_remove", text="Remove Selected")
+        col.operator("m3.vertex_sign_set", text="Set To Selected")
+        col.operator("m3.vertex_sign_invert", text="Invert Selected")
+        col.operator("m3.vertex_sign_add", text="Add Selected")
+        col.operator("m3.vertex_sign_remove", text="Remove Selected")
 
 
 class ObjectSignOpSet(bpy.types.Operator):
-    bl_idname = "m3.object_sign_set"
+    bl_idname = "m3.vertex_sign_set"
     bl_label = "Set faces"
-    bl_description = "Sets the selected faces to the sign inversion group"
+    bl_description = "Sets the vertices of all selected faces normal sign to positive, and all unselected to negative"
     bl_options = {"UNDO"}
 
     def invoke(self, context, event):
@@ -6432,9 +6432,9 @@ class ObjectSignOpSet(bpy.types.Operator):
 
 
 class ObjectSignOpSelect(bpy.types.Operator):
-    bl_idname = "m3.object_sign_select"
+    bl_idname = "m3.vertex_sign_select"
     bl_label = "Select faces"
-    bl_description = "Selects the assigned faces of the sign inversion group"
+    bl_description = "Selects all vertices with a positive normal sign"
     bl_options = {"UNDO"}
 
     def invoke(self, context, event):
@@ -6452,9 +6452,9 @@ class ObjectSignOpSelect(bpy.types.Operator):
 
 
 class ObjectSignOpAdd(bpy.types.Operator):
-    bl_idname = "m3.object_sign_add"
+    bl_idname = "m3.vertex_sign_add"
     bl_label = "Add faces"
-    bl_description = "Adds the selected faces to the sign inversion group"
+    bl_description = "Sets the normal sign of the vertices of all selected faces to positive"
     bl_options = {"UNDO"}
 
     def invoke(self, context, event):
@@ -6472,9 +6472,9 @@ class ObjectSignOpAdd(bpy.types.Operator):
 
 
 class ObjectSignOpRemove(bpy.types.Operator):
-    bl_idname = "m3.object_sign_remove"
+    bl_idname = "m3.vertex_sign_remove"
     bl_label = "Remove faces"
-    bl_description = "Removes the selected faces from the sign inversion group"
+    bl_description = "Sets the normal sign of the vertices of all selected faces to negative"
     bl_options = {"UNDO"}
 
     def invoke(self, context, event):
@@ -6492,7 +6492,7 @@ class ObjectSignOpRemove(bpy.types.Operator):
 
 
 class ObjectSignOpInvert(bpy.types.Operator):
-    bl_idname = "m3.object_sign_invert"
+    bl_idname = "m3.vertex_sign_invert"
     bl_label = "Invert faces"
     bl_description = "Inverts the value of the sign inversion group for the selected faces."
     bl_options = {"UNDO"}

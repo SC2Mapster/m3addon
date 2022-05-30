@@ -616,7 +616,7 @@ class Importer:
                 return
 
         for ii, bone in enumerate(model.bones):
-            adjustM3BoneNamePrefix(bone, shared.star2ParticlePrefix, ["P_", "MR3_Particle_"])
+            adjustM3BoneNamePrefix(bone, shared.star2ParticlePrefix, ["P_", "MR3_Particle_", "SC2Particles"])
             adjustM3BoneNamePrefix(bone, shared.star2RibbonPrefix, ["SC2SplRbn", "SC2Ribbon"])
             adjustM3BoneNamePrefix(bone, shared.lightPrefixMap["1"], ["SC2Omni"])
             adjustM3BoneNamePrefix(bone, shared.lightPrefixMap["2"], ["SC2Spot"])
@@ -1350,6 +1350,7 @@ class Importer:
                     hex(self.model.vFlags),
                     len(self.model.vertices)
                 ))
+
         vertexStructureDescription = m3.structures[vertexClassName].getVersion(0)
 
         numberOfVertices = len(self.model.vertices) // vertexStructureDescription.size
@@ -1362,7 +1363,6 @@ class Importer:
                 regionVertexIndices = range(region.firstVertexIndex, region.firstVertexIndex + region.numberOfVertices)
                 firstVertexIndexIndex = region.firstFaceVertexIndexIndex
                 lastVertexIndexIndex = firstVertexIndexIndex + region.numberOfFaceVertexIndices
-                vertexIndexIndex = firstVertexIndexIndex
                 firstVertexIndex = region.firstVertexIndex
                 assert region.numberOfFaceVertexIndices % 3 == 0
 
@@ -1370,6 +1370,8 @@ class Importer:
                 uvwOffset = getattr(region, 'uvwOffset', 0.0)
 
                 facesWithOldIndices = []  # old index = index of vertex in m3Vertices
+
+                vertexIndexIndex = firstVertexIndexIndex
                 while vertexIndexIndex + 2 <= lastVertexIndexIndex:
                     i0 = firstVertexIndex + divisionFaceIndices[vertexIndexIndex]
                     i1 = firstVertexIndex + divisionFaceIndices[vertexIndexIndex + 1]

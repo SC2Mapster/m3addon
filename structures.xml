@@ -2256,7 +2256,7 @@
             <field name="skin_exponent" type="float" since-version="4"/>
             <field name="skin_stiffness" type="float" since-version="4"/>
             <field name="unknown7" type="uint32" since-version="4"/>
-            <field name="local_wind" type="VEC3" since-version="4"/>
+            <field name="local_wind" type="VEC3V0" since-version="4"/>
         </fields>
     </structure>
 
