@@ -1174,6 +1174,7 @@ matBlendModeList = [
     ("4", "Mod", "no description yet"),
     ("5", "Mod 2x", "no description yet"),
     ("6", "Unknown 0x06", "no description yet"),
+    ("7", "Unknown 0x07", "no description yet"),
 ]
 
 matLayerAndEmisBlendModeList = [
