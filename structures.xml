@@ -2219,7 +2219,7 @@
     <structure name="PHCL">
         <description>Cloth Behavior</description>
         <versions>
-            <version number="2" size="128"/>
+            <version number="2" size="136"/> <!-- changed size here to 136 from 128 just to stop error, need to find actual case of PHCL v2 to confirm -->
             <version number="4" size="192"/>
         </versions>
         <fields>
