@@ -1252,6 +1252,7 @@ Defines the sorting relationship between this material and other transparent mat
     envSpecMult: bpy.props.FloatProperty(options=set(), default=0.0)
     layerBlendType: bpy.props.EnumProperty(options=set(), items=matLayerAndEmisBlendModeList, default="2")
     emisBlendType: bpy.props.EnumProperty(options=set(), items=matLayerAndEmisBlendModeList, default="2")
+    emisMode: bpy.props.EnumProperty(options=set(), items=matLayerAndEmisBlendModeList, default="2")  # what is the difference between emisBlendType and emisMode?
     specType: bpy.props.EnumProperty(options=set(), items=matSpecularTypeList, default="0")
     parallaxHeight: bpy.props.FloatProperty(options={"ANIMATABLE"}, default=0.0)
     unfogged: bpy.props.BoolProperty(options=set(), default=True)
@@ -2148,6 +2149,7 @@ def displayMaterialPropertiesUI(scene: bt.Scene, layout: bt.UILayout, materialRe
         col.prop(material, "blendMode", text="Blend Mode")
         col.prop(material, "layerBlendType")
         col.prop(material, "emisBlendType", text="Emis. Blend Type")
+        col.prop(material, "emisMode", text="Emis. Mode")
         row = layout.row()
         col = row.column(align=True)
         col.prop(material, "specType", text="Spec. Type")

@@ -1955,6 +1955,7 @@ def transferStandardMaterial(transferer):
     transferer.transferFloat("envSpecMult", sinceVersion=20)
     transferer.transferEnum("layerBlendType")
     transferer.transferEnum("emisBlendType")
+    transferer.transferEnum("emisMode")
     transferer.transferEnum("specType")
     transferer.transferAnimatableFloat("parallaxHeight")
 
