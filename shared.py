@@ -202,34 +202,29 @@ def setDefaultValue(defaultAction, path, index, value):
     keyFrame.interpolation = "CONSTANT"
 
 
-def findUnusedPropItemName(scene, propGroups=[], suggestedNames=[], prefix=""):
+def findUnusedPropItemName(propGroups=[], suggestedNames=[], prefix=""):
     usedNames = set()
     for propGroup in propGroups:
         for propItem in propGroup:
             usedNames.add(propItem.name)
 
-    counterNum = 1
-    unusedName = None
-    while unusedName is None:
-        for suggestedName in suggestedNames:
-            if suggestedName not in usedNames:
-                return suggestedName
+    num = 1
 
-        if counterNum < 10:
-            counter = "0" + str(counterNum)
-        else:
-            counter = str(counterNum)
+    if not prefix and suggestedNames:
+        for name in suggestedNames:
+            prefix = name
+            if name not in usedNames:
+                break
+    else:
+        if prefix.split(' ')[-1].isdigit():
+            prefix = ''.join(prefix.split(' ')[:-1])
 
-        if prefix == "":
-            suggestedName = "{counter}".format(counter=counter)
-        else:
-            suggestedName = "{prefix} {counter}".format(prefix=prefix, counter=counter)
-
-        if suggestedName not in usedNames:
-            unusedName = suggestedName
-        counterNum += 1
-
-    return unusedName
+    name = prefix if prefix else suggestedNames[-1] if suggestedNames else ''
+    while True:
+        if name not in usedNames:
+            return name
+        name = prefix + (' 0' if prefix else '0') + str(num) if num < 10 else str(num)
+        num += 1
 
 
 def toValidBoneName(name):
@@ -1603,6 +1598,73 @@ def getOrCreateDefaultActionFor(ob):
     action.id_root = typeIdOfObject(ob)
 
     return action
+
+
+def m3_ob_getter(name, obj=None):
+    if obj is None:
+        obj = bpy.context.scene
+    for attr in name.split('.'):
+        index = None
+        lbs = attr.split('[', 1)
+        if len(lbs) > 1:
+            rbs = lbs[1].split(']', 1)
+            index = int(rbs[0])
+        if index is not None:
+            obj = getattr(obj, lbs[0])[index]
+        else:
+            obj = getattr(obj, attr, None)
+        if obj is None:
+            return None
+    return obj
+
+
+def m3_ob_setter(name, value, obj='default'):
+    rsp = name.rsplit('.', 1)
+    if obj == 'default':
+        obj = bpy.context.scene
+    if len(rsp) > 1:
+        obj = m3_ob_getter(rsp[0], obj=obj)
+        if obj is not None:
+            setattr(obj, rsp[1], value)
+    else:
+        setattr(obj, rsp[0], value)
+
+
+def draw_collection_op_generic(layout, operation, collection, collection_index, shift=0, text=''):
+
+    if operation not in ['add', 'remove', 'move', 'duplicate']:
+        return
+
+    icon = operation.upper() if operation != 'move' else 'TRIA_DOWN' if shift > 0 else 'TRIA_UP'
+    op = layout.operator('m3.collection_' + operation, icon=icon, text=text)
+    op.collection = collection
+    op.collection_index = collection_index
+    op.shift = shift
+
+
+def draw_collection_list(layout, collection_id, collection_index_id, menu_id=None):
+    collection = m3_ob_getter(collection_id)
+
+    collection_id_rsp = collection_id.rsplit('.', 1)
+    collection_id_owner = m3_ob_getter(collection_id_rsp[0]) if len(collection_id_rsp) > 1 else bpy.context.scene
+
+    collection_index_id_rsp = collection_index_id.rsplit('.', 1)
+    collection_index_id_owner = m3_ob_getter(collection_index_id_rsp[0]) if len(collection_index_id_rsp) > 1 else bpy.context.scene
+
+    row = layout.row()
+    col = row.column()
+    col.template_list("UI_UL_list", collection_id_rsp[-1], collection_id_owner, collection_id_rsp[-1], collection_index_id_owner, collection_index_id_rsp[-1], rows=(5 if menu_id else 4) if len(collection) else 2)
+    col = row.column(align=True)
+    draw_collection_op_generic(col, 'add', collection_id, collection_index_id)
+    draw_collection_op_generic(col, 'remove', collection_id, collection_index_id)
+
+    if len(collection):
+        if menu_id:
+            col.separator()
+            col.menu(menu_id, icon="DOWNARROW_HLT", text="")
+        col.separator()
+        draw_collection_op_generic(col, 'move', collection_id, collection_index_id, shift=-1)
+        draw_collection_op_generic(col, 'move', collection_id, collection_index_id, shift=1)
 
 
 def transferSpawnPoint(transferer):

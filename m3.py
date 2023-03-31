@@ -19,6 +19,7 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
+from timeit import timeit
 import xml.dom.minidom
 from xml.dom.minidom import Node
 import re
@@ -51,6 +52,14 @@ class Section:
             self.structureDescription.structureName,
             self.structureDescription.structureVersion
         )
+
+    def from_instances(self, content, tag=''):
+        if tag:
+            self.content = content
+            self.structureDescription = structures[tag].structureDescription
+        else:
+            self.content = content
+            self.structureDescription = content[0].structureDescription
 
     def determineContentField(self, checkExpectedValue):
         self.content = self.structureDescription.createInstances(buffer=self.rawBytes, count=self.indexEntry.repetitions, checkExpectedValue=checkExpectedValue)
@@ -1333,3 +1342,5 @@ def readStructures():
 
 
 structures = readStructures()
+
+print(timeit(lambda: loadSections('C:\\Users\\John Wharton\\Documents\\M3Test_editor.m3'), number=10))

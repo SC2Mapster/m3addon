@@ -356,6 +356,7 @@ class Exporter:
                 self.boneNameToRightCorrectionMatrix[boneName] = rightCorrectionMatrix
 
                 m3SpaceLocation, m3SpaceRotation, m3SpaceScale = m3PoseMatrix.decompose()
+
                 bone.scale.initValue = self.createVector3FromBlenderVector(m3SpaceScale)
                 bone.scale.nullValue = self.createVector3(0.0, 0.0, 0.0)
                 bone.rotation.initValue = self.createQuaternionFromBlenderQuaternion(m3SpaceRotation)
@@ -2795,7 +2796,10 @@ def export(scene: bpy.types.Scene, operator: bpy.types.Operator, filename):
     tmp_anim_frame = scene.frame_current
 
     try:
+        start_time = time.time()
         exporter.export(filename)
+        end_time = time.time()
+        print(-(start_time - end_time))
         return {'FINISHED'}
     except ExportError as e:
         mlog.exception('failed to export')

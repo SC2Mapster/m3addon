@@ -113,7 +113,7 @@ def onUpdateName(self, context):
     selectOrCreateBoneForProjection(scene, self)
 
 
-class M3GroupProjection(bpy.types.PropertyGroup):
+class M3Projection(bpy.types.PropertyGroup):
     name: bpy.props.StringProperty(
         options=set(), update=onUpdateName,
     )

@@ -19,6 +19,7 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
+from timeit import timeit
 from . import m3
 from . import shared
 from . import cm
@@ -441,6 +442,7 @@ class Importer:
         if (self.rootDirectory == ""):
             self.rootDirectory = path.dirname(fileName)
         self.scene = scene
+        # print('loadModel', timeit(lambda: m3.loadModel(fileName), number=1))
         self.model = m3.loadModel(fileName)
         self.sequenceNameAndSTCIndexToAnimIdSet = {}
         self.armature: bpy.types.Armature = None
@@ -494,6 +496,7 @@ class Importer:
             self.createProjections()
             self.createWarps()
 
+        # print('createMesh', timeit(lambda: self.createMesh(), number=1))
         self.createMesh()
 
         if self.contentPreset == cm.M3ImportContentPreset.Everything:
@@ -571,7 +574,7 @@ class Importer:
         """
         model = self.model
         self.adjustM3BoneNames(model)
-        print("Creating bone structure in rest position")
+        # print("Creating bone structure in rest position")
 
         absoluteBoneRestPositions = determineAbsoluteBoneRestPositions(model)
 
@@ -595,7 +598,7 @@ class Importer:
 
         relEditBoneMatrices = self.determineRelEditBoneMatrices(model.bones, editBones)
 
-        print("Adjusting pose bones")
+        # print("Adjusting pose bones")
         bpy.ops.object.mode_set(mode='POSE')
         self.adjustPoseBones(model.bones, relEditBoneMatrices, bindScaleMatrices)
 
@@ -775,7 +778,7 @@ class Importer:
                     insertLinearKeyFrame(scaZCurve, frame, scale.z)
 
     def importVisibilityTest(self):
-        print("Imported bounding radius %s" % self.model.boundings.radius)
+        # print("Imported bounding radius %s" % self.model.boundings.radius)
         self.scene.m3_visibility_test.radius = self.model.boundings.radius
         minBorder = toBlenderVector3(self.model.boundings.minBorder)
         maxBorder = toBlenderVector3(self.model.boundings.maxBorder)
@@ -799,7 +802,7 @@ class Importer:
                 materialLayer.fresnelMaskZ = 1.0 - m3Layer.fresnelInvertedMaskZ
 
     def createMaterials(self):
-        print("Loading materials")
+        # print("Loading materials")
         scene = self.scene
         self.initMaterialReferenceIndexToNameMap()
 
@@ -865,7 +868,7 @@ class Importer:
     def createCameras(self):
         scene = bpy.context.scene
         showCameras = scene.m3_bone_visiblity_options.showCameras
-        print("Loading cameras")
+        # print("Loading cameras")
 
         for m3Camera in self.model.cameras:
             camera = scene.m3_cameras.add()
@@ -906,7 +909,7 @@ class Importer:
         return v.x == 0.0 and v.y == 0.0 and v.z == 0.0 and v.w == 0.0
 
     def initTightHitTest(self):
-        print("Loading tight hit test shape")
+        # print("Loading tight hit test shape")
         scene = bpy.context.scene
         m = self.model.tightHitTest.matrix
         matrixIsZero = self.m3Vector4IsZero(m.x) and self.m3Vector4IsZero(m.y) and self.m3Vector4IsZero(m.z) and self.m3Vector4IsZero(m.w)
@@ -917,7 +920,7 @@ class Importer:
 
     def createFuzzyHitTests(self):
         scene = bpy.context.scene
-        print("Loading fuzzy hit tests")
+        # print("Loading fuzzy hit tests")
         for index, m3FuzzyHitTest in enumerate(self.model.fuzzyHitTestObjects):
             fuzzyHitTest = scene.m3_fuzzy_hit_tests.add()
             self.intShapeObject(fuzzyHitTest, m3FuzzyHitTest)
@@ -925,7 +928,7 @@ class Importer:
     def createParticleSystems(self):
         scene = bpy.context.scene
         showParticleSystems = scene.m3_bone_visiblity_options.showParticleSystems
-        print("Loading particle systems")
+        # print("Loading particle systems")
 
         uniqueNameFinder = shared.UniqueNameFinder()
         uniqueNameFinder.markNamesOfCollectionAsUsed(self.scene.m3_particle_systems)
@@ -951,7 +954,8 @@ class Importer:
 
             particleSystem.materialName = self.getNameOfMaterialWithReferenceIndex(m3ParticleSystem.materialReferenceIndex)
             if hasattr(m3ParticleSystem, "forceChannelsCopy") and m3ParticleSystem.forceChannelsCopy != m3ParticleSystem.forceChannels:
-                print("Warning: Unexpected model content: forceChannels != forceChannelsCopy")
+                pass
+                # print("Warning: Unexpected model content: forceChannels != forceChannelsCopy")
 
             if m3ParticleSystem.structureDescription.structureVersion < 17:
                 # in >= 17 there is a field which specifies the exact type
@@ -1011,7 +1015,7 @@ class Importer:
     def createRibbons(self):
         scene = bpy.context.scene
         showRibbons = scene.m3_bone_visiblity_options.showRibbons
-        print("Loading particle systems")
+        # print("Loading particle systems")
         for m3Ribbon in self.model.ribbons:
             ribbon = scene.m3_ribbons.add()
 
@@ -1039,7 +1043,7 @@ class Importer:
 
     def createProjections(self):
         scene = bpy.context.scene
-        print("Loading projections")
+        # print("Loading projections")
         for m3Projection in self.model.projections:
             projection = scene.m3_projections.add()
             projection.bl_update = False
@@ -1063,7 +1067,7 @@ class Importer:
 
     def createWarps(self):
         scene = bpy.context.scene
-        print("Loading warps")
+        # print("Loading warps")
         for m3Warp in self.model.warps:
             warp = scene.m3_warps.add()
             warp.bl_update = False
@@ -1082,7 +1086,7 @@ class Importer:
 
     def createForces(self):
         scene = bpy.context.scene
-        print("Loading forces")
+        # print("Loading forces")
         for m3Force in self.model.forces:
             force = scene.m3_forces.add()
             force.bl_update = False
@@ -1101,7 +1105,7 @@ class Importer:
 
     def createRigidBodies(self):
         scene = bpy.context.scene
-        print("Loading rigid bodies")
+        # print("Loading rigid bodies")
         for m3RigidBody in self.model.rigidBodies:
             rigid_body = scene.m3_rigid_bodies.add()
 
@@ -1126,10 +1130,10 @@ class Importer:
 
                         indices = range(0, len(m3PhysicsShape.faces), 3)
                         faces = [m3PhysicsShape.faces[i: i + 3] for i in indices]
-                    else:
-                        print("Warning: Physical shape data has not been imported as it is to new")
-                        faces = []
-                        vertices = []
+                    # else:
+                    #     print("Warning: Physical shape data has not been imported as it is to new")
+                    #     faces = []
+                    #     vertices = []
                     # Prevent Blender from crashing for real when the vertex data is invalid:
                     for f in faces:
                         if f[0] >= len(vertices) or f[1] >= len(vertices) or f[2] >= len(vertices):
@@ -1163,7 +1167,7 @@ class Importer:
     def createLights(self):
         scene = bpy.context.scene
         showLights = scene.m3_bone_visiblity_options.showLights
-        print("Loading lights")
+        # print("Loading lights")
         for m3Light in self.model.lights:
             light = scene.m3_lights.add()
             light.bl_update = False
@@ -1185,7 +1189,7 @@ class Importer:
             elif blenderBoneName.startswith("MR3_Light_"):
                 light.name = blenderBoneName[len("MR3_Light_"):]
             else:
-                print("Warning: A light was bound to bone %s which does not start with %s" % (fullBoneName, lightPrefix))
+                # print("Warning: A light was bound to bone %s which does not start with %s" % (fullBoneName, lightPrefix))
                 light.name = blenderBoneName
 
             # TODO ensure that name is unique; unique bone is not always enough
@@ -1195,7 +1199,7 @@ class Importer:
 
     def createBillboardBehaviors(self):
         scene = bpy.context.scene
-        print("Loading billboard behaviors")
+        # print("Loading billboard behaviors")
         for m3BillboardBehavior in self.model.billboardBehaviors:
             billboardBehavior = scene.m3_billboard_behaviors.add()
 
@@ -1208,7 +1212,7 @@ class Importer:
 
     def createInverseKinematicChains(self):
         scene = bpy.context.scene
-        print("Loading inverse kinematic chains")
+        # print("Loading inverse kinematic chains")
         for m3IkChain in self.model.inverseKinematicChains:
             ik = scene.m3_ik_chains.add()
 
@@ -1222,7 +1226,7 @@ class Importer:
 
     def createTurretBehaviors(self):
         scene = bpy.context.scene
-        print("Loading turret behaviors")
+        # print("Loading turret behaviors")
         for m3TurretBehavior in self.model.turretBehaviors:
             turret = scene.m3_turret_behaviors.add()
             turret.name = m3TurretBehavior.name
@@ -1261,7 +1265,7 @@ class Importer:
                 part.upZ[3] = m3TurretBehaviorPart.upZ.w
 
     def createPhysicsJoints(self):
-        print("Loading physics joints")
+        # print("Loading physics joints")
         scene = bpy.context.scene
 
         for m3pj in self.model.physicsJoints:
@@ -1286,7 +1290,7 @@ class Importer:
             pj.bl_update = True
 
     def createAttachmentPoints(self):
-        print("Loading attachment points and volumes")
+        # print("Loading attachment points and volumes")
         scene = bpy.context.scene
         showAttachmentPoints = scene.m3_bone_visiblity_options.showAttachmentPoints
         boneIndexToM3AttachmentVolumeMap = {}
@@ -1321,7 +1325,8 @@ class Importer:
 
             prefixedName = m3AttachmentPoint.name
             if not prefixedName.startswith(shared.attachmentPointPrefix):
-                print("Warning: The name of the attachment %s does not start with %s" % (prefixedName, shared.attachmentPointPrefix))
+                pass
+                # print("Warning: The name of the attachment %s does not start with %s" % (prefixedName, shared.attachmentPointPrefix))
 
             if boneEntry.name == boneNameInBlender:
                 attachmentPoint.name = prefixedName[len(shared.attachmentPointPrefix):]
@@ -1422,7 +1427,8 @@ class Importer:
                     else:
                         nonTrianglesCounter += 1
                 if nonTrianglesCounter > 0:
-                    print("Warning: The mesh contained %d invalid triangles which have been ignored" % nonTrianglesCounter)
+                    pass
+                    # print("Warning: The mesh contained %d invalid triangles which have been ignored" % nonTrianglesCounter)
 
                 vertexPositions = []
                 vertexSign = []
@@ -1693,7 +1699,7 @@ class Importer:
         return action
 
     def createAnimations(self):
-        print("Creating actions(animation sequences)")
+        # print("Creating actions(animation sequences)")
         scene = bpy.context.scene
         model = self.model
         numberOfSequences = len(model.sequences)
@@ -1773,15 +1779,15 @@ class Importer:
         animationEndEventAnimId = 0x65bd3215
         if animationEndEventAnimId in unsupportedAnimIds:
             unsupportedAnimIds.remove(animationEndEventAnimId)
-        else:
-            print("Warning: Model contained no animation with animId %d which are usually used for marking the end of an animation" % animationEndEventAnimId)
+        # else:
+        #     print("Warning: Model contained no animation with animId %d which are usually used for marking the end of an animation" % animationEndEventAnimId)
 
         if len(unsupportedAnimIds) > 0:
             animIdToPathMap = {}
             self.addAnimIdPathToMap("model", self.model, animIdToPathMap)
             for unsupportedAnimId in unsupportedAnimIds:
                 path = animIdToPathMap.get(unsupportedAnimId, "<unknown path>")
-                print("Warning: Ignoring unsupported animated property with animId %s and path %s" % (hex(unsupportedAnimId), path))
+                # print("Warning: Ignoring unsupported animated property with animId %s and path %s" % (hex(unsupportedAnimId), path))
 
     def addAnimIdPathToMap(self, path, m3Object, animIdToPathMap):
         if hasattr(m3Object, "header") and type(m3Object.header) == m3.AnimationReferenceHeader:
