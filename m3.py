@@ -19,7 +19,6 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
-from timeit import timeit
 import xml.dom.minidom
 from xml.dom.minidom import Node
 import re
@@ -1342,5 +1341,3 @@ def readStructures():
 
 
 structures = readStructures()
-
-print(timeit(lambda: loadSections('C:\\Users\\John Wharton\\Documents\\M3Test_editor.m3'), number=10))
